@@ -93,8 +93,11 @@ toute personne qui clone le projet a la skill.
 ## Utilisation
 
 Poser une question PMSI en langage naturel — la skill se déclenche d'elle-même —
-ou l'invoquer explicitement : `/pmsi-query:pmsi-query <question>` si installée
-en plugin (option A), `/pmsi-query <question>` en skill (options B et C).
+ou l'invoquer explicitement :
+
+- installée en **plugin** (option A) : `/pmsi <question>` ;
+- installée en **skill** (options B et C) : `/pmsi-query <question>`
+  (le raccourci `/pmsi` fait partie du plugin et n'est pas copié avec la skill).
 
 Exemples de questions :
 
@@ -105,6 +108,7 @@ Exemples de questions :
 ## Structure du dépôt
 
 ```
+commands/pmsi.md                    # raccourci /pmsi (installation plugin uniquement)
 skills/pmsi-query/
 ├── SKILL.md                        # workflow : clarifier → protocole → script
 └── references/
