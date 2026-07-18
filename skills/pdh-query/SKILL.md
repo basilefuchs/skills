@@ -53,6 +53,10 @@ via l'outil AskUserQuestion.
 
 ### 1. Analyser la question
 
+Commencer par **reformuler** la question en une phrase (« Si je comprends bien, vous
+cherchez à mesurer… ») : un protocole techniquement juste mais à côté de la question
+est l'erreur la plus coûteuse.
+
 Identifier : le phénomène (pathologie → codes CIM-10 ; acte → CCAM ; flux → urgences,
 offre de soins) ; la période implicite ; la géographie implicite ; l'indicateur implicite
 (effectif, évolution, taux…). Noter chaque choix implicite : c'est une ambiguïté à lever.
@@ -76,17 +80,28 @@ grep '^"mcoxxbd";"fixe";"anonyme"' variables-*.csv | cut -d';' -f3,5,6
 
 ### 3. Proposer une définition et clarifier (OBLIGATOIRE)
 
-Construire une proposition par défaut (codes CIM-10 proposés d'après tes connaissances,
-champ MCO, DP seul, patients uniques…) puis poser les questions de
-`references/clarifications.md` avec **AskUserQuestion** (par lots de 4 maximum,
-options avec « (Recommandé) » sur le choix par défaut). Adapter les questions à la
-demande : ne poser que celles réellement ambiguës, mais au minimum couvrir :
-codes CIM-10 exacts, position du diagnostic, champ(s) PMSI, période, unité de compte,
-exclusions, stratification.
+**Poser en premier la finalité de l'analyse** (bloc 0 de la checklist) : l'usage des
+résultats (dénombrement interne, rapport, diffusion externe, publication…) conditionne
+le niveau de rigueur, les seuils de robustesse et le secret statistique des sorties.
+
+**Codes CIM-10/CCAM : chercher d'abord une définition de référence.** Si l'outil
+WebSearch (ou WebFetch) est disponible, rechercher les définitions publiées pour la
+pathologie visée (algorithmes Santé publique France, cartographie des pathologies de
+la CNAM, fiches ATIH, publications) et proposer la liste de codes **avec sa source
+citée**. Sinon, proposer d'après tes connaissances en le disant. Dans les deux cas la
+liste n'est qu'une proposition : les critères font souvent débat entre médecins DIM —
+l'utilisateur amende librement, et c'est sa version qui fait foi dans le protocole.
+
+Construire ensuite une proposition par défaut (champ MCO, DP seul, patients uniques…)
+puis poser les questions de `references/clarifications.md` avec **AskUserQuestion**
+(par lots de 4 maximum, options avec « (Recommandé) » sur le choix par défaut).
+Adapter les questions à la demande : ne poser que celles réellement ambiguës, mais au
+minimum couvrir : finalité, codes CIM-10 exacts, position du diagnostic, champ(s)
+PMSI, période, unité de compte, exclusions, stratification.
 
 Si une réponse ouvre une nouvelle ambiguïté, reboucler.
 
-### 4. Faire valider le protocole
+### 4. Avis du statisticien, puis validation du protocole
 
 Avant d'écrire le script, afficher une synthèse courte du protocole retenu :
 
@@ -94,6 +109,22 @@ Avant d'écrire le script, afficher une synthèse courte du protocole retenu :
 > **Exclusions** : séances (CMD 28), GHM en erreur (90Z), chaînage en erreur.
 > **Critère de jugement** : nombre de patients uniques (clé `anonyme`), par année.
 > **Stratification** : année, sexe, classe d'âge.
+
+L'accompagner d'un bloc **« Points de vigilance »** : 2 à 3 alertes **ciblées sur ce
+protocole précis** (pas de liste générique), comme le ferait un statisticien
+expérimenté avant de lancer la requête. Exemples de registres à examiner :
+
+- rupture d'interprétation : années Covid (2020–2021) dans une tendance, changements
+  de classification ou de consignes de codage sur la période ;
+- biais de définition : DP seul sous-estime une prévalence ; champ MCO seul ignore
+  la filière SMR/HAD ; année de sortie vs année d'entrée pour une incidence ;
+- instabilité : petits effectifs attendus (géographie ou pathologie rare) → rappeler
+  les seuils de robustesse du profil, proposer un lissage ou un regroupement ;
+- diffusion : si la finalité implique une sortie externe, secret statistique
+  (aucune cellule < 11) à prévoir dans les sorties.
+
+Ne rien signaler qui ne s'applique pas ; une alerte non pertinente décrédibilise
+les suivantes.
 
 Demander confirmation (AskUserQuestion : Valider / Modifier). Ne continuer qu'après un « oui ».
 
@@ -119,12 +150,18 @@ Suivre `references/template.R`. Exigences :
   conventions effectivement utilisés.
 - Script commenté en français, paramétré en tête (années, codes CIM-10/CCAM,
   FINESS…), reproductible.
+- **Flowchart d'attrition systématique** : le script produit le décompte des séjours
+  à chaque étape du protocole (population brute → chaque exclusion successive), avec
+  le % perdu à chaque étape (pattern dédié dans le template). C'est ce qui rend
+  l'analyse auditable ; les chiffres alimentent la note méthodologique.
 - Terminer le script par les sorties demandées (tableau, export CSV, graphique ggplot2
   sur les données agrégées collectées).
 
 ### 6. Livrer
 
 Livrer le script dans un fichier `.R` (nommé d'après la question, ex. `patients_diabete_mco_2020_2023.R`)
-et accompagner d'une note méthodologique brève : définitions retenues, limites
-(exhaustivité du chaînage, année PMSI = année de sortie, séjours à cheval, évolutions
-de codage), et pistes de sensibilité (élargir aux DAS, autres champs).
+et accompagner d'une note méthodologique brève : définitions retenues (avec la source
+des codes si issue d'une recherche de références), flowchart d'attrition (effectifs et
+% perdus à chaque étape), limites (exhaustivité du chaînage, année PMSI = année de
+sortie, séjours à cheval, évolutions de codage), et pistes de sensibilité (élargir aux
+DAS, autres champs).

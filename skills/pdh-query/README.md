@@ -10,18 +10,25 @@ script R dplyr/dbplyr prêt à exécuter sur le portail, **en passant par les m�
 ## Comment ça se passe concrètement
 
 1. **Vous posez la question** en langage naturel, comme un clinicien la poserait.
-2. **La skill fait préciser** ce qu'un DIM ferait préciser : codes CIM-10 exacts
-   (avec une proposition à valider), position du diagnostic (DP seul / DP-DR /
-   avec DAS), champ(s) PMSI, période, patients vs séjours vs journées,
-   exclusions (séances, GHM en erreur, chaînage), stratification.
-3. **Elle soumet un protocole** synthétique :
+2. **La skill fait préciser** ce qu'un DIM ferait préciser, en commençant par la
+   **finalité** (dénombrement interne, rapport, diffusion externe, publication —
+   qui conditionne rigueur, seuils et secret statistique), puis : codes CIM-10
+   exacts (proposés d'après les définitions publiées trouvées par recherche web —
+   Santé publique France, cartographie CNAM… — sources citées, liste amendable),
+   position du diagnostic (DP seul / DP-DR / avec DAS), champ(s) PMSI, période,
+   patients vs séjours vs journées, exclusions (séances, GHM en erreur, chaînage),
+   stratification.
+3. **Elle soumet un protocole** synthétique, accompagné de ses **points de
+   vigilance** (années Covid dans une tendance, petits effectifs, biais de
+   définition…) :
    > **Population** : séjours MCO 2020–2023, DP en E10–E14, France entière.
    > **Exclusions** : séances (CMD 28), GHM en erreur (90Z), chaînage en erreur.
    > **Critère de jugement** : patients uniques (clé `anonyme`), par année.
    > **Stratification** : année, sexe, classe d'âge.
 4. **Après votre validation seulement**, elle génère le script `.R` : paramétré
    en tête, commenté, avec en-tête normalisé (question, protocole, « PROFIL DE
-   BASE » listant schémas et variables utilisés) et une note méthodologique
+   BASE » listant schémas et variables utilisés), un **flowchart d'attrition**
+   (effectifs et % perdus à chaque étape d'exclusion) et une note méthodologique
    (limites, pistes de sensibilité).
 
 Vous exécutez le script vous-même sur le portail : **Claude n'accède jamais aux

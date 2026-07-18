@@ -116,7 +116,39 @@ nb_patients_periode <- annees %>%
 # tbl(conn, I(paste0("prd_vue_smr_", an, ".fixe_sej"))) %>%
 #   semi_join(sej_cible, by = "ident_sej")
 
+# ==== FLOWCHART D'ATTRITION (systématique) ====
+# Décompte des séjours à chaque étape du protocole : rend l'analyse auditable.
+# Adapter les étapes au protocole réel (mêmes filtres, même ordre que l'extraction).
+# Une requête COUNT par étape et par année, exécutée côté Teradata : peu coûteux.
+attrition <- purrr::map_dfr(annees, function(an) {
+
+  fixe_tbl <- tbl(conn, I(paste0("prd_vue_mco_", an, ".fixe")))
+
+  e1 <- fixe_tbl %>% filter(substr(dp, 1, 3) %in% codes_cim3)
+  e2 <- e1 %>% filter(substr(ghm2, 1, 2) != "28")
+  e3 <- e2 %>% filter(substr(ghm2, 1, 2) != "90")
+  e4 <- e3 %>% filter(ano_retour == "000000000")
+
+  purrr::imap_dfr(
+    list("1. Sejours DP cible"          = e1,
+         "2. hors seances (CMD 28)"     = e2,
+         "3. hors GHM en erreur (90)"   = e3,
+         "4. chainage exploitable"      = e4),
+    function(req, etape) {
+      req %>% summarise(nb_sejours = n()) %>% collect() %>% mutate(etape = etape)
+    }
+  ) %>%
+    mutate(annee = an)
+})
+
+attrition <- attrition %>%
+  group_by(annee) %>%
+  mutate(pct_perdu = round(100 * (lag(nb_sejours) - nb_sejours) / lag(nb_sejours), 1)) %>%
+  ungroup() %>%
+  select(annee, etape, nb_sejours, pct_perdu)
+
 # ==== RÉSULTAT ====
+attrition %>% arrange(annee, etape) %>% print(n = Inf)   # à reporter dans la note méthodologique
 resultat_annuel %>% arrange(annee) %>% print()
 print(nb_patients_periode)
 

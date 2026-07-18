@@ -1,16 +1,28 @@
 # Checklist de clarification (à poser via AskUserQuestion)
 
 Poser par lots de 4 questions maximum. Toujours proposer une option par défaut marquée
-« (Recommandé) ». Ne poser que les questions pertinentes pour la demande, mais les
-blocs A, B, C doivent être couverts (par une question ou par un défaut explicitement
-validé au moment du protocole).
+« (Recommandé) ». Ne poser que les questions pertinentes pour la demande, mais le
+bloc 0 et les blocs A, B, C doivent être couverts (par une question ou par un défaut
+explicitement validé au moment du protocole).
+
+## 0. Finalité de l'analyse (à poser en premier)
+
+0. **Usage des résultats** : dénombrement interne rapide, rapport ou dialogue de
+   gestion, diffusion externe (ARS, tutelle), publication scientifique, projet
+   capacitaire ? Conditionne le niveau de rigueur (standardisation, analyses de
+   sensibilité), les seuils de robustesse du profil, le secret statistique des
+   sorties (aucune cellule < 11 en diffusion externe) et le format de livraison.
 
 ## A. Population — critères d'inclusion
 
-1. **Codes CIM-10** : proposer une liste précise d'après la pathologie citée et la
-   faire valider. Exemples : diabète = E10–E14 (préciser si on inclut le diabète
-   gestationnel O24) ; Parkinson = G20 (maladie de Parkinson) vs G20–G22 (syndromes
-   parkinsoniens). Afficher les codes et libellés (table `nom_pmsi.all_cim10`).
+1. **Codes CIM-10** : proposer une liste précise et la faire valider. Si WebSearch
+   est disponible, chercher d'abord une définition publiée (Santé publique France,
+   cartographie CNAM, fiches ATIH, littérature) et la proposer **source citée** ;
+   sinon proposer d'après connaissances en le signalant. La liste reste amendable :
+   les critères font souvent débat entre médecins DIM. Exemples : diabète = E10–E14
+   (préciser si on inclut le diabète gestationnel O24) ; Parkinson = G20 (maladie de
+   Parkinson) vs G20–G22 (syndromes parkinsoniens). Afficher les codes et libellés
+   (table `nom_pmsi.all_cim10`).
    Demander : troncature à 3 caractères ou codes complets ?
 2. **Position du diagnostic** :
    - DP seul (« hospitalisé POUR ») — recommandé pour un motif d'hospitalisation ;
