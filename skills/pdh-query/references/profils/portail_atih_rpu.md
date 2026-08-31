@@ -9,7 +9,7 @@
 | Base              | Portail ATIH (Plateforme données hospit.)   |
 | SGBD              | Teradata (via dbplyr)                       |
 | Connexion         | `pRatihque::connection_database()`          |
-| Schéma annuel     | `prd_vue_rpu_AAAA` [à confirmer]            |
+| Schéma annuel     | `prd_vue_rpubl_AAAA` [à confirmer]          |
 | Librairie dico    | `rpuxx`                                     |
 | Unité de compte   | Passage aux urgences (pas de chaînage patient) |
 

@@ -5,7 +5,7 @@
 | Base              | Portail ATIH (Plateforme données hospit.)   |
 | SGBD              | Teradata (via dbplyr)                       |
 | Connexion         | `pRatihque::connection_database()`          |
-| Schéma annuel     | `prd_vue_had_AAAA`                          |
+| Schéma annuel     | `prd_vue_hadbl_AAAA`                        |
 | Années couvertes  | 2016 → N-1                                  |
 | Clé universelle   | `ident_sej` (identifiant séjour HAD annuel) |
 

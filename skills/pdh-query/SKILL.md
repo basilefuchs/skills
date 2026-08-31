@@ -135,7 +135,7 @@ Suivre `references/template.R`. Exigences :
 - **Chaque variable et chaque table** utilisée est vérifiée dans le dictionnaire, avec
   `andeb ≤ année ≤ anfin` pour toutes les années demandées. Si une variable manque pour
   certaines années, adapter (variable alternative, restriction de période) et le signaler.
-- Une base par champ et par année (`prd_vue_mco_2022`…), tables référencées par
+- Une base par champ et par année (`prd_vue_mcobl_2022`…), tables référencées par
   `tbl(conn, I("schema.table"))`. Deux patterns (voir template) : agrégats annuels
   par `purrr::map_dfr` + `collect()` par millésime ; patients uniques pluriannuels
   par `union_all` des requêtes lazy AVANT `n_distinct`. Le calcul reste côté

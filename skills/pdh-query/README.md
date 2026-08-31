@@ -39,7 +39,7 @@ dictionnaire des variables embarqué est le document de description de la base
 ## Ce que la skill sait (et vérifie)
 
 - Les conventions du portail : `pRatihque::connection_database()`, schémas
-  `prd_vue_<champ>_AAAA`, tables référencées par `tbl(conn, I("schema.table"))`,
+  `prd_vue_<champ>bl_AAAA`, tables référencées par `tbl(conn, I("schema.table"))`,
   calcul côté Teradata et `collect()` uniquement sur les agrégats.
 - Le modèle de données des champs MCO, SMR, HAD, PSY (RPU partiellement) :
   grain des tables, clés de jointure, chaînage patient.
@@ -68,7 +68,7 @@ validation métier ni le respect du secret statistique sur les sorties.
 Publier ce dossier comme dépôt Git (GitHub/GitLab), puis dans Claude Code :
 
 ```
-/plugin marketplace add <organisation>/<repo>
+/plugin marketplace add basilefuchs/pmsi-query-plugin
 /plugin install pmsi-query@pmsi-marketplace
 ```
 

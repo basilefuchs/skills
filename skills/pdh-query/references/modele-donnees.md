@@ -10,22 +10,22 @@
 Une **base (schéma Teradata) par champ et par millésime**. Dans le dictionnaire, le nom
 de librairie contient `xx` = millésime sur 2 chiffres (année de la base = année de
 **sortie** du séjour). Sur le portail ATIH (environnement de l'utilisateur), les
-schémas réels suivent le motif `prd_vue_<champ>_<AAAA>` :
+schémas réels suivent le motif `prd_vue_<champ>bl_<AAAA>` :
 
 | Librairie dictionnaire | Schéma réel (ex. 2022) | Champ |
 |---|---|---|
-| `mcoxxbd` | `prd_vue_mco_2022` | MCO (médecine-chirurgie-obstétrique) |
-| `ssrxxbd` | `prd_vue_smr_2022` | SSR / SMR (soins médicaux et de réadaptation) |
-| `hadxxbd` | `prd_vue_had_2022` | HAD (hospitalisation à domicile) |
-| `psyxxbd` | `prd_vue_psy_2022` | Psychiatrie (RIM-P) |
-| `rpuxx`   | `prd_vue_rpu_2022` (à vérifier) | Urgences (RPU) |
+| `mcoxxbd` | `prd_vue_mcobl_2022` | MCO (médecine-chirurgie-obstétrique) |
+| `ssrxxbd` | `prd_vue_smrbl_2022` | SSR / SMR (soins médicaux et de réadaptation) |
+| `hadxxbd` | `prd_vue_hadbl_2022` | HAD (hospitalisation à domicile) |
+| `psyxxbd` | `prd_vue_psybl_2022` | Psychiatrie (RIM-P) |
+| `rpuxx`   | `prd_vue_rpubl_2022` (à vérifier) | Urgences (RPU) |
 | `nom_pmsi` | `prd_vue_nompmsi` (non millésimé) | Nomenclatures PMSI |
 | `nom_gen` | `prd_vue_nomgen` (non millésimé) | Référentiels généraux |
 | `agg_pmsi` | `prd_vue_aggpmsi` (à vérifier) | Agrégats |
 
 En dbplyr, référencer les tables avec `I()` (convention maison) :
-`tbl(conn, I("prd_vue_mco_2022.fixe"))` ou
-`tbl(conn, I(paste0("prd_vue_mco_", an, ".fixe")))`.
+`tbl(conn, I("prd_vue_mcobl_2022.fixe"))` ou
+`tbl(conn, I(paste0("prd_vue_mcobl_", an, ".fixe")))`.
 
 Les colonnes `andeb`/`anfin` du dictionnaire donnent la plage de millésimes (16 → 26,
 c.-à-d. 2016 → 2026) où la variable existe. **Toujours vérifier cette plage** pour les

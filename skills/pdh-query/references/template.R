@@ -10,7 +10,7 @@
 # ==== PROFIL DE BASE (mapping utilisé — profils/portail_atih_<champ>.md) ====
 # Base       : Portail ATIH (Teradata via dbplyr)
 # Connexion  : pRatihque::connection_database()
-# Schémas    : prd_vue_mco_AAAA / prd_vue_smr_AAAA / prd_vue_nomgen / prd_vue_nompmsi
+# Schémas    : prd_vue_mcobl_AAAA / prd_vue_smrbl_AAAA / prd_vue_nomgen / prd_vue_nompmsi
 #
 # Séjour MCO (1 ligne)        : fixe.ident
 # Séjour SMR (1 ligne)        : fixe_sej.ident_sej
@@ -45,7 +45,7 @@ conn <- pRatihque::connection_database()
 # L'agrégation est faite par Teradata, seul le résultat agrégé est rapatrié.
 resultat_annuel <- purrr::map_dfr(annees, function(an) {
 
-  fixe_tbl <- tbl(conn, I(paste0("prd_vue_mco_", an, ".fixe")))
+  fixe_tbl <- tbl(conn, I(paste0("prd_vue_mcobl_", an, ".fixe")))
 
   fixe_tbl %>%
     # -- Inclusion : position du diagnostic selon le protocole -----------------
@@ -68,7 +68,7 @@ resultat_annuel <- purrr::map_dfr(annees, function(an) {
 # inter-années impose d'empiler les requêtes lazy AVANT le n_distinct
 # (on ne peut pas sommer des comptes distincts annuels).
 requete_annee <- function(an) {
-  tbl(conn, I(paste0("prd_vue_mco_", an, ".fixe"))) %>%
+  tbl(conn, I(paste0("prd_vue_mcobl_", an, ".fixe"))) %>%
     filter(
       substr(dp, 1, 3) %in% codes_cim3,
       substr(ghm2, 1, 2) != "90",
@@ -84,7 +84,7 @@ nb_patients_periode <- annees %>%
   collect()
 
 # -- Variante : critère incluant les DAS (table diag) --------------------------
-# ident_das <- tbl(conn, I(paste0("prd_vue_mco_", an, ".diag"))) %>%
+# ident_das <- tbl(conn, I(paste0("prd_vue_mcobl_", an, ".diag"))) %>%
 #   filter(substr(diag, 1, 3) %in% codes_cim3) %>% distinct(ident)
 # fixe_tbl %>% semi_join(ident_das, by = "ident")
 
@@ -102,18 +102,18 @@ nb_patients_periode <- annees %>%
 #   mutate(demence = case_when(demence == 1 ~ "demence", TRUE ~ "absence demence"))
 
 # -- Variante : critère sur actes CCAM (table acte) ----------------------------
-# ident_acte <- tbl(conn, I(paste0("prd_vue_mco_", an, ".acte"))) %>%
+# ident_acte <- tbl(conn, I(paste0("prd_vue_mcobl_", an, ".acte"))) %>%
 #   filter(substr(acte, 1, 2) == "NF", acte_activ == "1") %>% distinct(ident)
 
 # -- Variante : analyse par site géographique (MCO) ----------------------------
-# geo_tbl <- tbl(conn, I(paste0("prd_vue_mco_", an, ".finessgeo_umdudp")))
+# geo_tbl <- tbl(conn, I(paste0("prd_vue_mcobl_", an, ".finessgeo_umdudp")))
 # fixe_tbl %>% inner_join(geo_tbl %>% select(ident, finessgeodp), by = "ident")
 
 # -- Variante SMR : diagnostics au niveau RHA (fixe), séjour = fixe_sej --------
-# sej_cible <- tbl(conn, I(paste0("prd_vue_smr_", an, ".fixe"))) %>%
+# sej_cible <- tbl(conn, I(paste0("prd_vue_smrbl_", an, ".fixe"))) %>%
 #   filter(substr(morbidp, 1, 3) %in% codes_cim3) %>%   # ou finalp / etiolp
 #   distinct(ident_sej)
-# tbl(conn, I(paste0("prd_vue_smr_", an, ".fixe_sej"))) %>%
+# tbl(conn, I(paste0("prd_vue_smrbl_", an, ".fixe_sej"))) %>%
 #   semi_join(sej_cible, by = "ident_sej")
 
 # ==== FLOWCHART D'ATTRITION (systématique) ====
@@ -122,7 +122,7 @@ nb_patients_periode <- annees %>%
 # Une requête COUNT par étape et par année, exécutée côté Teradata : peu coûteux.
 attrition <- purrr::map_dfr(annees, function(an) {
 
-  fixe_tbl <- tbl(conn, I(paste0("prd_vue_mco_", an, ".fixe")))
+  fixe_tbl <- tbl(conn, I(paste0("prd_vue_mcobl_", an, ".fixe")))
 
   e1 <- fixe_tbl %>% filter(substr(dp, 1, 3) %in% codes_cim3)
   e2 <- e1 %>% filter(substr(ghm2, 1, 2) != "28")
