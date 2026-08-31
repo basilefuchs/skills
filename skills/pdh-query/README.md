@@ -1,11 +1,12 @@
-# pdh-atih — statisticien DIM virtuel pour Claude Code
+# pdh-atih — statisticien DIM virtuel pour Claude
 
-Skill [Claude Code](https://claude.com/claude-code) destinée aux statisticiens de
-DIM (et d'agences : ATIH, ARS…) travaillant sur la **base nationale PMSI du
-portail ATIH** (Teradata). Elle traduit une question en langage naturel —
-« combien de patients hospitalisés pour diabète entre 2020 et 2023 ? » — en un
-script R dplyr/dbplyr prêt à exécuter sur le portail, **en passant par les mêmes
-étapes qu'un statisticien** : clarification, protocole validé, puis script.
+Skill [Claude Code](https://claude.com/claude-code) (plugin) et [claude.ai](https://claude.ai)
+(Skill web) destinée aux statisticiens de DIM (et d'agences : ATIH, ARS…)
+travaillant sur la **base nationale PMSI du portail ATIH** (Teradata). Elle
+traduit une question en langage naturel — « combien de patients hospitalisés
+pour diabète entre 2020 et 2023 ? » — en un script R dplyr/dbplyr prêt à
+exécuter sur le portail, **en passant par les mêmes étapes qu'un
+statisticien** : clarification, protocole validé, puis script.
 
 ## Comment ça se passe concrètement
 
@@ -56,7 +57,9 @@ validation métier ni le respect du secret statistique sur les sorties.
 
 ## Prérequis
 
-- [Claude Code](https://claude.com/claude-code) (CLI ou application).
+- [Claude Code](https://claude.com/claude-code) (CLI ou application) **ou** un
+  compte [claude.ai](https://claude.ai) avec la capacité Skills (et Code
+  execution, pour l'option D — Skill web).
 - Un accès à la base nationale sur le portail ATIH (pour exécuter les scripts ;
   la génération elle-même n'en a pas besoin).
 - Aucune compétence particulière en dbplyr : les scripts sont autoportants.
@@ -90,14 +93,37 @@ La skill est alors disponible dans tous vos projets.
 Copier `skills/pdh-query/` dans `.claude/skills/` du projet et committer :
 toute personne qui clone le projet a la skill.
 
+### Option D — Skill web (claude.ai)
+
+`skills/pdh-query/` est aussi packagée pour l'upload de Skill sur claude.ai
+(**Customize → Skills**), sans passer par Claude Code :
+
+```
+powershell -File scripts/build-web-skill.ps1
+```
+
+Génère `dist/pdh-query.zip`, prêt à uploader tel quel. À vérifier côté compte
+claude.ai avant utilisation :
+
+- la capacité **Code execution** doit être activée (nécessaire pour que la
+  skill puisse consulter le dictionnaire des variables via des commandes shell) ;
+- sans outil de choix multiple équivalent à celui de Claude Code, la skill
+  pose ses questions de clarification à l'écrit — répondre en langage naturel.
+
+Le zip n'est pas versionné (`dist/` est ignoré) : relancer le script après
+toute modification de `skills/pdh-query/` pour repackager.
+
 ## Utilisation
 
 Poser une question PMSI en langage naturel — la skill se déclenche d'elle-même —
 ou l'invoquer explicitement :
 
-- installée en **plugin** (option A) : `/pdh-atih <question>` ;
-- installée en **skill** (options B et C) : `/pdh-query <question>`
-  (le raccourci `/pdh-atih` fait partie du plugin et n'est pas copié avec la skill).
+- installée en **plugin** (option A, Claude Code) : `/pdh-atih <question>` ;
+- installée en **skill** dans Claude Code (options B et C) : `/pdh-query <question>`
+  (le raccourci `/pdh-atih` fait partie du plugin et n'est pas copié avec la skill) ;
+- installée en **skill web** (option D, claude.ai) : pas d'invocation par
+  commande vérifiée — poser directement la question, la skill se déclenche sur
+  sa description.
 
 Exemples de questions :
 
@@ -109,6 +135,7 @@ Exemples de questions :
 
 ```
 commands/pdh-atih.md                # raccourci /pdh-atih (installation plugin uniquement)
+scripts/build-web-skill.ps1         # packaging skill web (option D) : skills/pdh-query/ -> dist/pdh-query.zip
 skills/pdh-query/
 ├── SKILL.md                        # workflow : clarifier → protocole → script
 └── references/
@@ -117,7 +144,9 @@ skills/pdh-query/
     ├── dictionnaire/variables-*.csv # dictionnaire des variables de la base
     ├── modele-donnees.md           # tables, jointures, chaînage, pièges
     ├── clarifications.md           # checklist du statisticien
-    └── template.R                  # squelette et patterns dbplyr/Teradata validés
+    ├── points-de-vigilance.md      # registres de risques méthodologiques (biais, instabilité...)
+    ├── template.R                  # squelette de script R, patterns dbplyr/Teradata
+    └── template.Rmd                # squelette de rapport R Markdown (même patterns)
 skills/grill-me/SKILL.md            # skill annexe, générique (voir ci-dessous)
 ```
 
@@ -143,9 +172,17 @@ et pièges découverts, pour que les scripts suivants en profitent.
 
 Remplacer `skills/pdh-query/references/dictionnaire/variables-*.csv` par la
 dernière version issue du portail ATIH (format : `librairie;table;var;libelle;
-andeb;anfin;jointure;commentaire;type;longueur;droits`, encodage Windows-1252).
+andeb;anfin;jointure;commentaire;type;longueur;droits`). L'export natif du
+portail est en **Windows-1252** ; le fichier embarqué dans la skill doit rester
+en **UTF-8** (fichier source unique, utilisé par le plugin comme par la skill
+web) — convertir avant de remplacer, par exemple :
+
+```
+iconv -f WINDOWS-1252 -t UTF-8 nouvel-export.csv > skills/pdh-query/references/dictionnaire/variables-AAAA-MM-JJ.csv
+```
+
 Un fichier `variables-*.csv` placé à la racine d'un projet prime sur celui
-embarqué dans la skill.
+embarqué dans la skill (celui-là peut rester dans l'encodage de l'export).
 
 ## Licence
 

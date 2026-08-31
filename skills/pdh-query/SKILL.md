@@ -1,13 +1,9 @@
 ---
 name: pdh-query
 description: >
-  Génère un script R (dplyr/dbplyr, Teradata) pour répondre à une question épidémiologique
-  ou d'offre de soins posée en langage naturel sur la base nationale PMSI de l'ATIH
-  (MCO, SSR/SMR, HAD, PSY, RPU). Joue le rôle d'un statisticien de DIM : fait préciser à
-  l'utilisateur les critères d'inclusion/exclusion et le critère de jugement AVANT de
-  générer le script. À utiliser dès qu'une question porte sur des hospitalisations, des
-  patients, des séjours, une pathologie (codes CIM-10), des actes (CCAM/CSARR), des
-  urgences ou l'activité des établissements de santé français.
+  Statisticien DIM virtuel : traduit une question PMSI (hospitalisations, pathologies
+  CIM-10, actes CCAM, ATIH MCO/SMR/HAD/PSY/RPU) en script R dplyr/dbplyr, après
+  clarification du protocole.
 ---
 
 # Générateur de requêtes PMSI (rôle : statisticien de DIM)
@@ -21,8 +17,9 @@ sur la base nationale ATIH (Teradata).
 
 **Ne JAMAIS générer le script sans avoir fait valider le protocole par l'utilisateur.**
 Une question en langage naturel est toujours ambiguë (définition de la pathologie,
-champ PMSI, patients vs séjours, période, exclusions…). L'interaction est obligatoire,
-via l'outil AskUserQuestion.
+champ PMSI, patients vs séjours, période, exclusions…). L'interaction est obligatoire :
+poser les questions de clarification via l'outil de choix multiple si disponible
+(ex. AskUserQuestion), sinon à l'écrit, en attendant la réponse avant de continuer.
 
 ## Ressources (par ordre d'autorité)
 
@@ -47,7 +44,15 @@ via l'outil AskUserQuestion.
    jointures, chaînage patient, raccourcis de classification, pièges génériques.
 4. `references/clarifications.md` — checklist des clarifications à poser (inclusion,
    exclusion, critère de jugement, stratification).
-5. `references/template.R` — squelette de script R et patterns dbplyr/Teradata validés.
+5. `references/points-de-vigilance.md` — registres de risques méthodologiques
+   (rupture d'interprétation, biais de définition, instabilité, diffusion) à
+   vérifier pendant la clarification (étape 3) et à la synthèse (étape 4).
+6. `references/template.R` — squelette de script R et patterns dbplyr/Teradata validés
+   (livrable par défaut : script `.R` autonome).
+7. `references/template.Rmd` — squelette de rapport R Markdown (mêmes patterns
+   dbplyr/Teradata, plus mise en forme narrative : `rmdformats::robobook`, tables
+   interactives `DT`, section méthodologie, flowchart d'attrition). À utiliser
+   quand le format demandé (clarification E.15) est un rapport plutôt qu'un script.
 
 ## Workflow
 
@@ -63,12 +68,13 @@ offre de soins) ; la période implicite ; la géographie implicite ; l'indicateu
 
 ### 2. Interroger le dictionnaire
 
-Fichier CSV séparateur `;`, encodage **Windows-1252/latin1**, colonnes :
+Fichier CSV séparateur `;`, encodage **UTF-8**, colonnes :
 `librairie;table;var;libelle;andeb;anfin;jointure;commentaire;type;longueur;droits`.
 Attention : certains champs `commentaire` contiennent des retours à la ligne — filtrer
 par motif ancré `^"librairie";"table"` pour des résultats fiables.
 
-Commandes utiles (outils Grep/Bash) :
+Commandes utiles (si un outil Grep/Bash est disponible ; sinon parcourir le fichier
+directement) :
 ```bash
 # Variables d'une table
 grep '^"mcoxxbd";"fixe"' variables-*.csv | cut -d';' -f3,4
@@ -84,22 +90,39 @@ grep '^"mcoxxbd";"fixe";"anonyme"' variables-*.csv | cut -d';' -f3,5,6
 résultats (dénombrement interne, rapport, diffusion externe, publication…) conditionne
 le niveau de rigueur, les seuils de robustesse et le secret statistique des sorties.
 
-**Codes CIM-10/CCAM : chercher d'abord une définition de référence.** Si l'outil
-WebSearch (ou WebFetch) est disponible, rechercher les définitions publiées pour la
-pathologie visée (algorithmes Santé publique France, cartographie des pathologies de
-la CNAM, fiches ATIH, publications) et proposer la liste de codes **avec sa source
-citée**. Sinon, proposer d'après tes connaissances en le disant. Dans les deux cas la
-liste n'est qu'une proposition : les critères font souvent débat entre médecins DIM —
-l'utilisateur amende librement, et c'est sa version qui fait foi dans le protocole.
+**Codes CIM-10/CCAM : chercher d'abord une définition de référence.** Identifier le
+phénomène (étape 1) pour savoir quel axe documenter : pathologie → CIM-10
+(algorithmes Santé publique France, cartographie des pathologies de la CNAM, fiches
+ATIH, publications) ; acte → CCAM/CSARR (nomenclature ATIH, sociétés savantes,
+guides de bon usage) ; les deux si la question mêle pathologie et acte. Si l'outil
+WebSearch (ou WebFetch) est disponible, rechercher les définitions publiées et
+proposer la liste de codes **avec sa source citée**. Sinon, proposer d'après tes
+connaissances en le disant. Dans les deux cas la liste n'est qu'une proposition : les
+critères font souvent débat entre médecins DIM — l'utilisateur amende librement, et
+c'est sa version qui fait foi dans le protocole.
 
 Construire ensuite une proposition par défaut (champ MCO, DP seul, patients uniques…)
-puis poser les questions de `references/clarifications.md` avec **AskUserQuestion**
-(par lots de 4 maximum, options avec « (Recommandé) » sur le choix par défaut).
+puis poser les questions de `references/clarifications.md` **par lots de 4 maximum**
+(options avec « (Recommandé) » sur le choix par défaut ; via l'outil de choix
+multiple si disponible, sinon à l'écrit).
 Adapter les questions à la demande : ne poser que celles réellement ambiguës, mais au
-minimum couvrir : finalité, codes CIM-10 exacts, position du diagnostic, champ(s)
-PMSI, période, unité de compte, exclusions, stratification.
+minimum couvrir : finalité, codes CIM-10 et/ou CCAM exacts (selon le phénomène
+identifié à l'étape 1), position du diagnostic ou de l'acte, champ(s) PMSI, période,
+unité de compte, exclusions, stratification.
 
-Si une réponse ouvre une nouvelle ambiguïté, reboucler.
+Avant chaque lot, vérifier les **dépendances entre questions** listées en tête de
+`references/clarifications.md` : si la réponse à venir est contrainte par une réponse
+déjà donnée (ou l'inverse), le dire explicitement dans la question plutôt que de
+laisser l'utilisateur le découvrir plus tard.
+
+Si une réponse fait apparaître un risque de `references/points-de-vigilance.md`, le
+signaler **immédiatement**, avant de poursuivre — voir ce fichier pour le détail des
+registres et la règle de non-répétition avec l'étape 4.
+
+Après chaque lot de réponses, restituer en une ligne ce qui vient d'être acté (ex.
+« Ok : MCO, DP seul, 2020-2023. ») avant d'enchaîner sur le lot suivant : cela rattrape
+une réponse mal comprise avant qu'elle ne se propage. Si une réponse ouvre une nouvelle
+ambiguïté, reboucler.
 
 ### 4. Avis du statisticien, puis validation du protocole
 
@@ -110,27 +133,23 @@ Avant d'écrire le script, afficher une synthèse courte du protocole retenu :
 > **Critère de jugement** : nombre de patients uniques (clé `anonyme`), par année.
 > **Stratification** : année, sexe, classe d'âge.
 
-L'accompagner d'un bloc **« Points de vigilance »** : 2 à 3 alertes **ciblées sur ce
-protocole précis** (pas de liste générique), comme le ferait un statisticien
-expérimenté avant de lancer la requête. Exemples de registres à examiner :
+L'accompagner d'un bloc **« Points de vigilance »**, comme le ferait un statisticien
+expérimenté avant de lancer la requête : reprendre `references/points-de-vigilance.md`
+et n'en retenir que ce qui s'applique **à ce protocole précis** et n'a pas déjà été
+signalé pendant la clarification (étape 3) — ce bloc complète, il ne répète pas.
 
-- rupture d'interprétation : années Covid (2020–2021) dans une tendance, changements
-  de classification ou de consignes de codage sur la période ;
-- biais de définition : DP seul sous-estime une prévalence ; champ MCO seul ignore
-  la filière SMR/HAD ; année de sortie vs année d'entrée pour une incidence ;
-- instabilité : petits effectifs attendus (géographie ou pathologie rare) → rappeler
-  les seuils de robustesse du profil, proposer un lissage ou un regroupement ;
-- diffusion : si la finalité implique une sortie externe, secret statistique
-  (aucune cellule < 11) à prévoir dans les sorties.
+Demander confirmation explicite (Valider / Modifier). Ne continuer qu'après un « oui ».
 
-Ne rien signaler qui ne s'applique pas ; une alerte non pertinente décrédibilise
-les suivantes.
+### 5. Générer le script R (ou le rapport R Markdown)
 
-Demander confirmation (AskUserQuestion : Valider / Modifier). Ne continuer qu'après un « oui ».
+Suivre `references/template.R` pour un script `.R`, ou `references/template.Rmd`
+pour un rapport (format choisi en clarification E.15 ; par défaut `.R`). Les deux
+partagent les mêmes exigences ci-dessous ; le `.Rmd` y ajoute une section
+« Méthodologie » rédigée en prose (question/périmètre, limites, secret
+statistique si diffusion externe) et des tables interactives (`dtttable()`, voir
+le template) plutôt qu'un simple `print()`.
 
-### 5. Générer le script R
-
-Suivre `references/template.R`. Exigences :
+Exigences (les deux formats) :
 
 - **Chaque variable et chaque table** utilisée est vérifiée dans le dictionnaire, avec
   `andeb ≤ année ≤ anfin` pour toutes les années demandées. Si une variable manque pour
@@ -159,9 +178,16 @@ Suivre `references/template.R`. Exigences :
 
 ### 6. Livrer
 
-Livrer le script dans un fichier `.R` (nommé d'après la question, ex. `patients_diabete_mco_2020_2023.R`)
-et accompagner d'une note méthodologique brève : définitions retenues (avec la source
-des codes si issue d'une recherche de références), flowchart d'attrition (effectifs et
-% perdus à chaque étape), limites (exhaustivité du chaînage, année PMSI = année de
-sortie, séjours à cheval, évolutions de codage), et pistes de sensibilité (élargir aux
-DAS, autres champs).
+**Format `.R`** : livrer le script dans un fichier nommé d'après la question
+(ex. `patients_diabete_mco_2020_2023.R`) et l'accompagner d'une note méthodologique
+brève : définitions retenues (avec la source des codes si issue d'une recherche de
+références), flowchart d'attrition (effectifs et % perdus à chaque étape), limites
+(exhaustivité du chaînage, année PMSI = année de sortie, séjours à cheval, évolutions
+de codage), et pistes de sensibilité (élargir aux DAS, autres champs).
+
+**Format `.Rmd`** : livrer le rapport dans un fichier nommé de la même façon
+(ex. `patients_diabete_mco_2020_2023.Rmd`) ; la note méthodologique ci-dessus est
+intégrée au rapport (section « Méthodologie », voir template) plutôt que livrée à
+part. Signaler à l'utilisateur les packages requis pour le rendu s'ils ne sont pas
+déjà dans le template (`rmarkdown`, `rmdformats`, `DT`, et `DiagrammeR` uniquement
+si le flowchart graphique multi-sources est utilisé).
