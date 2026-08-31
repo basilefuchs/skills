@@ -1,4 +1,4 @@
-# pmsi-query — statisticien DIM virtuel pour Claude Code
+# pdh-atih — statisticien DIM virtuel pour Claude Code
 
 Skill [Claude Code](https://claude.com/claude-code) destinée aux statisticiens de
 DIM (et d'agences : ATIH, ARS…) travaillant sur la **base nationale PMSI du
@@ -68,8 +68,8 @@ validation métier ni le respect du secret statistique sur les sorties.
 Publier ce dossier comme dépôt Git (GitHub/GitLab), puis dans Claude Code :
 
 ```
-/plugin marketplace add basilefuchs/pmsi-query-plugin
-/plugin install pmsi-query@pmsi-marketplace
+/plugin marketplace add basilefuchs/pdh-atih-plugin
+/plugin install pdh-atih@pdh-marketplace
 ```
 
 Les mises à jour (dictionnaire, profils, nouveaux patterns validés) se diffusent
@@ -77,17 +77,17 @@ ensuite à toute l'équipe via le dépôt.
 
 ### Option B — skill personnelle
 
-Copier `skills/pmsi-query/` dans `~/.claude/skills/` :
+Copier `skills/pdh-query/` dans `~/.claude/skills/` :
 
 ```
-cp -r skills/pmsi-query ~/.claude/skills/
+cp -r skills/pdh-query ~/.claude/skills/
 ```
 
 La skill est alors disponible dans tous vos projets.
 
 ### Option C — skill de projet
 
-Copier `skills/pmsi-query/` dans `.claude/skills/` du projet et committer :
+Copier `skills/pdh-query/` dans `.claude/skills/` du projet et committer :
 toute personne qui clone le projet a la skill.
 
 ## Utilisation
@@ -95,9 +95,9 @@ toute personne qui clone le projet a la skill.
 Poser une question PMSI en langage naturel — la skill se déclenche d'elle-même —
 ou l'invoquer explicitement :
 
-- installée en **plugin** (option A) : `/pmsi <question>` ;
-- installée en **skill** (options B et C) : `/pmsi-query <question>`
-  (le raccourci `/pmsi` fait partie du plugin et n'est pas copié avec la skill).
+- installée en **plugin** (option A) : `/pdh-atih <question>` ;
+- installée en **skill** (options B et C) : `/pdh-query <question>`
+  (le raccourci `/pdh-atih` fait partie du plugin et n'est pas copié avec la skill).
 
 Exemples de questions :
 
@@ -108,8 +108,8 @@ Exemples de questions :
 ## Structure du dépôt
 
 ```
-commands/pmsi.md                    # raccourci /pmsi (installation plugin uniquement)
-skills/pmsi-query/
+commands/pdh-atih.md                # raccourci /pdh-atih (installation plugin uniquement)
+skills/pdh-query/
 ├── SKILL.md                        # workflow : clarifier → protocole → script
 └── references/
     ├── profils/                    # environnement portail ATIH (font foi)
@@ -123,7 +123,7 @@ skills/pmsi-query/
 ## Adapter à un autre environnement que le portail ATIH
 
 Toute la connaissance spécifique à l'environnement (connexion, schémas, mapping
-colonne, défauts) vit dans `skills/pmsi-query/references/profils/`. Pour un
+colonne, défauts) vit dans `skills/pdh-query/references/profils/`. Pour un
 autre environnement (base locale de DIM, export parquet/DuckDB…), dupliquer un
 profil, adapter les valeurs, et la skill l'utilisera — le reste ne change pas.
 Les profils **font foi** : c'est aussi là que capitaliser vos mappings validés
@@ -131,7 +131,7 @@ et pièges découverts, pour que les scripts suivants en profitent.
 
 ## Mise à jour du dictionnaire
 
-Remplacer `skills/pmsi-query/references/dictionnaire/variables-*.csv` par la
+Remplacer `skills/pdh-query/references/dictionnaire/variables-*.csv` par la
 dernière version issue du portail ATIH (format : `librairie;table;var;libelle;
 andeb;anfin;jointure;commentaire;type;longueur;droits`, encodage Windows-1252).
 Un fichier `variables-*.csv` placé à la racine d'un projet prime sur celui

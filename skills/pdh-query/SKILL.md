@@ -1,5 +1,5 @@
 ---
-name: pmsi-query
+name: pdh-query
 description: >
   Génère un script R (dplyr/dbplyr, Teradata) pour répondre à une question épidémiologique
   ou d'offre de soins posée en langage naturel sur la base nationale PMSI de l'ATIH
