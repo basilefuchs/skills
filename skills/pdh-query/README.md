@@ -118,7 +118,17 @@ skills/pdh-query/
     ├── modele-donnees.md           # tables, jointures, chaînage, pièges
     ├── clarifications.md           # checklist du statisticien
     └── template.R                  # squelette et patterns dbplyr/Teradata validés
+skills/grill-me/SKILL.md            # skill annexe, générique (voir ci-dessous)
 ```
+
+## Skill annexe : grill-me
+
+`skills/grill-me/` est une skill générique, sans lien avec le PMSI : elle
+interroge l'utilisateur point par point sur un plan (architecture, modèle de
+données, cas limites…) jusqu'à un accord explicite sur chaque branche, avant
+toute implémentation. Utile pour cadrer une évolution de ce plugin (nouveau
+champ PMSI, nouveau profil d'environnement) avant de s'y lancer. Se déclenche
+via le nom de la skill (`/grill-me`) ou automatiquement sur un plan ambigu.
 
 ## Adapter à un autre environnement que le portail ATIH
 
