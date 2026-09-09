@@ -147,17 +147,7 @@ skills/pdh-query/
     ├── points-de-vigilance.md      # registres de risques méthodologiques (biais, instabilité...)
     ├── template.R                  # squelette de script R, patterns dbplyr/Teradata
     └── template.Rmd                # squelette de rapport R Markdown (même patterns)
-skills/grill-me/SKILL.md            # skill annexe, générique (voir ci-dessous)
 ```
-
-## Skill annexe : grill-me
-
-`skills/grill-me/` est une skill générique, sans lien avec le PMSI : elle
-interroge l'utilisateur point par point sur un plan (architecture, modèle de
-données, cas limites…) jusqu'à un accord explicite sur chaque branche, avant
-toute implémentation. Utile pour cadrer une évolution de ce plugin (nouveau
-champ PMSI, nouveau profil d'environnement) avant de s'y lancer. Se déclenche
-via le nom de la skill (`/grill-me`) ou automatiquement sur un plan ambigu.
 
 ## Adapter à un autre environnement que le portail ATIH
 
