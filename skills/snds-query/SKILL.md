@@ -166,9 +166,11 @@ echo "Dictionnaire utilisé : $D"; cat "$D/SOURCE.txt"
 ```
 
 - Succès : utiliser `$D` (version fraîche) pour `tables.tsv`,
-  `variables.tsv`, `jointures.tsv`, `nomenclatures.tsv` ; `valeurs.tsv`
-  n'est pas régénéré par le clone partiel, le lire dans
-  `references/dictionnaire/`.
+  `variables.tsv` et `jointures.tsv`. Le clone partiel ne récupère pas les
+  valeurs des nomenclatures : lire `nomenclatures.tsv` et `valeurs.tsv` dans
+  `references/dictionnaire/`, où la colonne `valeurs_embarquees` correspond
+  bien à `valeurs.tsv`. Une nomenclature plus récente, absente de cette copie,
+  figure sans ses valeurs dans `$D/nomenclatures.tsv`.
 - Échec (pas de réseau, pas de git ou de python) : utiliser la copie
   embarquée `references/dictionnaire/` et **le signaler à l'utilisateur**, avec
   la date de `SOURCE.txt`, dans la synthèse du protocole.
@@ -222,9 +224,9 @@ Points d'attention, à garder en tête en étape 2 :
   `SEJ_TYP` est dans `T_MCOaaB`, pas dans `T_MCOaaC`) et la clé propre à
   chaque champ PMSI (HAD/RIP : `ETA_NUM_EPMSI`, pas `ETA_NUM`).
 - Colonne `nomenclature` : table de valeurs à joindre pour libeller un code ;
-  ses colonnes sont dans `nomenclatures.tsv`. Les grosses nomenclatures
-  (`valeurs_embarquees = non`, ex. `IR_PHA_R`, CCAM, CIM-10) s'interrogent en
-  base, ou via le fichier source
+  ses colonnes sont dans `references/dictionnaire/nomenclatures.tsv`. Les
+  grosses nomenclatures (`valeurs_embarquees = non`, ex. `IR_PHA_R`, CCAM,
+  CIM-10) s'interrogent en base, ou via le fichier source
   `https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds/-/raw/master/nomenclatures/<ORAVAL|ORAREF>/<NOM>.csv`.
 - Tables absentes de schema-snds (ex. `ER_GEO_LOC_R`, archives `*_ARC`,
   tables `T_SUP*`, détail des tables GV) : décrites dans `profils/hdh_oracle.md`
