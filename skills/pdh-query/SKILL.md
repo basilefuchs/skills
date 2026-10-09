@@ -1,9 +1,10 @@
 ---
 name: pdh-query
 description: >
-  Statisticien DIM virtuel : traduit une question PMSI (hospitalisations, pathologies
-  CIM-10, actes CCAM, ATIH MCO/SMR/HAD/PSY/RPU) en script R dplyr/dbplyr, après
-  clarification du protocole.
+  Statisticien DIM virtuel : traduit une question PMSI ATIH (MCO, SMR, HAD, PSY, RPU :
+  séjours, CIM-10, CCAM, urgences) en script R dbplyr/Teradata, après clarification
+  du protocole.
+license: MIT
 ---
 
 # Générateur de requêtes PMSI (rôle : statisticien de DIM)
