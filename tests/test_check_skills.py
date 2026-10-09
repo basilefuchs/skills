@@ -7,6 +7,7 @@ Lancement : python3 -m unittest discover -s tests
 """
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -28,11 +29,9 @@ def entry(name, path=None):
 
 class CheckSkillsTest(unittest.TestCase):
     def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        self.root = Path(self._tmp.name)
-
-    def tearDown(self):
-        self._tmp.cleanup()
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
 
     def add_skill(self, folder, skill_md):
         (self.root / "skills" / folder).mkdir(parents=True)
@@ -53,7 +52,8 @@ class CheckSkillsTest(unittest.TestCase):
 
     def run_check(self):
         result = subprocess.run([sys.executable, str(CHECK), str(self.root)],
-                                capture_output=True, text=True, encoding="utf-8")
+                                capture_output=True, text=True, encoding="utf-8",
+                                env={**os.environ, "PYTHONIOENCODING": "utf-8"})
         return result.returncode, result.stdout
 
     def assertViolation(self, rule, subject):
@@ -74,14 +74,19 @@ class CheckSkillsTest(unittest.TestCase):
         self.assertViolation("name-dossier", "gamma")
 
     def test_name_format_invalide(self):
-        self.add_skill("Gamma_Skill", frontmatter("Gamma_Skill"))
-        self.write_marketplace([entry("Gamma_Skill")])
-        self.assertViolation("name-format", "Gamma_Skill")
+        for name in ["a" * 65, "-gamma", "gamma-", "ga--mma", "Gamma", "gam_ma"]:
+            with self.subTest(name=name):
+                self.setUp()
+                self.add_skill(name, frontmatter(name))
+                self.write_marketplace([entry(name)])
+                self.assertViolation("name-format", name)
 
-    def test_name_double_tiret(self):
-        self.add_skill("ga--mma", frontmatter("ga--mma"))
-        self.write_marketplace([entry("ga--mma")])
-        self.assertViolation("name-format", "ga--mma")
+    def test_name_de_64_caracteres_accepte(self):
+        name = "a" * 64
+        self.add_skill(name, frontmatter(name))
+        self.write_marketplace([entry(name)])
+        code, out = self.run_check()
+        self.assertEqual(code, 0, out)
 
     def test_description_trop_longue(self):
         self.add_skill("gamma", frontmatter("gamma", "description: " + "x" * 201 + "\n"))
@@ -93,6 +98,35 @@ class CheckSkillsTest(unittest.TestCase):
         self.add_skill("gamma", frontmatter("gamma", "description: >\n" + lines))
         self.write_marketplace([entry("gamma")])
         self.assertViolation("description-200", "gamma")
+
+    def test_description_trop_longue_sur_plusieurs_lignes_sans_bloc(self):
+        description = "description: " + "x" * 150 + "\n  " + "y" * 60 + "\n"
+        self.add_skill("gamma", frontmatter("gamma", description))
+        self.write_marketplace([entry("gamma")])
+        self.assertViolation("description-200", "gamma")
+
+    def test_description_trop_longue_variantes_de_bloc(self):
+        lines = "  " + "x" * 150 + "\n  " + "y" * 60 + "\n"
+        for indicator in [">-", ">+", "|", "> # commentaire"]:
+            with self.subTest(indicator=indicator):
+                self.setUp()
+                self.add_skill("gamma", frontmatter("gamma", f"description: {indicator}\n" + lines))
+                self.write_marketplace([entry("gamma")])
+                self.assertViolation("description-200", "gamma")
+
+    def test_description_sur_la_ligne_suivante_acceptee(self):
+        self.add_skill("gamma", frontmatter("gamma", "description:\n  Fait une chose précise.\n"))
+        self.write_marketplace([entry("gamma")])
+        code, out = self.run_check()
+        self.assertEqual(code, 0, out)
+
+    def test_frontmatter_avec_bom_crlf_guillemets_et_metadata_accepte(self):
+        skill_md = ('\ufeff---\r\nname: gamma\r\ndescription: "Fait ceci : une chose."\r\n'
+                    "metadata:\r\n  auteur: Basile\r\n  version: 1\r\n---\r\n")
+        self.add_skill("gamma", skill_md)
+        self.write_marketplace([entry("gamma")])
+        code, out = self.run_check()
+        self.assertEqual(code, 0, out)
 
     def test_description_de_200_caracteres_acceptee(self):
         self.add_skill("gamma", frontmatter("gamma", "description: " + "x" * 200 + "\n"))
@@ -109,6 +143,25 @@ class CheckSkillsTest(unittest.TestCase):
         self.add_skill("gamma", "# gamma\n\nPas de frontmatter.\n")
         self.write_marketplace([entry("gamma")])
         self.assertViolation("frontmatter", "gamma")
+
+    def test_frontmatter_non_ferme(self):
+        self.add_skill("gamma", "---\nname: gamma\ndescription: Fait une chose.\n")
+        self.write_marketplace([entry("gamma")])
+        self.assertViolation("frontmatter", "gamma")
+
+    def test_deux_points_non_cites(self):
+        self.add_skill("gamma", frontmatter("gamma", "description: Statisticien : traduit une question.\n"))
+        self.write_marketplace([entry("gamma")])
+        self.assertViolation("frontmatter", "gamma")
+
+    def test_skill_md_pas_en_utf8(self):
+        self.add_skill("gamma", None)
+        (self.root / "skills" / "gamma" / "SKILL.md").write_bytes(
+            "---\nname: gamma\ndescription: Requête PMSI.\n---\n".encode("cp1252"))
+        self.add_skill("delta", frontmatter("delta"))
+        self.write_marketplace([entry("gamma")])
+        self.assertViolation("frontmatter", "gamma")
+        self.assertViolation("skill-sans-entree", "delta")
 
     def test_frontmatter_sans_name(self):
         self.add_skill("gamma", "---\ndescription: Fait une chose.\n---\n")
@@ -127,7 +180,7 @@ class CheckSkillsTest(unittest.TestCase):
 
     def test_skill_listee_par_deux_entrees(self):
         self.valid_repo()
-        self.write_marketplace([entry("alpha"), entry("beta"), {**entry("beta"), "name": "beta"}])
+        self.write_marketplace([entry("alpha"), entry("beta"), entry("beta")])
         self.assertViolation("skill-sans-entree", "beta")
 
     def test_entree_vers_dossier_absent(self):
@@ -146,6 +199,14 @@ class CheckSkillsTest(unittest.TestCase):
         self.write_marketplace([{"name": "alpha", "source": "./", "skills": ["./skills/alpha", "./skills/beta"]}])
         self.assertViolation("entree-sans-skill", "alpha")
 
+    def test_entree_hors_de_skills(self):
+        for path in ["skills/beta", "./autre/beta"]:
+            with self.subTest(path=path):
+                self.setUp()
+                self.valid_repo()
+                self.write_marketplace([entry("alpha"), entry("beta", path)])
+                self.assertViolation("entree-sans-skill", "beta")
+
     def test_entree_nom_different_du_dossier(self):
         self.valid_repo()
         self.write_marketplace([entry("alpha"), {**entry("beta"), "name": "autre"}])
@@ -159,6 +220,12 @@ class CheckSkillsTest(unittest.TestCase):
     def test_manifeste_absent(self):
         self.add_skill("alpha", frontmatter("alpha"))
         self.assertViolation("marketplace-json", "marketplace.json")
+
+    def test_plusieurs_violations_sur_une_meme_skill(self):
+        self.add_skill("gamma", "---\nname: Autre\n---\n")
+        self.write_marketplace([entry("gamma")])
+        for rule in ["champs-requis", "name-format", "name-dossier"]:
+            self.assertViolation(rule, "gamma")
 
     def test_plusieurs_violations(self):
         self.valid_repo()

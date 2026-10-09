@@ -15,21 +15,23 @@ from pathlib import Path
 MARKETPLACE = Path(".claude-plugin") / "marketplace.json"
 SKILLS_DIR = "skills"
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
-BLOCK_INDICATORS = {">", ">-", "|", "|-"}
+NESTED_RE = re.compile(r"^(- |[\w-]+:)")
 
 
 def parse_frontmatter(text):
     """Renvoie le dict des clés de premier niveau, ou None sans frontmatter.
 
-    Sous-ensemble YAML : `clé: valeur` sur une ligne, blocs `>`/`|` indentés
-    (dépliés), et clés sans valeur dont les lignes indentées sont ignorées.
+    Sous-ensemble YAML : `clé: valeur`, éventuellement prolongée par des lignes
+    indentées (dépliées), blocs `>` (dépliés) et `|` (lignes conservées),
+    valeurs entre guillemets, et clés suivies d'une liste ou d'un dictionnaire
+    imbriqué (valeur ignorée). Lève ValueError pour une valeur non citée
+    contenant « : », que YAML refuse.
     """
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
         return None
-    try:
-        end = next(i for i in range(1, len(lines)) if lines[i].strip() == "---")
-    except StopIteration:
+    end = next((i for i in range(1, len(lines)) if lines[i].strip() == "---"), None)
+    if end is None:
         return None
 
     fields = {}
@@ -41,17 +43,23 @@ def parse_frontmatter(text):
         if not line.strip() or line[0] in " \t#" or ":" not in line:
             continue
         key, value = (part.strip() for part in line.split(":", 1))
-        if value in BLOCK_INDICATORS or not value:
-            block = []
-            while i < len(body) and (not body[i].strip() or body[i][0] in " \t"):
-                block.append(body[i].strip())
-                i += 1
-            if value.startswith(">"):
-                value = " ".join(part for part in block if part)
-            elif value.startswith("|"):
-                value = "\n".join(block).strip("\n")
-        elif len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
-            value = value[1:-1]
+        block = []
+        while i < len(body) and (not body[i].strip() or body[i][0] in " \t"):
+            block.append(body[i].strip())
+            i += 1
+        first = next((part for part in block if part), "")
+        if value.startswith("|"):
+            value = "\n".join(block).strip("\n")
+        elif value.startswith(">"):
+            value = " ".join(part for part in block if part)
+        elif not value and NESTED_RE.match(first):
+            value = ""
+        else:
+            value = " ".join(part for part in [value, *block] if part)
+            if value[:1] in "'\"":
+                value = value[1:-1] if len(value) >= 2 and value[-1] == value[0] else value[1:]
+            elif ": " in value or value.endswith(":"):
+                raise ValueError(f"« {key} » : valeur non citée contenant « : », YAML invalide")
         fields[key] = value
     return fields
 
@@ -63,20 +71,24 @@ def check_skill(skill_dir):
     if not skill_md.is_file():
         return [("skill-md", subject, "SKILL.md absent")]
 
-    fields = parse_frontmatter(skill_md.read_text(encoding="utf-8"))
+    try:
+        fields = parse_frontmatter(skill_md.read_text(encoding="utf-8-sig"))
+    except UnicodeDecodeError:
+        return [("frontmatter", subject, "SKILL.md n'est pas en UTF-8")]
+    except ValueError as error:
+        return [("frontmatter", subject, str(error))]
     if fields is None:
         return [("frontmatter", subject, "SKILL.md ne commence pas par un frontmatter délimité par ---")]
 
+    violations = []
     missing = [key for key in ("name", "description") if not fields.get(key)]
     if missing:
-        return [("champs-requis", subject, f"champ(s) manquant(s) : {', '.join(missing)}")]
-
-    violations = []
-    name, description = fields["name"], fields["description"]
-    if len(name) > 64 or not NAME_RE.match(name):
+        violations.append(("champs-requis", subject, f"champ(s) manquant(s) : {', '.join(missing)}"))
+    name, description = fields.get("name", ""), fields.get("description", "")
+    if name and (len(name) > 64 or not NAME_RE.match(name)):
         violations.append(("name-format", subject,
                            f"name « {name} » : 1 à 64 caractères, minuscules, chiffres et tirets simples"))
-    if name != skill_dir.name:
+    if name and name != skill_dir.name:
         violations.append(("name-dossier", subject, f"name « {name} » différent du dossier « {skill_dir.name} »"))
     if len(description) > 200:
         violations.append(("description-200", subject, f"description de {len(description)} caractères (200 au plus)"))
@@ -90,7 +102,7 @@ def load_entries(root):
         return None, [("marketplace-json", str(MARKETPLACE), "manifeste absent")]
     try:
         manifest = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as error:
+    except (json.JSONDecodeError, UnicodeDecodeError) as error:
         return None, [("marketplace-json", str(MARKETPLACE), f"JSON invalide : {error}")]
     plugins = manifest.get("plugins") if isinstance(manifest, dict) else None
     if not isinstance(plugins, list) or not all(isinstance(p, dict) for p in plugins):
