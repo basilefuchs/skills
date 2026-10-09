@@ -1,9 +1,14 @@
 # Contribuer
 
-Une skill est un dossier `skills/<nom>/` autonome : il est distribué seul (zip
-claude.ai, `npx skills`) aussi bien qu'à travers la marketplace Claude Code.
-`check_skills.py` vérifie les conventions ci-dessous ; la CI le lance à chaque
-push et à chaque PR.
+Une skill est un dossier autonome placé directement sous `skills/`, sans
+sous-dossier de catégorie : chaque dossier de `skills/` est une skill. Il est
+distribué seul (zip claude.ai, `npx skills`) aussi bien qu'à travers la
+marketplace Claude Code.
+
+`check_skills.py` vérifie une partie des conventions ci-dessous : le
+frontmatter (`name`, `description`), le nom du dossier et la correspondance
+entre dossiers de skills et entrées de marketplace. La CI le lance à chaque
+push et à chaque PR ; le reste se relit à la main.
 
 ## Ajouter une skill
 
@@ -18,8 +23,9 @@ push et à chaque PR.
    ---
    ```
 
-   - `<nom>` est identique au nom du dossier : minuscules, chiffres et tirets
-     simples, 64 caractères au plus.
+   - `<nom>` est identique au nom du dossier : minuscules, chiffres et tirets,
+     sans tiret au début, à la fin ni deux tirets de suite, 64 caractères au
+     plus (format du standard Agent Skills).
    - La `description` fait 200 caractères au plus (limite de claude.ai). Elle
      reste en bloc `>` : un « : » de la typographie française dans une valeur
      sur une ligne, sans guillemets, rend le frontmatter invalide.
@@ -42,13 +48,15 @@ push et à chaque PR.
    {
      "name": "<nom>",
      "source": "./",
-     "description": "<la description du SKILL.md, à l'identique>",
+     "description": "<la description du SKILL.md, dépliée sur une ligne>",
      "skills": ["./skills/<nom>"],
      "keywords": ["<mot-clé>", "<mot-clé>"]
    }
    ```
 
-4. **Ajouter la skill au catalogue** du `README.md` racine.
+4. **Ajouter la skill au `README.md` racine** : une ligne au catalogue, et sa
+   commande `/plugin install <nom>@basilefuchs-skills` dans la section
+   Installation.
 
 5. **Vérifier**, depuis la racine du dépôt (Python 3, rien à installer) :
 
@@ -57,8 +65,9 @@ push et à chaque PR.
    python3 -m unittest discover -s tests
    ```
 
-   La skill est prête quand `check_skills.py` affiche « OK » et que les tests
-   passent ; la CI de la PR doit être verte. Avec Claude Code installé,
+   La skill est prête quand les étapes 1 à 4 sont faites, que
+   `check_skills.py` affiche « OK » et que les tests passent ; la CI de la PR
+   doit être verte. Avec Claude Code installé,
    `claude plugin validate .` contrôle aussi le manifeste.
 
 ## Modifier le script de vérification

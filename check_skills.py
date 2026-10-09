@@ -87,7 +87,7 @@ def check_skill(skill_dir):
     name, description = fields.get("name", ""), fields.get("description", "")
     if name and (len(name) > 64 or not NAME_RE.match(name)):
         violations.append(("name-format", subject,
-                           f"name « {name} » : 1 à 64 caractères, minuscules, chiffres et tirets simples"))
+                           f"name « {name} » : minuscules, chiffres et tirets, sans tiret au début, à la fin ni doublé, 64 caractères au plus"))
     if name and name != skill_dir.name:
         violations.append(("name-dossier", subject, f"name « {name} » différent du dossier « {skill_dir.name} »"))
     if len(description) > 200:

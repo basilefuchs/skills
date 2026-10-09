@@ -36,7 +36,7 @@ claude plugin marketplace add basilefuchs/skills
 claude plugin install pdh-query@basilefuchs-skills --scope user
 ```
 
-Une skill installée par plugin s'invoque avec `/<skill>:<skill>`, par exemple
+Une skill installée en plugin s'invoque avec `/<skill>:<skill>`, par exemple
 `/pdh-query:pdh-query <question>`. Elle se déclenche aussi d'elle-même quand la
 question correspond à sa description.
 
@@ -47,6 +47,9 @@ numéro à suivre :
 /plugin marketplace update basilefuchs-skills
 /reload-plugins
 ```
+
+En ligne de commande : `claude plugin update pdh-query@basilefuchs-skills`
+(idem pour `snds-query`), puis `/reload-plugins` dans les sessions ouvertes.
 
 Pour des mises à jour automatiques : `/plugin` → onglet **Marketplaces** →
 `basilefuchs-skills` → activer la mise à jour automatique (désactivée par
@@ -69,19 +72,29 @@ l'équipe, ajouter à `.claude/settings.json` puis committer :
 }
 ```
 
-Chaque membre qui ouvre le projet dans Claude Code (et fait confiance au
-dossier) se voit proposer la marketplace et les plugins.
+Chaque membre qui ouvre le projet et fait confiance au dossier reçoit la
+marketplace automatiquement. Il installe ensuite les plugins une fois, depuis
+`/plugin` ou en ligne de commande :
+
+```
+claude plugin install pdh-query@basilefuchs-skills --scope project
+claude plugin install snds-query@basilefuchs-skills --scope project
+```
 
 **Sans marketplace.** Copier le dossier d'une skill depuis un clone du dépôt,
 dans `~/.claude/skills/` (pour vous, dans tous vos projets) ou dans
 `.claude/skills/` d'un projet (à committer) :
 
 ```
-cp -r skills/pdh-query ~/.claude/skills/
+mkdir -p ~/.claude/skills && cp -r skills/pdh-query ~/.claude/skills/
 ```
 
 La skill s'invoque alors avec `/pdh-query`. Elle ne reçoit pas les mises à jour
-du dépôt : recopier le dossier pour la mettre à jour.
+du dépôt : pour la mettre à jour, supprimer le dossier copié puis le recopier.
+
+```
+rm -rf ~/.claude/skills/pdh-query && cp -r skills/pdh-query ~/.claude/skills/
+```
 
 ### claude.ai
 
@@ -134,7 +147,16 @@ projet, remplacer :
 | `enabledPlugins` | `pdh-atih@pdh-marketplace` | `pdh-query@basilefuchs-skills` |
 | `enabledPlugins` | `snds-hdh@snds-hdh-marketplace` | `snds-query@basilefuchs-skills` |
 
-**Invocations.** Les raccourcis des anciens plugins disparaissent :
+Chaque membre installe ensuite les nouveaux plugins une fois (voir
+« Déployer pour toute une équipe »).
+
+**Plugins activés depuis claude.ai** (compte ou organisation). Ils arrivent
+dans Claude Code par la synchronisation de claude.ai, et les commandes
+ci-dessus ne les retirent pas : désactiver `pdh-atih` et `snds-hdh` dans les
+réglages de claude.ai, et y ajouter à la place les plugins de
+`basilefuchs/skills`.
+
+**Invocations.** Les invocations des anciens plugins disparaissent :
 
 | Avant | Maintenant |
 | --- | --- |
