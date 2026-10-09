@@ -51,12 +51,11 @@ Installée avec la CLI `skills` : `npx skills update pdh-query`.
    consultent leurs fichiers de référence par des commandes shell.
 2. Télécharger le zip de la skill depuis la
    [dernière release](https://github.com/basilefuchs/skills/releases/latest)
-   (`pdh-query.zip`, `snds-query.zip`).
+   (`<nom>.zip`).
 3. Le téléverser tel quel dans **Customize → Skills**.
 
-Il n'y a pas de commande d'invocation : poser directement la question, la
-skill se déclenche sur sa description. Faute d'outil de choix multiple, elle
-pose ses questions de clarification à l'écrit : répondre en langage naturel.
+Il n'y a pas de commande d'invocation : la skill se déclenche d'elle-même sur
+sa description.
 
 ### Autres agents (standard Agent Skills)
 
