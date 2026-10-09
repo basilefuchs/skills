@@ -8,7 +8,7 @@ https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds
 **Licence** : ces fichiers sont des dérivés de schema-snds et sont distribués
 sous **Mozilla Public License 2.0** (texte : `LICENSE-MPL-2.0.txt`). La source
 complète est disponible à l'adresse ci-dessus. Ils ne relèvent pas de la
-licence MIT du reste du plugin.
+licence MIT du reste de la skill.
 
 Tous les fichiers sont en TSV UTF-8 (tabulation, sans guillemets, une ligne par
 enregistrement, textes multi-lignes joints par ` | `) : recherche par `grep`.

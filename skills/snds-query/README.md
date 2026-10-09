@@ -1,7 +1,8 @@
-# snds-hdh — statisticien DIM virtuel pour Claude
+# snds-query — statisticien DIM virtuel pour Claude
 
-Skill [Claude Code](https://claude.com/claude-code) (plugin) et [claude.ai](https://claude.ai)
-(Skill web) destinée aux statisticiens de DIM travaillant sur le **SNDS via le
+Skill pour [Claude Code](https://claude.com/claude-code), [claude.ai](https://claude.ai)
+et les autres agents compatibles [Agent Skills](https://agentskills.io), destinée
+aux statisticiens de DIM travaillant sur le **SNDS via le
 Health Data Hub** (Oracle). Elle traduit une question en langage naturel —
 « combien de patients diabétiques hospitalisés entre 2020 et 2023 ? » — en un
 script R dplyr/dbplyr prêt à exécuter sur l'environnement du Health Data Hub,
@@ -37,7 +38,7 @@ Vous exécutez le script vous-même sur l'environnement du Health Data Hub :
 **Claude n'accède jamais aux données** — il ne voit que la question, le
 protocole et le code généré. Le dictionnaire embarqué (généré depuis le
 dépôt open source [schema-snds](https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds)
-du Health Data Hub, licence MPL-2.0 — voir [Licence](#licence)) décrit la base
+du Health Data Hub, licence MPL-2.0 — voir [NOTICE](NOTICE)) décrit la base
 (métadonnées), sans aucune donnée patient.
 
 ## Ce que la skill sait (et vérifie)
@@ -79,146 +80,27 @@ validation métier ni le respect du secret statistique sur les sorties.
 
 ## Prérequis
 
-- [Claude Code](https://claude.com/claude-code) (CLI ou application) **ou** un
-  compte [claude.ai](https://claude.ai) avec la capacité Skills (et Code
-  execution, pour l'option D — Skill web).
+- [Claude Code](https://claude.com/claude-code) (CLI ou application), **ou** un
+  compte [claude.ai](https://claude.ai) avec la capacité Skills et l'exécution de
+  code activée (la skill pèse environ 3 Mo décompressés, dictionnaire compris),
+  **ou** un autre agent compatible Agent Skills. Installation : voir le
+  [README du dépôt](https://github.com/basilefuchs/skills).
 - Un accès à l'environnement du Health Data Hub (pour exécuter les scripts ;
   la génération elle-même n'en a pas besoin).
 - Aucune compétence particulière en dbplyr : les scripts sont autoportants.
-
-## Installation
-
-### Option A — plugin Claude Code depuis le dépôt Git (recommandé pour une équipe de DIM)
-
-Le dépôt [basilefuchs/snds-hdh-plugin](https://github.com/basilefuchs/snds-hdh-plugin)
-est à la fois une *marketplace* Claude Code (`snds-hdh-marketplace`, déclarée
-dans `.claude-plugin/marketplace.json`) et le plugin qu'elle distribue
-(`snds-hdh`). Le dépôt étant public, aucun identifiant n'est nécessaire.
-
-1. **Ouvrir Claude Code** (terminal : `claude` ; ou application desktop / IDE).
-2. **Déclarer le dépôt comme marketplace** :
-   ```
-   /plugin marketplace add basilefuchs/snds-hdh-plugin
-   ```
-   Variantes :
-   - URL complète : `/plugin marketplace add https://github.com/basilefuchs/snds-hdh-plugin.git`
-   - branche ou tag précis : `/plugin marketplace add https://github.com/basilefuchs/snds-hdh-plugin.git#main`
-   - clone local (poste sans accès GitHub, test d'une modification) :
-     `git clone https://github.com/basilefuchs/snds-hdh-plugin.git` puis
-     `/plugin marketplace add ./snds-hdh-plugin`
-3. **Installer le plugin** :
-   ```
-   /plugin install snds-hdh@snds-hdh-marketplace
-   ```
-   Claude Code demande la portée de l'installation :
-   - **user** : pour vous, dans tous vos projets ;
-   - **project** : pour tous les collaborateurs du projet courant (écrit dans
-     `.claude/settings.json`, à committer) ;
-   - **local** : pour vous seul, dans le projet courant.
-4. **Activer** : fermer le menu `/plugin` suffit (Claude Code exécute alors
-   `/reload-plugins`) ; sinon, taper `/reload-plugins`. Aucun redémarrage n'est
-   nécessaire.
-5. **Vérifier** : `/plugin` → onglet **Installed** doit lister `snds-hdh` ;
-   taper `/snds-hdh:` doit proposer `/snds-hdh:snds-hdh` (raccourci) et
-   `/snds-hdh:snds-query` (skill).
-
-Équivalent en ligne de commande, pour scripter l'installation d'un poste :
-
-```
-claude plugin marketplace add basilefuchs/snds-hdh-plugin
-claude plugin install snds-hdh@snds-hdh-marketplace --scope user
-```
-
-**Mettre à jour** (dictionnaire, profils, nouveaux patterns validés) :
-
-```
-/plugin marketplace update snds-hdh-marketplace
-/reload-plugins
-```
-
-`.claude-plugin/plugin.json` déclarant un champ `version`, Claude Code ne
-propose une nouvelle version que si ce numéro change : l'incrémenter à chaque
-livraison, sinon les postes déjà installés ne reçoivent pas les modifications.
-
-**Désinstaller** : `/plugin uninstall snds-hdh@snds-hdh-marketplace` ; retirer
-la marketplace : `/plugin marketplace remove snds-hdh-marketplace` (désinstalle
-aussi le plugin).
-
-**Déployer pour toute une équipe** : dans le dépôt de projet partagé par
-l'équipe, ajouter à `.claude/settings.json` puis committer :
-
-```json
-{
-  "extraKnownMarketplaces": {
-    "snds-hdh-marketplace": {
-      "source": { "source": "github", "repo": "basilefuchs/snds-hdh-plugin" }
-    }
-  },
-  "enabledPlugins": {
-    "snds-hdh@snds-hdh-marketplace": true
-  }
-}
-```
-
-Chaque membre qui ouvre ce projet dans Claude Code (et accorde sa confiance au
-dossier) se voit proposer la marketplace et le plugin, sans étape manuelle.
-
-**Fork privé** (ex. dépôt interne au DIM) : Claude Code réutilise les
-identifiants git du poste (`gh auth setup-git`, clé SSH) ; pour que les mises à
-jour automatiques en arrière-plan fonctionnent, définir aussi la variable
-d'environnement `GITHUB_TOKEN`.
-
-### Option B — skill personnelle
-
-Copier `skills/snds-query/` dans `~/.claude/skills/` :
-
-```
-cp -r skills/snds-query ~/.claude/skills/
-```
-
-La skill est alors disponible dans tous vos projets.
-
-### Option C — skill de projet
-
-Copier `skills/snds-query/` dans `.claude/skills/` du projet et committer :
-toute personne qui clone le projet a la skill.
-
-### Option D — Skill web (claude.ai)
-
-`skills/snds-query/` est aussi packagée pour l'upload de Skill sur claude.ai
-(**Customize → Skills**), sans passer par Claude Code :
-
-```
-powershell -File scripts/build-web-skill.ps1
-```
-
-Génère `dist/snds-query.zip`, prêt à uploader tel quel. À vérifier côté compte
-claude.ai avant utilisation :
-
-- la capacité **Code execution** doit être activée (nécessaire pour que la
-  skill puisse interroger le dictionnaire embarqué via des commandes shell) ;
-- sans outil de choix multiple équivalent à celui de Claude Code, la skill
-  pose ses questions de clarification à l'écrit — répondre en langage naturel ;
-- le paquet pèse environ 3 Mo décompressés (dictionnaire compris) — vérifier
-  la limite de taille d'upload Skill du compte claude.ai avant de packager.
-
-Le zip n'est pas versionné (`dist/` est ignoré) : relancer le script après
-toute modification de `skills/snds-query/` pour repackager.
 
 ## Utilisation
 
 Poser une question SNDS en langage naturel — la skill se déclenche d'elle-même —
 ou l'invoquer explicitement :
 
-- installée en **plugin** (option A, Claude Code) : `/snds-hdh:snds-hdh <question>`
-  (les commandes et skills d'un plugin sont toujours préfixées par le nom du
-  plugin ; la skill seule : `/snds-hdh:snds-query`) ;
-- installée en **skill** dans Claude Code (options B et C) : `/snds-query <question>`
-  (le raccourci `/snds-hdh:snds-hdh` fait partie du plugin et n'est pas copié
-  avec la skill) ;
-- installée en **skill web** (option D, claude.ai) : pas d'invocation par
-  commande vérifiée — poser directement la question, la skill se déclenche sur
-  sa description.
+- installée en **plugin** Claude Code : `/snds-query:snds-query <question>` ;
+- copiée comme **skill** dans Claude Code (`~/.claude/skills/` ou
+  `.claude/skills/`) : `/snds-query <question>` ;
+- sur **claude.ai** : pas de commande d'invocation, poser directement la
+  question ; la skill se déclenche sur sa description. Faute d'outil de choix
+  multiple, elle pose ses questions de clarification à l'écrit : répondre en
+  langage naturel.
 
 Exemples de questions :
 
@@ -226,33 +108,10 @@ Exemples de questions :
 - « Évolution des délivrances d'antidépresseurs (DCIR) 2019–2024 dans mon département »
 - « Taux de recours à l'HAD pour soins palliatifs, pour 100 000 habitants »
 
-## Structure du dépôt
-
-```
-commands/snds-hdh.md                # raccourci /snds-hdh:snds-hdh (installation plugin uniquement)
-scripts/build-web-skill.ps1         # packaging skill web (option D) : skills/snds-query/ -> dist/snds-query.zip
-skills/snds-query/
-├── SKILL.md                        # workflow : clarifier → protocole → script
-├── scripts/build-dictionary.py     # génère dictionnaire/*.tsv depuis un clone de schema-snds
-└── references/
-    ├── profils/
-    │   └── hdh_oracle.md           # environnement Health Data Hub (fait foi) : connexion, mapping, défauts
-    ├── dictionnaire/
-    │   ├── *.tsv                   # tables, variables, jointures, nomenclatures, valeurs (générés, MPL-2.0)
-    │   ├── README.md               # format des fichiers, source et licence
-    │   ├── SOURCE.txt              # commit schema-snds utilisé
-    │   └── LICENSE-MPL-2.0.txt     # licence de la source
-    ├── modele-donnees.md           # tables, jointures, chaînage patient (IR_BEN_R), pièges
-    ├── clarifications.md           # checklist du statisticien
-    ├── points-de-vigilance.md      # registres de risques méthodologiques (biais, instabilité...)
-    ├── template.R                  # squelette de script R, patterns dbplyr/Oracle
-    └── template.Rmd                # squelette de rapport R Markdown (même patterns)
-```
-
 ## Adapter à un autre environnement que le Health Data Hub
 
 Toute la connaissance spécifique à l'environnement (connexion, tables,
-mapping colonne, défauts) vit dans `skills/snds-query/references/profils/`.
+mapping colonne, défauts) vit dans `references/profils/`.
 Pour un autre environnement (base locale, export parquet/DuckDB…), dupliquer
 `hdh_oracle.md`, adapter les valeurs, et la skill l'utilisera. Les templates
 (`template.R`/`.Rmd`) contiennent aussi des éléments propres à Oracle
@@ -276,27 +135,13 @@ et le [dictionnaire interactif](http://dico-snds.health-data-hub.fr/).
    ```
    git clone --depth 1 https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds.git
    ```
-2. Régénérer les fichiers de la skill (Python 3, bibliothèque standard) :
+2. Régénérer les fichiers de la skill (Python 3, bibliothèque standard), en
+   passant le chemin du clone :
    ```
-   python3 skills/snds-query/scripts/build-dictionary.py schema-snds
+   python3 scripts/build-dictionary.py /chemin/vers/schema-snds   # depuis le dossier de la skill
    ```
    Produit `tables.tsv`, `variables.tsv`, `jointures.tsv`,
    `nomenclatures.tsv`, `valeurs.tsv` et `SOURCE.txt` (commit utilisé) dans
-   `skills/snds-query/references/dictionnaire/`. Idempotent.
-3. Incrémenter `version` dans `.claude-plugin/plugin.json` avant de pousser,
-   pour que les installations existantes reçoivent la mise à jour (voir
-   Option A, « Mettre à jour »).
-
-## Licence
-
-Le code et le contenu propres au plugin (skill, références, templates,
-scripts) sont sous licence MIT, © 2026 Basile Fuchs et CHU de Brest — voir
-[LICENSE](LICENSE) et [NOTICE](NOTICE).
-
-**Le dictionnaire embarqué n'est pas sous licence MIT.** Les fichiers de
-`skills/snds-query/references/dictionnaire/` (`*.tsv`) sont dérivés du dépôt
-[schema-snds](https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds)
-du Health Data Hub et distribués, comme lui, sous
-[Mozilla Public License 2.0](skills/snds-query/references/dictionnaire/LICENSE-MPL-2.0.txt) ;
-la source complète est disponible à cette adresse (commit utilisé :
-`dictionnaire/SOURCE.txt`).
+   `references/dictionnaire/`. Idempotent.
+3. Committer et pousser : chaque commit sur `main` est une mise à jour pour les
+   installations Claude Code, sans numéro de version à incrémenter.
