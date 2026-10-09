@@ -63,7 +63,7 @@ du Health Data Hub, licence MPL-2.0 — voir [NOTICE](NOTICE)) décrit la base
   1000 valeurs d'une liste `IN` sous Oracle, patients uniques pluriannuels
   par union avant `n_distinct`.
 - L'existence et la disponibilité de **chaque table et variable utilisées**,
-  via le dictionnaire plat (`dictionnaire/*.tsv` : tables, variables et
+  via le dictionnaire plat (`references/dictionnaire/*.tsv` : tables, variables et
   millésimes, jointures, nomenclatures et leurs valeurs), les tables
   de référence `IR_BEN_R` (filtres population) et `IR_IMB_R` (ALD), et les
   filtres PMSI HAD/RIP, validés au même titre que MCO/SSR.
@@ -143,5 +143,6 @@ et le [dictionnaire interactif](http://dico-snds.health-data-hub.fr/).
    Produit `tables.tsv`, `variables.tsv`, `jointures.tsv`,
    `nomenclatures.tsv`, `valeurs.tsv` et `SOURCE.txt` (commit utilisé) dans
    `references/dictionnaire/`. Idempotent.
-3. Committer et pousser : chaque commit sur `main` est une mise à jour pour les
-   installations Claude Code, sans numéro de version à incrémenter.
+3. Committer et pousser : chaque commit sur `main` est une nouvelle version pour
+   les installations en plugin Claude Code (marketplace), sans numéro de version
+   à incrémenter.
