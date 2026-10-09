@@ -1,0 +1,23 @@
+{
+  "name": "basilefuchs-skills",
+  "owner": {
+    "name": "Basile Fuchs"
+  },
+  "description": "Skills de Basile Fuchs (CHU de Brest) pour le PMSI et la data science.",
+  "plugins": [
+    {
+      "name": "pdh-query",
+      "source": "./",
+      "description": "Statisticien DIM virtuel : traduit une question PMSI ATIH (MCO, SMR, HAD, PSY, RPU : séjours, CIM-10, CCAM, urgences) en script R dbplyr/Teradata, après clarification du protocole.",
+      "skills": ["./skills/pdh-query"],
+      "keywords": ["pmsi", "atih", "dim", "r", "dbplyr", "teradata", "epidemiologie", "rpu"]
+    },
+    {
+      "name": "snds-query",
+      "source": "./",
+      "description": "Statisticien DIM virtuel : traduit une question SNDS (DCIR soins de ville, PMSI hospitalisations, causes de décès CépiDc) en script R dbplyr/Oracle, après clarification du protocole.",
+      "skills": ["./skills/snds-query"],
+      "keywords": ["snds", "dcir", "pmsi", "health-data-hub", "dim", "r", "dbplyr", "oracle"]
+    }
+  ]
+}
