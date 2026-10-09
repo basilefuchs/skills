@@ -9,3 +9,6 @@ Thumbs.db
 
 # Zips des skills (générés par le workflow de release, non versionnés)
 /dist/
+
+# Python
+__pycache__/
