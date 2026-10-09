@@ -1,6 +1,10 @@
 ---
 name: situation-clinique-mco
-description: Classe le séjour décrit par un CRH ou une lettre de liaison MCO dans sa situation clinique PMSI (guide méthodologique MCO 2026, chapitre VI) et argumente le DP et le DR.
+description: >
+  Classe le séjour décrit par un CRH ou une lettre de liaison MCO dans sa
+  situation clinique PMSI (guide méthodologique MCO 2026, chapitre VI) et
+  argumente le DP et le DR.
+license: MIT
 disable-model-invocation: true
 ---
 
