@@ -1,0 +1,14 @@
+situation-clinique-mco
+Copyright (c) 2026 Basile Fuchs, CHU de Brest
+
+La skill est distribuée sous licence MIT (champ license du SKILL.md ; texte
+de la licence : fichier LICENSE du dépôt https://github.com/basilefuchs/skills).
+
+Contenu tiers : extraits du guide méthodologique MCO 2026 de l'ATIH
+
+La section « Référentiel » du SKILL.md cite mot pour mot des extraits du
+Guide méthodologique de production des informations relatives à l'activité
+médicale et à sa facturation en médecine, chirurgie, obstétrique et
+odontologie, 2026 (chapitres IV et VI). Ces extraits restent une publication
+de l'Agence technique de l'information sur l'hospitalisation (ATIH) et ne
+relèvent pas de la licence MIT.

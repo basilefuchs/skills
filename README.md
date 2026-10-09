@@ -10,6 +10,7 @@ ou dans tout agent compatible [Agent Skills](https://agentskills.io).
 | --- | --- | --- |
 | `pdh-query` | Statisticien DIM virtuel : traduit une question PMSI (base nationale ATIH : MCO, SMR, HAD, PSY, RPU) en script R dbplyr/Teradata, après clarification du protocole. | [README](skills/pdh-query/README.md) |
 | `snds-query` | Statisticien DIM virtuel : traduit une question SNDS (DCIR, PMSI, causes de décès) en script R dbplyr/Oracle pour le Health Data Hub, après clarification du protocole. | [README](skills/snds-query/README.md) |
+| `situation-clinique-mco` | Classe un CRH ou une lettre de liaison MCO dans sa situation clinique PMSI (guide méthodologique ATIH 2026) et argumente le DP et le DR. Avec Claude, CR fictifs uniquement. | [README](skills/situation-clinique-mco/README.md) |
 
 ## Installation
 
@@ -22,6 +23,7 @@ plugin par skill : on installe seulement celles dont on a besoin.
 /plugin marketplace add basilefuchs/skills
 /plugin install pdh-query@basilefuchs-skills
 /plugin install snds-query@basilefuchs-skills
+/plugin install situation-clinique-mco@basilefuchs-skills
 ```
 
 Claude Code demande la portée de l'installation : **user** (vous, dans tous vos
@@ -117,6 +119,23 @@ Avec la CLI [`skills`](https://github.com/vercel-labs/skills) :
 npx skills add basilefuchs/skills --list
 npx skills add basilefuchs/skills --skill snds-query
 ```
+
+### LibreChat
+
+LibreChat charge les skills de deux façons (voir la
+[documentation de LibreChat](https://www.librechat.ai/docs/features/skills)) :
+
+- **Skills de déploiement** : copier le dossier de la skill (par exemple
+  `skills/situation-clinique-mco/`) dans le répertoire désigné par
+  `DEPLOYMENT_SKILLS_DIR` (par défaut `./skill` à la racine de LibreChat),
+  puis redémarrer LibreChat, à nouveau après chaque mise à jour du dossier.
+- **Synchronisation GitHub** : déclarer le dépôt `basilefuchs/skills` dans la
+  section `skillSync.github` de `librechat.yaml`, avec le chemin
+  `skills/<nom>` de chaque skill voulue.
+
+Dans la conversation, `$<nom>` invoque la skill (par exemple
+`$situation-clinique-mco`) ; elle se déclenche aussi d'elle-même sur sa
+description.
 
 ## Migration depuis pdh-atih-plugin et snds-hdh-plugin
 
