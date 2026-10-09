@@ -71,7 +71,6 @@ validation métier ni le respect du secret statistique sur les sorties.
 Poser une question PMSI en langage naturel — la skill se déclenche d'elle-même —
 ou l'invoquer explicitement :
 
-- installée en **plugin** Claude Code : `/pdh-query:pdh-query <question>` ;
 - copiée comme **skill** dans Claude Code (`~/.claude/skills/` ou
   `.claude/skills/`) : `/pdh-query <question>` ;
 - sur **claude.ai** : pas de commande d'invocation, poser directement la

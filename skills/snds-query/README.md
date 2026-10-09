@@ -94,7 +94,6 @@ validation métier ni le respect du secret statistique sur les sorties.
 Poser une question SNDS en langage naturel — la skill se déclenche d'elle-même —
 ou l'invoquer explicitement :
 
-- installée en **plugin** Claude Code : `/snds-query:snds-query <question>` ;
 - copiée comme **skill** dans Claude Code (`~/.claude/skills/` ou
   `.claude/skills/`) : `/snds-query <question>` ;
 - sur **claude.ai** : pas de commande d'invocation, poser directement la
@@ -143,6 +142,4 @@ et le [dictionnaire interactif](http://dico-snds.health-data-hub.fr/).
    Produit `tables.tsv`, `variables.tsv`, `jointures.tsv`,
    `nomenclatures.tsv`, `valeurs.tsv` et `SOURCE.txt` (commit utilisé) dans
    `references/dictionnaire/`. Idempotent.
-3. Committer et pousser : chaque commit sur `main` est une nouvelle version pour
-   les installations en plugin Claude Code (marketplace), sans numéro de version
-   à incrémenter.
+3. Committer et pousser.

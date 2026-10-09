@@ -11,7 +11,6 @@ Skill qui classe un compte rendu d’hospitalisation MCO dans sa situation clini
 Coller le CRH ou la lettre de liaison : la skill se déclenche d’elle-même sur sa description. On peut aussi l’invoquer explicitement :
 
 - dans LibreChat, avec l’agent branché sur le vLLM local : `$situation-clinique-mco` ;
-- installée en plugin Claude Code : `/situation-clinique-mco:situation-clinique-mco` ;
 - copiée comme skill dans Claude Code (`~/.claude/skills/` ou `.claude/skills/`) : `/situation-clinique-mco`.
 
 Installation : voir le [README du dépôt](https://github.com/basilefuchs/skills).
