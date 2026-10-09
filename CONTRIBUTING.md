@@ -2,13 +2,12 @@
 
 Une skill est un dossier autonome placé directement sous `skills/`, sans
 sous-dossier de catégorie : chaque dossier de `skills/` est une skill. Il est
-distribué seul (zip claude.ai, `npx skills`) aussi bien qu'à travers la
-marketplace Claude Code.
+distribué seul (zip claude.ai, `npx skills`).
 
 `check_skills.py` vérifie une partie des conventions ci-dessous : le
-frontmatter (`name`, `description`), le nom du dossier et la correspondance
-entre dossiers de skills et entrées de marketplace. La CI le lance à chaque
-push et à chaque PR ; le reste se relit à la main.
+frontmatter (`name`, `description`), le nom du dossier et la présence d'au
+moins une skill. La CI le lance à chaque push et à chaque PR ; le reste se
+relit à la main.
 
 ## Ajouter une skill
 
@@ -36,39 +35,22 @@ push et à chaque PR ; le reste se relit à la main.
      le dossier de la skill (exemple : `skills/snds-query/NOTICE`).
 
 2. **Écrire `skills/<nom>/README.md`** : à quoi sert la skill, ses prérequis,
-   et son utilisation (`/<nom>:<nom>` en plugin Claude Code, `/<nom>` en skill
-   copiée, déclenchement par la description sur claude.ai). Les liens vers le
-   reste du dépôt sont des URL complètes, puisque le README voyage avec la
-   skill.
+   et son utilisation (`/<nom>` en skill copiée, déclenchement par la
+   description sur claude.ai). Les liens vers le reste du dépôt sont des URL
+   complètes, puisque le README voyage avec la skill.
 
-3. **Déclarer le plugin** dans `.claude-plugin/marketplace.json`, une entrée
-   par skill, sans champ `version` (chaque commit sur `main` est une version) :
+3. **Ajouter la skill au `README.md` racine** : une ligne au catalogue.
 
-   ```json
-   {
-     "name": "<nom>",
-     "source": "./",
-     "description": "<la description du SKILL.md, dépliée sur une ligne>",
-     "skills": ["./skills/<nom>"],
-     "keywords": ["<mot-clé>", "<mot-clé>"]
-   }
-   ```
-
-4. **Ajouter la skill au `README.md` racine** : une ligne au catalogue, et sa
-   commande `/plugin install <nom>@basilefuchs-skills` dans la section
-   Installation.
-
-5. **Vérifier**, depuis la racine du dépôt (Python 3, rien à installer) :
+4. **Vérifier**, depuis la racine du dépôt (Python 3, rien à installer) :
 
    ```
    python3 check_skills.py
    python3 -m unittest discover -s tests
    ```
 
-   La skill est prête quand les étapes 1 à 4 sont faites, que
+   La skill est prête quand les étapes 1 à 3 sont faites, que
    `check_skills.py` affiche « OK » et que les tests passent ; la CI de la PR
-   doit être verte. Avec Claude Code installé,
-   `claude plugin validate .` contrôle aussi le manifeste.
+   doit être verte.
 
 ## Modifier le script de vérification
 
