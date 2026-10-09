@@ -7,12 +7,10 @@ Affiche une ligne par violation, « <règle> <sujet> : <détail> », et sort ave
 le code 1 s'il y en a au moins une, 0 sinon. Bibliothèque standard uniquement.
 """
 
-import json
 import re
 import sys
 from pathlib import Path
 
-MARKETPLACE = Path(".claude-plugin") / "marketplace.json"
 SKILLS_DIR = "skills"
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 NESTED_RE = re.compile(r"^(- |[\w-]+:)")
@@ -95,59 +93,11 @@ def check_skill(skill_dir):
     return violations
 
 
-def load_entries(root):
-    """Entrées de plugin du manifeste, ou une violation s'il est absent ou invalide."""
-    path = root / MARKETPLACE
-    if not path.is_file():
-        return None, [("marketplace-json", str(MARKETPLACE), "manifeste absent")]
-    try:
-        manifest = json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, UnicodeDecodeError) as error:
-        return None, [("marketplace-json", str(MARKETPLACE), f"JSON invalide : {error}")]
-    plugins = manifest.get("plugins") if isinstance(manifest, dict) else None
-    if not isinstance(plugins, list) or not all(isinstance(p, dict) for p in plugins):
-        return None, [("marketplace-json", str(MARKETPLACE), "« plugins » doit être une liste d'objets")]
-    return plugins, []
-
-
-def check_entries(root, entries, skill_names):
-    """Violations entre les entrées du manifeste et les dossiers de skills."""
-    violations = []
-    listed = {name: 0 for name in skill_names}
-    for entry in entries:
-        subject = f"entrée « {entry.get('name', '?')} »"
-        paths = entry.get("skills")
-        paths = [paths] if isinstance(paths, str) else paths
-        if not isinstance(paths, list) or len(paths) != 1 or not isinstance(paths[0], str):
-            violations.append(("entree-sans-skill", subject, "« skills » doit lister exactement un chemin"))
-            continue
-        match = re.fullmatch(r"\./skills/([^/]+)/?", paths[0])
-        if not match:
-            violations.append(("entree-sans-skill", subject, f"chemin « {paths[0]} » hors de ./skills/<nom>"))
-            continue
-        folder = match.group(1)
-        if not (root / SKILLS_DIR / folder / "SKILL.md").is_file():
-            violations.append(("entree-sans-skill", subject, f"{paths[0]} n'existe pas ou n'a pas de SKILL.md"))
-        if entry.get("name") != folder:
-            violations.append(("entree-nom", subject, f"nom différent du dossier « {folder} »"))
-        if folder in listed:
-            listed[folder] += 1
-
-    for name, count in listed.items():
-        if count != 1:
-            violations.append(("skill-sans-entree", f"{SKILLS_DIR}/{name}",
-                               f"listée par {count} entrée(s) de marketplace au lieu d'une"))
-    return violations
-
-
 def check_repo(root):
     skill_dirs = sorted(p for p in (root / SKILLS_DIR).glob("*") if p.is_dir()) if (root / SKILLS_DIR).is_dir() else []
-    violations = [v for skill_dir in skill_dirs for v in check_skill(skill_dir)]
-    entries, manifest_violations = load_entries(root)
-    violations += manifest_violations
-    if entries is not None:
-        violations += check_entries(root, entries, [p.name for p in skill_dirs])
-    return violations
+    if not skill_dirs:
+        return [("aucune-skill", SKILLS_DIR, "aucun dossier de skill (racine du dépôt ?)")]
+    return [v for skill_dir in skill_dirs for v in check_skill(skill_dir)]
 
 
 def main(argv):
