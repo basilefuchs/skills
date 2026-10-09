@@ -120,6 +120,23 @@ npx skills add basilefuchs/skills --list
 npx skills add basilefuchs/skills --skill snds-query
 ```
 
+### LibreChat
+
+LibreChat charge les skills de deux façons (voir la
+[documentation de LibreChat](https://www.librechat.ai/docs/features/skills)) :
+
+- **Skills de déploiement** : copier le dossier de la skill (par exemple
+  `skills/situation-clinique-mco/`) dans le répertoire désigné par
+  `DEPLOYMENT_SKILLS_DIR` (par défaut `./skill` à la racine de LibreChat),
+  puis redémarrer LibreChat, à nouveau après chaque mise à jour du dossier.
+- **Synchronisation GitHub** : déclarer le dépôt `basilefuchs/skills` dans la
+  section `skillSync.github` de `librechat.yaml`, avec le chemin
+  `skills/<nom>` de chaque skill voulue.
+
+Dans la conversation, `$<nom>` invoque la skill (par exemple
+`$situation-clinique-mco`) ; elle se déclenche aussi d'elle-même sur sa
+description.
+
 ## Migration depuis pdh-atih-plugin et snds-hdh-plugin
 
 Les dépôts `basilefuchs/pdh-atih-plugin` et `basilefuchs/snds-hdh-plugin` sont

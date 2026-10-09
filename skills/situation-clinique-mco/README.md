@@ -8,11 +8,11 @@ Skill qui classe un compte rendu d’hospitalisation MCO dans sa situation clini
 
 ## Usage
 
-La skill ne se déclenche pas d’elle-même (`disable-model-invocation: true`) : l’invoquer, puis coller le CRH ou la lettre de liaison.
+Coller le CRH ou la lettre de liaison : la skill se déclenche d’elle-même sur sa description. On peut aussi l’invoquer explicitement :
 
-- Dans LibreChat, avec l’agent branché sur le vLLM local : `$situation-clinique-mco`.
-- Installée en plugin Claude Code : `/situation-clinique-mco:situation-clinique-mco`.
-- Copiée comme skill dans Claude Code (`~/.claude/skills/` ou `.claude/skills/`) : `/situation-clinique-mco`.
+- dans LibreChat, avec l’agent branché sur le vLLM local : `$situation-clinique-mco` ;
+- installée en plugin Claude Code : `/situation-clinique-mco:situation-clinique-mco` ;
+- copiée comme skill dans Claude Code (`~/.claude/skills/` ou `.claude/skills/`) : `/situation-clinique-mco`.
 
 Installation : voir le [README du dépôt](https://github.com/basilefuchs/skills).
 
