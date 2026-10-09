@@ -61,7 +61,7 @@ validation métier ni le respect du secret statistique sur les sorties.
 - [Claude Code](https://claude.com/claude-code) (CLI ou application), **ou** un
   compte [claude.ai](https://claude.ai) avec la capacité Skills et l'exécution de
   code activée, **ou** un autre agent compatible Agent Skills. Installation :
-  voir le [README du dépôt](https://github.com/basilefuchs/skills#installation).
+  voir le [README du dépôt](https://github.com/basilefuchs/skills).
 - Un accès à la base nationale sur le portail ATIH (pour exécuter les scripts ;
   la génération elle-même n'en a pas besoin).
 - Aucune compétence particulière en dbplyr : les scripts sont autoportants.
@@ -74,9 +74,10 @@ ou l'invoquer explicitement :
 - installée en **plugin** Claude Code : `/pdh-query:pdh-query <question>` ;
 - copiée comme **skill** dans Claude Code (`~/.claude/skills/` ou
   `.claude/skills/`) : `/pdh-query <question>` ;
-- sur **claude.ai** : poser directement la question, la skill se déclenche sur
-  sa description. Faute d'outil de choix multiple, elle pose ses questions de
-  clarification à l'écrit : répondre en langage naturel.
+- sur **claude.ai** : pas de commande d'invocation, poser directement la
+  question ; la skill se déclenche sur sa description. Faute d'outil de choix
+  multiple, elle pose ses questions de clarification à l'écrit : répondre en
+  langage naturel.
 
 Exemples de questions :
 
