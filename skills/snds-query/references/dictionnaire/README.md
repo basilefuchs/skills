@@ -32,5 +32,5 @@ Mise à jour :
 
 ```
 git clone --depth 1 https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds.git
-python3 scripts/build-dictionary.py schema-snds   # depuis le dossier de la skill
+python3 scripts/build-dictionary.py /chemin/vers/schema-snds   # depuis le dossier de la skill
 ```
