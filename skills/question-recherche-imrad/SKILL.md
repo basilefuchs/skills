@@ -28,13 +28,13 @@ Si la personne n'a pas encore décrit son idée, demande-la d'abord par une ques
 Si l'idée ne dit pas clairement le type, demande-le avec ces propositions, dans cet ordre, chacune illustrée par l'idée de la personne :
 
 1. Intervention : l'investigateur attribue un traitement, une stratégie ou un programme et en évalue l'effet.
-2. Observationnel : observer sans intervenir, pour relier une exposition à un événement ou pour décrire.
+2. Observationnel : observer sans intervenir, y compris un traitement reçu en soins courants, pour relier une exposition à un événement ou pour décrire.
 3. Diagnostic : évaluer la performance d'un test.
 4. Pronostic : étudier des facteurs pronostiques ou prédire un événement.
 
 Sur « Observationnel », demande ensuite :
 
-1. Observationnel analytique : relier une exposition, y compris un traitement reçu en soins courants, à un événement.
+1. Observationnel analytique : relier une exposition à un événement.
 2. Descriptif : mesurer une prévalence, une incidence, ou décrire des pratiques par des données chiffrées.
 
 C'est fini quand le type est l'un des cinq.
@@ -57,7 +57,7 @@ C'est fini quand chaque case utile de la grille, le schéma et chaque critère F
 
 ### 3. Validation
 
-Présente les trois premiers blocs du gabarit (titre avec le type d'étude, question en une phrase, tableau), avec **À préciser** dans les cases vides, puis demande à la personne de valider, avec les propositions « Valider » et « Corriger ». Sur « Corriger » sans précision, demande ce qu'il faut changer. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
+Présente les trois premiers blocs du gabarit (titre avec le type d'étude, question en une phrase, tableau), avec **À préciser** dans les cases vides, puis demande à la personne de valider, avec les propositions « Valider » et « Corriger ». Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
 
 C'est fini quand la personne a validé la question. Le squelette vient toujours après cette validation.
 
@@ -69,7 +69,7 @@ C'est fini quand chaque ligne du gabarit est remplie, signalée **Piste** ou mar
 
 ## Format des questions
 
-Aux étapes 1 à 3, hors la question ouverte sur l'idée, pose une seule question par message :
+Aux étapes 1 à 3, hors les questions ouvertes (l'idée, la correction à apporter), pose une seule question par message :
 
 - quand un outil de question à choix cliquables est disponible, pose-la avec lui : un seul choix, `<élément>` en en-tête, une option par proposition ; l'outil ajoute de lui-même la réponse libre ;
 - sinon, écris-la dans ton message :
