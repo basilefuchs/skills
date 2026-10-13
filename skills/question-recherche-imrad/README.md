@@ -22,7 +22,7 @@ Installation : voir le [README du dépôt](https://github.com/basilefuchs/skills
 ## Déroulé
 
 1. **Type d'étude** : intervention, observationnel analytique, descriptif, diagnostic ou pronostic.
-2. **Entretien** : une question par message, chacune avec 5 propositions numérotées tirées de l'idée, et une réponse libre toujours possible. Les questions remplissent la grille P, I/E, C, O, T et le schéma d'étude, puis passent en revue les critères FINER (faisable, intéressante, nouvelle, éthique, pertinente). La personne peut demander le livrable à tout moment.
+2. **Entretien** : une question par message, chacune avec 5 propositions numérotées tirées de l'idée et des réponses précédentes, et une réponse libre toujours possible. Les questions remplissent la grille P, I/E, C, O, T et le schéma d'étude, puis passent en revue les critères FINER (faisable, intéressante, nouvelle, éthique, pertinente). La personne peut demander le livrable à tout moment.
 3. **Validation** : la question est reformulée en une phrase avec sa grille, à valider ou à corriger.
 4. **Squelette IMRaD** à puces, avec la ligne directrice de reporting EQUATOR adaptée au schéma (CONSORT, STROBE, RECORD, STARD, TRIPOD…), et la liste de ce qui reste à préciser.
 

@@ -73,7 +73,7 @@ Aux étapes 1 et 2, pose une seule question par message, écrite dans la répons
 Réponds par un numéro, ou librement.
 ```
 
-Les 5 propositions sont concrètes et tirées de l'idée de la personne : pour P, cinq populations plausibles pour cette idée ; pour Faisable, cinq façons d'obtenir les données. Une réponse libre vaut une réponse numérotée.
+Les 5 propositions sont concrètes et tirées de l'idée et de toutes les réponses déjà données : le type fixe la grille, P choisie oriente les propositions pour I/E, C et O, le schéma retenu oriente celles de Faisable. Une réponse libre vaut une réponse numérotée.
 
 ## Grille
 
