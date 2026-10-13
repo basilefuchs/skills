@@ -21,11 +21,11 @@ Réponds dans la langue de la personne : question de validation, gabarit et ment
 
 L'entrée attendue est une question de recherche structurée, quelle qu'en soit la mise en forme : type d'étude, question en une phrase, grille P, I/E, C, O, T et schéma d'étude, avec ou sans fragilités FINER.
 
-Si l'entrée donne le type d'étude (l'un des cinq de la section **Grille**), chaque case utile de la grille de ce type et le schéma : passe au squelette.
+Le squelette a une cible : un protocole ou un article. L'entrée la donne parfois (« protocole », « article », « thèse », « soumission »…) ; sinon elle est à demander.
 
-Sinon, écris dans le texte de ton message la tête du gabarit (titre avec le type, question en une phrase, tableau) à partir de ce qui est donné : une case manquante devient **À préciser** ; un type incertain devient le plus probable d'après l'entrée, signalé comme tel. Puis, dans la même réponse, demande à la personne de valider, avec les propositions « Valider » et « Corriger ». La tête du gabarit précède toujours la question : avec l'outil de question, elle est dans le texte du message et l'appel de l'outil vient après. Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
+Dans tous les cas, entrée complète comprise, écris dans le texte de ton message la tête du gabarit (titre avec la cible et le type, question en une phrase, tableau) à partir de ce qui est donné : une case manquante devient **À préciser** ; un type incertain devient le plus probable d'après l'entrée, signalé comme tel ; une cible inconnue laisse le titre à « Squelette » seul. Puis, dans la même réponse, demande à la personne de valider : si la cible est connue, avec les propositions « Valider » et « Corriger » ; sinon, avec « Valider pour un protocole », « Valider pour un article » et « Corriger ». La tête du gabarit précède toujours la question : avec l'outil de question, elle est dans le texte du message et l'appel de l'outil vient après. Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
 
-C'est fini quand la question est complète ou validée. Le squelette vient toujours après.
+C'est fini quand la personne a validé la tête du gabarit, cible comprise. Le squelette vient toujours après.
 
 ### 2. Squelette IMRaD
 
@@ -38,7 +38,7 @@ C'est fini quand chaque ligne du gabarit est remplie, signalée **Piste** ou mar
 Pour la validation :
 
 - quand un outil de question à choix cliquables est disponible, pose-la avec lui, après la tête du gabarit dans le texte de ton message : un seul choix, « Validation » en en-tête, une option par proposition ; l'outil ajoute de lui-même la réponse libre ;
-- sinon, écris-la dans ton message :
+- sinon, écris-la dans ton message, avec les propositions que l'étape 1 fixe :
 
 ```markdown
 **Validation** · <question>
@@ -67,7 +67,7 @@ La question ouverte sur la correction à apporter se pose sans propositions.
 
 | Type | Ligne directrice de reporting | Biais à anticiper |
 |---|---|---|
-| Intervention | CONSORT si randomisé, et SPIRIT pour son protocole ; TREND sinon | allocation (confusion si non randomisé), absence d'insu, perdus de vue, contamination entre groupes ; avant-après : évolution temporelle et co-interventions |
+| Intervention | protocole : SPIRIT ; article : CONSORT si randomisé, TREND sinon | allocation (confusion si non randomisé), absence d'insu, perdus de vue, contamination entre groupes ; avant-après : évolution temporelle et co-interventions |
 | Observationnel analytique | STROBE | sélection, classement de l'exposition ou de l'événement, confusion, causalité inverse en transversal |
 | Descriptif | STROBE | représentativité, définition et repérage des cas |
 | Diagnostic | STARD | spectre des patients, vérification incomplète par le test de référence, lecture des tests sans insu |
@@ -100,6 +100,8 @@ Pour un essai, ajoute à l'analyse principale la population d'analyse : intentio
 Réponds avec exactement cette structure, sans le bloc de code :
 
 ```markdown
+**Squelette de <protocole | article>**
+
 **Question de recherche** · <type d'étude>
 
 > <question en une phrase>
@@ -150,7 +152,7 @@ Réponds avec exactement cette structure, sans le bloc de code :
 - <chaque élément marqué À préciser ci-dessus> | rien
 ```
 
-- La question et la grille reprennent l'entrée, ou la version validée.
+- Le titre porte la cible validée ; la question et la grille reprennent l'entrée, ou la version validée.
 - Le bloc Fragilités FINER n'apparaît que si l'entrée en contenait ; il les reprend telles quelles.
 - Une ligne que l'entrée ne couvre pas reçoit une piste tirée de la question, écrite « **Piste** : … ».
 - **À préciser** marque un choix que seule la personne peut faire, suivi au besoin de ce qu'il faut décider.

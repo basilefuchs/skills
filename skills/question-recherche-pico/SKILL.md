@@ -21,9 +21,17 @@ Réponds dans la langue de la personne : questions, livrable et mention **À pr�
 - une réponse qui révèle un autre des cinq types te fait passer à sa grille, en gardant les réponses qui restent valables ;
 - une demande de livrable te fait passer à la validation : ce qui manque devient **À préciser**, et un type encore incertain devient le plus probable d'après l'idée, signalé comme tel.
 
-### 1. Type d'étude
+### 1. Idée
 
 Si la personne n'a pas encore décrit son idée, demande-la d'abord par une question ouverte, sans propositions.
+
+Écris ensuite dans le texte de ton message ce que tu as compris : l'idée reformulée en une phrase, et l'attente de la personne (cadrer une thèse, un article, un projet à soumettre…) telle que l'idée la laisse voir, ou **À préciser** si rien ne l'indique. Puis, dans la même réponse, demande à la personne de valider, avec les propositions « Valider » et « Corriger ». La restitution précède toujours la question : avec l'outil de question, elle est dans le texte du message et l'appel de l'outil vient après. Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
+
+L'attente ne figure pas dans le livrable : elle oriente les propositions de l'entretien, surtout celles de Faisable (délais, moyens et données accessibles pour une thèse ou un projet à soumettre).
+
+C'est fini quand la personne a validé la restitution.
+
+### 2. Type d'étude
 
 Si l'idée ne dit pas clairement le type, demande-le avec ces propositions, dans cet ordre, chacune illustrée par l'idée de la personne :
 
@@ -39,7 +47,7 @@ Sur « Observationnel », demande ensuite :
 
 C'est fini quand le type est l'un des cinq.
 
-### 2. Entretien
+### 3. Entretien
 
 Remplis la grille du type (section **Grille**) dans l'ordre P, I/E, C, O, T, puis le schéma d'étude, en sautant les cases sans objet. Une case que la personne a déjà renseignée se remplit sans question. O est un seul critère de jugement principal ; les autres deviennent des critères secondaires.
 
@@ -55,7 +63,7 @@ Une réponse fragile devient une **fragilité**, notée comme un constat dans le
 
 C'est fini quand chaque case utile de la grille, le schéma et chaque critère FINER ont une réponse.
 
-### 3. Validation
+### 4. Validation
 
 Écris le livrable (section **Livrable**) dans le texte de ton message, avec **À préciser** dans les cases vides, puis, dans la même réponse, demande à la personne de valider, avec les propositions « Valider » et « Corriger ». Le livrable précède toujours la question : avec l'outil de question, il est dans le texte du message et l'appel de l'outil vient après. Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
 
@@ -65,7 +73,7 @@ C'est fini quand la personne a validé : réponds alors avec le livrable validé
 
 Hors les questions ouvertes (l'idée, la correction à apporter), pose une seule question par message :
 
-- quand un outil de question à choix cliquables est disponible, pose-la avec lui, après le texte que ton message doit contenir (le livrable à la validation) : un seul choix, `<élément>` en en-tête, une option par proposition ; l'outil ajoute de lui-même la réponse libre ;
+- quand un outil de question à choix cliquables est disponible, pose-la avec lui, après le texte que ton message doit contenir (la restitution de l'idée, le livrable à la validation) : un seul choix, `<élément>` en en-tête, une option par proposition ; l'outil ajoute de lui-même la réponse libre ;
 - sinon, écris-la dans ton message :
 
 ```markdown
@@ -79,7 +87,7 @@ Hors les questions ouvertes (l'idée, la correction à apporter), pose une seule
 Réponds par un numéro, ou librement.
 ```
 
-Chaque question a 4 propositions concrètes, tirées de l'idée et de toutes les réponses déjà données : le type fixe la grille, la population choisie oriente les propositions pour I/E, C et O, le schéma retenu oriente celles de Faisable. La question analytique ou descriptif et la validation en ont 2. Une combinaison de propositions passe par la réponse libre (en texte, « 1 et 3 » en est une) ; une réponse qui renseigne d'autres cases les remplit aussi. `<élément>` nomme en 12 caractères au plus ce que la question remplit : « Type », « Population », « Exposition », « Comparateur », « Critère », « Durée », « Schéma », « Faisable », « Validation »…
+Chaque question a 4 propositions concrètes, tirées de l'idée et de toutes les réponses déjà données : le type fixe la grille, la population choisie oriente les propositions pour I/E, C et O, le schéma retenu oriente celles de Faisable. La question analytique ou descriptif, la validation de la restitution et celle du livrable en ont 2. Une combinaison de propositions passe par la réponse libre (en texte, « 1 et 3 » en est une) ; une réponse qui renseigne d'autres cases les remplit aussi. `<élément>` nomme en 12 caractères au plus ce que la question remplit : « Type », « Population », « Exposition », « Comparateur », « Critère », « Durée », « Schéma », « Faisable », « Validation »…
 
 ## Grille
 
