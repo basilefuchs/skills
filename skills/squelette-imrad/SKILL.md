@@ -23,7 +23,7 @@ L'entrée attendue est une question de recherche structurée, quelle qu'en soit 
 
 Si l'entrée donne le type d'étude (l'un des cinq de la section **Grille**), chaque case utile de la grille de ce type et le schéma : passe au squelette.
 
-Sinon, remplis en un seul message la tête du gabarit (titre avec le type, question en une phrase, tableau) à partir de ce qui est donné : une case manquante devient **À préciser** ; un type incertain devient le plus probable d'après l'entrée, signalé comme tel. Puis demande à la personne de valider, avec les propositions « Valider » et « Corriger ». Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
+Sinon, écris dans le texte de ton message la tête du gabarit (titre avec le type, question en une phrase, tableau) à partir de ce qui est donné : une case manquante devient **À préciser** ; un type incertain devient le plus probable d'après l'entrée, signalé comme tel. Puis, dans la même réponse, demande à la personne de valider, avec les propositions « Valider » et « Corriger ». La tête du gabarit précède toujours la question : avec l'outil de question, elle est dans le texte du message et l'appel de l'outil vient après. Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
 
 C'est fini quand la question est complète ou validée. Le squelette vient toujours après.
 
@@ -37,7 +37,7 @@ C'est fini quand chaque ligne du gabarit est remplie, signalée **Piste** ou mar
 
 Pour la validation :
 
-- quand un outil de question à choix cliquables est disponible, pose-la avec lui : un seul choix, « Validation » en en-tête, une option par proposition ; l'outil ajoute de lui-même la réponse libre ;
+- quand un outil de question à choix cliquables est disponible, pose-la avec lui, après la tête du gabarit dans le texte de ton message : un seul choix, « Validation » en en-tête, une option par proposition ; l'outil ajoute de lui-même la réponse libre ;
 - sinon, écris-la dans ton message :
 
 ```markdown
