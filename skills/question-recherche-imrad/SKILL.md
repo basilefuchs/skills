@@ -9,15 +9,21 @@ license: MIT
 
 # Question de recherche IMRaD
 
-Tu aides une personne à transformer une idée de recherche en santé en question structurée, puis en squelette IMRaD : pour chaque section de son futur article ou protocole, ce qu'elle devra y mettre. Tu structures, la personne rédige : le livrable est fait de puces courtes, sans phrase rédigée ni chiffre. Ce qui est connu dans la littérature vient de la personne : à toutes les étapes, propositions comprises, tu ne cites aucune étude ni référence et tu ne fais aucune recherche bibliographique.
+Tu aides une personne à transformer une idée de recherche en santé en question structurée, puis en squelette IMRaD : pour chaque section de son futur article ou protocole, ce qu'elle devra y mettre. Tu structures, la personne rédige : le livrable est fait de puces courtes, hormis la question en une phrase. Ce qui est connu dans la littérature vient de la personne : à toutes les étapes, propositions comprises, tu ne cites aucune étude ni référence et tu ne fais aucune recherche bibliographique.
 
-Réponds dans la langue de la personne, format des questions et gabarit compris. Cette skill se suffit à elle-même : n'évoque aucune autre skill, même après le livrable.
+Réponds dans la langue de la personne : questions, gabarit et mention **À préciser** compris. Cette skill se suffit à elle-même : n'évoque aucune autre skill, même après le livrable.
 
 ## Démarche
 
+À toute étape :
+
+- une réponse qui révèle une recherche qualitative (entretiens, groupes de discussion), une revue systématique ou méta-analyse, ou une recherche hors santé est **hors champ** : nomme le type, dis qu'il est hors champ de cette skill, et arrête-toi là ;
+- une réponse qui révèle un autre des cinq types te fait passer à sa grille, en gardant les réponses qui restent valables ;
+- une demande de livrable te fait passer à la validation : ce qui manque devient **À préciser**, et un type encore incertain devient le plus probable d'après l'idée, signalé comme tel.
+
 ### 1. Type d'étude
 
-Si l'idée ne le dit pas clairement, demande le type d'étude avec ces propositions :
+Si l'idée ne le dit pas clairement, demande le type d'étude. Les 5 propositions sont ces cinq types, dans cet ordre, chacun illustré par l'idée de la personne :
 
 1. Intervention : l'investigateur attribue un traitement, une stratégie ou un programme et en évalue l'effet.
 2. Observationnel analytique : étudier le lien entre une exposition, y compris un traitement reçu en soins courants, et un événement.
@@ -25,9 +31,7 @@ Si l'idée ne le dit pas clairement, demande le type d'étude avec ces propositi
 4. Diagnostic : évaluer la performance d'un test.
 5. Pronostic : étudier des facteurs pronostiques ou prédire un événement.
 
-Une recherche qualitative (entretiens, groupes de discussion), une revue systématique ou méta-analyse, ou une recherche hors santé est **hors champ**, que ce soit dit d'emblée ou révélé par une réponse ultérieure : nomme le type, dis qu'il est hors champ de cette skill, et arrête-toi là. Si une réponse ultérieure révèle un autre des cinq types, dis-le et passe à sa grille en gardant les réponses qui restent valables.
-
-C'est fini quand le type est l'un des cinq, ou quand la réponse hors champ est donnée.
+C'est fini quand le type est l'un des cinq.
 
 ### 2. Entretien
 
@@ -41,15 +45,15 @@ Pose ensuite une question par critère FINER que la conversation ne documente pa
 - **Éthique** : acceptable pour les participants et pour un comité d'éthique.
 - **Pertinente** : utile à la pratique, à la recherche ou aux politiques de santé.
 
-Chaque réponse fragile devient une **fragilité** notée telle quelle (« recueil de l'exposition non organisé ») ; la décision de poursuivre appartient à la personne.
+Une réponse fragile devient une **fragilité**, notée comme un constat dans le livrable (« recueil de l'exposition non organisé ») ; ton message suivant pose la question suivante. La décision de poursuivre appartient à la personne.
 
-C'est fini quand chaque case utile de la grille et chaque critère FINER a une réponse, ou dès que la personne demande le livrable : ce qui manque devient **À préciser** et tu passes à la validation.
+C'est fini quand chaque case utile de la grille, le schéma et chaque critère FINER ont une réponse.
 
 ### 3. Validation
 
-Présente la question reformulée en une phrase et la grille remplie, avec **À préciser** dans les cases vides. Demande à la personne de valider ou de corriger. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
+Présente les trois premiers blocs du gabarit (titre avec le type d'étude, question en une phrase, tableau), avec **À préciser** dans les cases vides, puis demande à la personne de valider ou de corriger. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
 
-C'est fini quand la personne a validé la question. Le squelette vient toujours après cette validation, même quand la personne a demandé le livrable plus tôt.
+C'est fini quand la personne a validé la question. Le squelette vient toujours après cette validation.
 
 ### 4. Squelette IMRaD
 
@@ -59,7 +63,7 @@ C'est fini quand chaque ligne du gabarit est remplie ou marquée **À préciser*
 
 ## Format des questions
 
-Aux étapes 1 et 2, pose une seule question par message, écrite en texte dans ta réponse plutôt qu'avec un outil de questions à choix, qui limite le nombre d'options :
+Aux étapes 1 et 2, pose une seule question par message, en texte dans ton message, même quand un outil de questions à choix est disponible : ces outils plafonnent souvent à 4 options.
 
 ```markdown
 **<élément>** · <question>
@@ -73,7 +77,7 @@ Aux étapes 1 et 2, pose une seule question par message, écrite en texte dans t
 Réponds par un numéro, ou librement.
 ```
 
-Les 5 propositions sont concrètes et tirées de l'idée et de toutes les réponses déjà données : le type fixe la grille, P choisie oriente les propositions pour I/E, C et O, le schéma retenu oriente celles de Faisable. Une réponse libre vaut une réponse numérotée. `<élément>` nomme ce que la question remplit : « Type d'étude », « P · Population », « O · Critère de jugement », « Schéma », « FINER · Faisable »…
+Les 5 propositions sont concrètes et tirées de l'idée et de toutes les réponses déjà données : le type fixe la grille, P choisie oriente les propositions pour I/E, C et O, le schéma retenu oriente celles de Faisable. Une réponse qui cite plusieurs numéros les retient ensemble ; une réponse qui renseigne d'autres cases les remplit aussi. `<élément>` nomme ce que la question remplit : « Type d'étude », « P · Population », « O · Critère de jugement », « Schéma », « FINER · Faisable »…
 
 ## Grille
 
@@ -91,9 +95,9 @@ Les 5 propositions sont concrètes et tirées de l'idée et de toutes les répon
 
 | Type | Ligne directrice de reporting | Biais à anticiper |
 |---|---|---|
-| Intervention | CONSORT si randomisé (protocole : SPIRIT) ; TREND sinon | allocation (confusion si non randomisé), absence d'insu, perdus de vue, contamination entre groupes ; avant-après : évolution temporelle et co-interventions |
-| Observationnel analytique | STROBE ; RECORD sur données recueillies en routine (bases médico-administratives, registres, dossiers informatisés) | sélection, classement de l'exposition ou de l'événement, confusion, causalité inverse en transversal |
-| Descriptif | STROBE ; RECORD sur données recueillies en routine | représentativité, définition et repérage des cas |
+| Intervention | CONSORT si randomisé, et SPIRIT pour son protocole ; TREND sinon | allocation (confusion si non randomisé), absence d'insu, perdus de vue, contamination entre groupes ; avant-après : évolution temporelle et co-interventions |
+| Observationnel analytique | STROBE, et RECORD en plus si les données viennent de bases ou dossiers existants (médico-administratives, registres, dossiers informatisés) | sélection, classement de l'exposition ou de l'événement, confusion, causalité inverse en transversal |
+| Descriptif | STROBE, et RECORD en plus si les données viennent de bases ou dossiers existants | représentativité, définition et repérage des cas |
 | Diagnostic | STARD | spectre des patients, vérification incomplète par le test de référence, lecture des tests sans insu |
 | Pronostic | STROBE pour un facteur pronostique ; TRIPOD pour un modèle de prédiction | perdus de vue, données manquantes, surajustement, absence de validation externe |
 
@@ -103,15 +107,17 @@ Nomme la ligne directrice sans année ni référence : la version en vigueur se 
 
 ### Analyse principale selon le type d'étude et la nature de O
 
-| O ou type d'étude | Analyse principale |
+Retiens la première ligne vraie.
+
+| Situation | Analyse principale |
 |---|---|
-| Binaire | comparaison de proportions ; régression logistique pour ajuster (conditionnelle si appariement) |
-| Continu | comparaison de moyennes ou de rangs ; régression linéaire pour ajuster |
-| Délai jusqu'à un événement | Kaplan-Meier et log-rank ; modèle de Cox pour ajuster |
-| Dénombrement ou taux | régression de Poisson ou binomiale négative |
-| Fréquence (descriptif) | proportion ou taux avec intervalle de confiance à 95 % |
 | Diagnostic | sensibilité, spécificité, valeurs prédictives, aire sous la courbe ROC |
 | Modèle de prédiction | discrimination, calibration, validation interne puis externe |
+| Descriptif | proportion ou taux avec intervalle de confiance à 95 % |
+| O binaire | comparaison de proportions ; régression logistique pour ajuster (conditionnelle si appariement) |
+| O continu | comparaison de moyennes ou de rangs ; régression linéaire pour ajuster |
+| O délai jusqu'à un événement | Kaplan-Meier et log-rank ; modèle de Cox pour ajuster |
+| O dénombrement ou taux | régression de Poisson ou binomiale négative |
 
 Pour un essai, ajoute à l'analyse principale la population d'analyse : intention de traiter, per protocole.
 
@@ -129,7 +135,11 @@ Réponds avec exactement cette structure, sans le bloc de code :
 | <…> | <… ou sans objet> | <… ou sans objet> | <…> | <…> | <…> |
 
 ### Fragilités FINER
-- <critère> : <fragilité> | aucune relevée
+- Faisable : <fragilité | aucune relevée | À préciser>
+- Intéressante : <…>
+- Nouvelle : <…>
+- Éthique : <…>
+- Pertinente : <…>
 
 ### Introduction
 - État des connaissances à documenter : <ce que la personne doit chercher dans la littérature>
@@ -149,7 +159,7 @@ Réponds avec exactement cette structure, sans le bloc de code :
 - Analyse principale : <selon le type d'étude et la nature de O> · ajustements : <facteurs de confusion à discuter | sans objet>
 - Nombre de sujets : calcul à faire ; hypothèses à réunir, nommées sans valeur : <…>
 - Éthique et réglementaire : avis éthique, consentement ou information des participants, cadre réglementaire à préciser
-- Ligne directrice de reporting : <nom>
+- Ligne directrice de reporting : <nom(s)>
 
 ### Résultats · tableaux et figures attendus
 - Diagramme de flux : <étapes de sélection des participants>
@@ -168,4 +178,3 @@ Réponds avec exactement cette structure, sans le bloc de code :
 
 - Une ligne inconnue porte **À préciser**, suivi au besoin de ce qu'il faut décider.
 - Les Résultats décrivent la forme de chaque tableau ou figure ; leurs cellules restent vides.
-- L'Introduction liste ce qu'il faut chercher ; les références bibliographiques viendront de la personne.
