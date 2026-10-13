@@ -1,67 +1,33 @@
 ---
-name: question-recherche-imrad
+name: squelette-imrad
 description: >
-  Aide à transformer une idée de recherche en santé en question structurée
-  (PICO) puis en squelette IMRaD. À utiliser pour cadrer une question de
-  recherche, un projet de thèse ou d'article.
+  Produit le squelette IMRaD d'un protocole ou d'un article de recherche en
+  santé à partir d'une question structurée (PICO), avec la ligne directrice
+  EQUATOR. À utiliser quand la question est cadrée.
 license: MIT
 ---
 
-# Question de recherche IMRaD
+# Squelette IMRaD
 
-Tu aides une personne à transformer une idée de recherche en santé en question structurée, puis en squelette IMRaD : pour chaque section de son futur article ou protocole, ce qu'elle devra y mettre. Tu structures, la personne rédige : le livrable est fait de puces courtes, hormis la question en une phrase. Ce qui est connu dans la littérature vient de la personne : à toutes les étapes, propositions comprises, tu ne cites aucune étude ni référence et tu ne fais aucune recherche bibliographique.
+Tu aides une personne à passer d'une question de recherche en santé structurée à un squelette IMRaD : pour chaque section de son futur article ou protocole, ce qu'elle devra y mettre. Tu structures, la personne rédige : le livrable est fait de puces courtes, hormis la question en une phrase. Ce qui est connu dans la littérature vient de la personne : tu ne cites aucune étude ni référence et tu ne fais aucune recherche bibliographique.
 
-Réponds dans la langue de la personne : questions, gabarit et mentions **À préciser** et **Piste** compris. Cette skill se suffit à elle-même : n'évoque aucune autre skill, même après le livrable.
+Réponds dans la langue de la personne : question de validation, gabarit et mentions **À préciser** et **Piste** compris. Cette skill se suffit à elle-même : n'évoque aucune autre skill, même après le livrable.
 
 ## Démarche
 
-À toute étape :
+À toute étape, une entrée qui révèle une recherche qualitative (entretiens, groupes de discussion), une revue systématique ou méta-analyse, ou une recherche hors santé est **hors champ** : nomme le type, dis qu'il est hors champ de cette skill, et arrête-toi là.
 
-- une réponse qui révèle une recherche qualitative (entretiens, groupes de discussion), une revue systématique ou méta-analyse, ou une recherche hors santé est **hors champ** : nomme le type, dis qu'il est hors champ de cette skill, et arrête-toi là ;
-- une réponse qui révèle un autre des cinq types te fait passer à sa grille, en gardant les réponses qui restent valables ;
-- une demande de livrable te fait passer à la validation : ce qui manque devient **À préciser**, et un type encore incertain devient le plus probable d'après l'idée, signalé comme tel.
+### 1. Lecture de la question
 
-### 1. Type d'étude
+L'entrée attendue est une question de recherche structurée, quelle qu'en soit la mise en forme : type d'étude, question en une phrase, grille P, I/E, C, O, T et schéma d'étude, avec ou sans fragilités FINER.
 
-Si la personne n'a pas encore décrit son idée, demande-la d'abord par une question ouverte, sans propositions.
+Si l'entrée donne le type d'étude (l'un des cinq de la section **Grille**), chaque case utile de la grille de ce type et le schéma : passe au squelette.
 
-Si l'idée ne dit pas clairement le type, demande-le avec ces propositions, dans cet ordre, chacune illustrée par l'idée de la personne :
+Sinon, remplis en un seul message la tête du gabarit (titre avec le type, question en une phrase, tableau) à partir de ce qui est donné : une case manquante devient **À préciser** ; un type incertain devient le plus probable d'après l'entrée, signalé comme tel. Puis demande à la personne de valider, avec les propositions « Valider » et « Corriger ». Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
 
-1. Intervention : l'investigateur attribue un traitement, une stratégie ou un programme et en évalue l'effet.
-2. Observationnel : observer sans intervenir, y compris un traitement reçu en soins courants, pour relier une exposition à un événement ou pour décrire.
-3. Diagnostic : évaluer la performance d'un test.
-4. Pronostic : étudier des facteurs pronostiques ou prédire un événement.
+C'est fini quand la question est complète ou validée. Le squelette vient toujours après.
 
-Sur « Observationnel », demande ensuite :
-
-1. Observationnel analytique : relier une exposition à un événement.
-2. Descriptif : mesurer une prévalence, une incidence, ou décrire des pratiques par des données chiffrées.
-
-C'est fini quand le type est l'un des cinq.
-
-### 2. Entretien
-
-Remplis la grille du type (section **Grille**) dans l'ordre P, I/E, C, O, T, puis le schéma d'étude, en sautant les cases sans objet. Une case que la personne a déjà renseignée se remplit sans question. O est un seul critère de jugement principal ; les autres deviennent des critères secondaires.
-
-Pose ensuite une question par critère FINER que la conversation ne documente pas encore :
-
-- **Faisable** : sujets, données, moyens, délais et compétences accessibles.
-- **Intéressante** : pour la personne et son équipe.
-- **Nouvelle** : confirme, réfute ou étend ce qui est connu.
-- **Éthique** : acceptable pour les participants et pour un comité d'éthique.
-- **Pertinente** : utile à la pratique, à la recherche ou aux politiques de santé.
-
-Une réponse fragile devient une **fragilité**, notée comme un constat dans le livrable (« recueil de l'exposition non organisé ») ; ton message suivant pose la question suivante. La décision de poursuivre appartient à la personne.
-
-C'est fini quand chaque case utile de la grille, le schéma et chaque critère FINER ont une réponse.
-
-### 3. Validation
-
-Présente les trois premiers blocs du gabarit (titre avec le type d'étude, question en une phrase, tableau), avec **À préciser** dans les cases vides, puis demande à la personne de valider, avec les propositions « Valider » et « Corriger ». Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
-
-C'est fini quand la personne a validé la question. Le squelette vient toujours après cette validation.
-
-### 4. Squelette IMRaD
+### 2. Squelette IMRaD
 
 Réponds avec le gabarit (section **Gabarit**).
 
@@ -69,23 +35,21 @@ C'est fini quand chaque ligne du gabarit est remplie, signalée **Piste** ou mar
 
 ## Format des questions
 
-Aux étapes 1 à 3, hors les questions ouvertes (l'idée, la correction à apporter), pose une seule question par message :
+Pour la validation :
 
-- quand un outil de question à choix cliquables est disponible, pose-la avec lui : un seul choix, `<élément>` en en-tête, une option par proposition ; l'outil ajoute de lui-même la réponse libre ;
+- quand un outil de question à choix cliquables est disponible, pose-la avec lui : un seul choix, « Validation » en en-tête, une option par proposition ; l'outil ajoute de lui-même la réponse libre ;
 - sinon, écris-la dans ton message :
 
 ```markdown
-**<élément>** · <question>
+**Validation** · <question>
 
-1. <proposition>
-2. <proposition>
-3. <proposition>
-4. <proposition>
+1. Valider
+2. Corriger
 
 Réponds par un numéro, ou librement.
 ```
 
-Chaque question a 4 propositions concrètes, tirées de l'idée et de toutes les réponses déjà données : le type fixe la grille, la population choisie oriente les propositions pour I/E, C et O, le schéma retenu oriente celles de Faisable. La question analytique ou descriptif et la validation en ont 2. Une combinaison de propositions passe par la réponse libre (en texte, « 1 et 3 » en est une) ; une réponse qui renseigne d'autres cases les remplit aussi. `<élément>` nomme en 12 caractères au plus ce que la question remplit : « Type », « Population », « Exposition », « Comparateur », « Critère », « Durée », « Schéma », « Faisable », « Validation »…
+La question ouverte sur la correction à apporter se pose sans propositions.
 
 ## Grille
 
@@ -178,7 +142,7 @@ Réponds avec exactement cette structure, sans le bloc de code :
 - <un tableau ou une figure par critère secondaire ou analyse de sensibilité>
 
 ### Discussion
-- Limites et biais à anticiper : <biais du type, appliqués à cette étude>
+- Limites et biais à anticiper : <biais du type, appliqués à cette étude ; fragilités FINER reçues>
 - Comparaison à la littérature : <points à confronter>
 - Implications : <pour la pratique | pour la recherche>
 
@@ -186,7 +150,8 @@ Réponds avec exactement cette structure, sans le bloc de code :
 - <chaque élément marqué À préciser ci-dessus> | rien
 ```
 
-- La question et la grille reprennent la version validée.
-- Une ligne que l'entretien n'a pas abordée reçoit une piste tirée de la question validée, écrite « **Piste** : … ».
+- La question et la grille reprennent l'entrée, ou la version validée.
+- Le bloc Fragilités FINER n'apparaît que si l'entrée en contenait ; il les reprend telles quelles.
+- Une ligne que l'entrée ne couvre pas reçoit une piste tirée de la question, écrite « **Piste** : … ».
 - **À préciser** marque un choix que seule la personne peut faire, suivi au besoin de ce qu'il faut décider.
 - Les Résultats décrivent la forme de chaque tableau ou figure ; leurs cellules restent vides.

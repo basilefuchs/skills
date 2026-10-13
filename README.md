@@ -11,7 +11,8 @@ ou dans tout agent compatible [Agent Skills](https://agentskills.io).
 | `pdh-query` | Statisticien DIM virtuel : traduit une question PMSI (base nationale ATIH : MCO, SMR, HAD, PSY, RPU) en script R dbplyr/Teradata, après clarification du protocole. | [README](skills/pdh-query/README.md) |
 | `snds-query` | Statisticien DIM virtuel : traduit une question SNDS (DCIR, PMSI, causes de décès) en script R dbplyr/Oracle pour le Health Data Hub, après clarification du protocole. | [README](skills/snds-query/README.md) |
 | `situation-clinique-mco` | Classe un CRH ou une lettre de liaison MCO dans sa situation clinique PMSI (guide méthodologique ATIH 2026) et argumente le DP et le DR. Avec Claude, CR fictifs uniquement. | [README](skills/situation-clinique-mco/README.md) |
-| `question-recherche-imrad` | Transforme une idée de recherche en santé en question structurée (grille PICO), puis en squelette IMRaD avec la ligne directrice EQUATOR adaptée, au fil d'un entretien. | [README](skills/question-recherche-imrad/README.md) |
+| `question-recherche-pico` | Transforme une idée de recherche en santé en question structurée (type d'étude, grille PICO, schéma, critères FINER), au fil d'un entretien. | [README](skills/question-recherche-pico/README.md) |
+| `squelette-imrad` | Produit le squelette IMRaD d'un protocole ou d'un article à partir d'une question de recherche structurée, avec la ligne directrice EQUATOR adaptée. | [README](skills/squelette-imrad/README.md) |
 
 ## Installation
 
