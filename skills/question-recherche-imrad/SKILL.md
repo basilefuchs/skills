@@ -25,13 +25,17 @@ Réponds dans la langue de la personne : questions, gabarit et mentions **À pr�
 
 Si la personne n'a pas encore décrit son idée, demande-la d'abord par une question ouverte, sans propositions.
 
-Si l'idée ne dit pas clairement le type, demande-le. Les 5 propositions sont ces cinq types, dans cet ordre, chacun illustré par l'idée de la personne :
+Si l'idée ne dit pas clairement le type, demande-le avec ces propositions, dans cet ordre, chacune illustrée par l'idée de la personne :
 
 1. Intervention : l'investigateur attribue un traitement, une stratégie ou un programme et en évalue l'effet.
-2. Observationnel analytique : étudier le lien entre une exposition, y compris un traitement reçu en soins courants, et un événement.
-3. Descriptif : mesurer une prévalence, une incidence, ou décrire des pratiques par des données chiffrées.
-4. Diagnostic : évaluer la performance d'un test.
-5. Pronostic : étudier des facteurs pronostiques ou prédire un événement.
+2. Observationnel : observer sans intervenir, pour relier une exposition à un événement ou pour décrire.
+3. Diagnostic : évaluer la performance d'un test.
+4. Pronostic : étudier des facteurs pronostiques ou prédire un événement.
+
+Sur « Observationnel », demande ensuite :
+
+1. Observationnel analytique : relier une exposition, y compris un traitement reçu en soins courants, à un événement.
+2. Descriptif : mesurer une prévalence, une incidence, ou décrire des pratiques par des données chiffrées.
 
 C'est fini quand le type est l'un des cinq.
 
@@ -53,7 +57,7 @@ C'est fini quand chaque case utile de la grille, le schéma et chaque critère F
 
 ### 3. Validation
 
-Présente les trois premiers blocs du gabarit (titre avec le type d'étude, question en une phrase, tableau), avec **À préciser** dans les cases vides, puis demande à la personne de valider ou de corriger. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
+Présente les trois premiers blocs du gabarit (titre avec le type d'étude, question en une phrase, tableau), avec **À préciser** dans les cases vides, puis demande à la personne de valider, avec les propositions « Valider » et « Corriger ». Sur « Corriger » sans précision, demande ce qu'il faut changer. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
 
 C'est fini quand la personne a validé la question. Le squelette vient toujours après cette validation.
 
@@ -65,7 +69,10 @@ C'est fini quand chaque ligne du gabarit est remplie, signalée **Piste** ou mar
 
 ## Format des questions
 
-Aux étapes 1 et 2, hors la question ouverte sur l'idée, pose une seule question par message, en texte dans ton message, même quand un outil de questions à choix est disponible : ces outils plafonnent souvent à 4 options.
+Aux étapes 1 à 3, hors la question ouverte sur l'idée, pose une seule question par message :
+
+- quand un outil de question à choix cliquables est disponible, pose-la avec lui : un seul choix, `<élément>` en en-tête, une option par proposition ; l'outil ajoute de lui-même la réponse libre ;
+- sinon, écris-la dans ton message :
 
 ```markdown
 **<élément>** · <question>
@@ -74,12 +81,11 @@ Aux étapes 1 et 2, hors la question ouverte sur l'idée, pose une seule questio
 2. <proposition>
 3. <proposition>
 4. <proposition>
-5. <proposition>
 
 Réponds par un numéro, ou librement.
 ```
 
-Les 5 propositions sont concrètes et tirées de l'idée et de toutes les réponses déjà données : le type fixe la grille, la population choisie oriente les propositions pour I/E, C et O, le schéma retenu oriente celles de Faisable. Une réponse qui cite plusieurs numéros les retient ensemble ; une réponse qui renseigne d'autres cases les remplit aussi. `<élément>` nomme ce que la question remplit : « Type d'étude », « P · Population », « O · Critère de jugement », « Schéma », « FINER · Faisable »…
+Chaque question a 4 propositions concrètes, tirées de l'idée et de toutes les réponses déjà données : le type fixe la grille, la population choisie oriente les propositions pour I/E, C et O, le schéma retenu oriente celles de Faisable. La question analytique ou descriptif et la validation en ont 2. Une combinaison de propositions passe par la réponse libre (en texte, « 1 et 3 » en est une) ; une réponse qui renseigne d'autres cases les remplit aussi. `<élément>` nomme en 12 caractères au plus ce que la question remplit : « Type », « Population », « Exposition », « Comparateur », « Critère », « Durée », « Schéma », « Faisable », « Validation »…
 
 ## Grille
 
