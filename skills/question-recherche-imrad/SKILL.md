@@ -62,7 +62,7 @@ C'est fini quand chaque ligne du gabarit est remplie ou marquée **À préciser*
 Aux étapes 1 et 2, pose une seule question par message, écrite en texte dans ta réponse plutôt qu'avec un outil de questions à choix, qui limite le nombre d'options :
 
 ```markdown
-**<question>**
+**<élément>** · <question>
 
 1. <proposition>
 2. <proposition>
@@ -73,7 +73,7 @@ Aux étapes 1 et 2, pose une seule question par message, écrite en texte dans t
 Réponds par un numéro, ou librement.
 ```
 
-Les 5 propositions sont concrètes et tirées de l'idée et de toutes les réponses déjà données : le type fixe la grille, P choisie oriente les propositions pour I/E, C et O, le schéma retenu oriente celles de Faisable. Une réponse libre vaut une réponse numérotée.
+Les 5 propositions sont concrètes et tirées de l'idée et de toutes les réponses déjà données : le type fixe la grille, P choisie oriente les propositions pour I/E, C et O, le schéma retenu oriente celles de Faisable. Une réponse libre vaut une réponse numérotée. `<élément>` nomme ce que la question remplit : « Type d'étude », « P · Population », « O · Critère de jugement », « Schéma », « FINER · Faisable »…
 
 ## Grille
 
@@ -97,19 +97,23 @@ Les 5 propositions sont concrètes et tirées de l'idée et de toutes les répon
 | Diagnostic | STARD | spectre des patients, vérification incomplète par le test de référence, lecture des tests sans insu |
 | Pronostic | STROBE pour un facteur pronostique ; TRIPOD pour un modèle de prédiction | perdus de vue, données manquantes, surajustement, absence de validation externe |
 
+Enquête par questionnaire, descriptive ou analytique : ligne directrice CROSS, et biais de non-réponse.
+
 Nomme la ligne directrice sans année ni référence : la version en vigueur se trouve sur le site de l'EQUATOR Network.
 
 ### Analyse principale selon le type d'étude et la nature de O
 
 | O ou type d'étude | Analyse principale |
 |---|---|
-| Binaire | comparaison de proportions ; régression logistique pour ajuster |
+| Binaire | comparaison de proportions ; régression logistique pour ajuster (conditionnelle si appariement) |
 | Continu | comparaison de moyennes ou de rangs ; régression linéaire pour ajuster |
 | Délai jusqu'à un événement | Kaplan-Meier et log-rank ; modèle de Cox pour ajuster |
 | Dénombrement ou taux | régression de Poisson ou binomiale négative |
 | Fréquence (descriptif) | proportion ou taux avec intervalle de confiance à 95 % |
 | Diagnostic | sensibilité, spécificité, valeurs prédictives, aire sous la courbe ROC |
 | Modèle de prédiction | discrimination, calibration, validation interne puis externe |
+
+Pour un essai, ajoute à l'analyse principale la population d'analyse : intention de traiter, per protocole.
 
 ## Gabarit
 
@@ -131,10 +135,12 @@ Réponds avec exactement cette structure, sans le bloc de code :
 - État des connaissances à documenter : <ce que la personne doit chercher dans la littérature>
 - Lacune : <ce qui reste inconnu et que l'étude vise>
 - Objectif principal : <aligné sur la question>
+- Hypothèse : <… | sans objet (descriptif)>
 - Objectifs secondaires : <…>
 
 ### Méthodes
 - Schéma : <schéma>
+- Cadre et source des données : <lieux, période d'inclusion, source ou mode de recueil>
 - Population : <P> · inclusion : <…> · exclusion : <…>
 - <Intervention | Exposition | Test évalué | Facteur pronostique> : <I/E | sans objet>
 - <Comparateur | Test de référence> : <C | sans objet>
