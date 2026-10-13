@@ -164,9 +164,9 @@ point renvoie à sa source de détail.
    prestation DCIR jointes à `ER_PRS_F` sur les 9 colonnes techniques
    (exceptions `ER_DCT_F`, `ER_UCD_F`, `ER_LOT_F`, `ER_TRS_F` : profil) ;
    PMSI ↔ DCIR sur `NIR_ANO_17` = `BEN_NIR_PSA` ; patients uniques comptés
-   sur `IR_BEN_R.BEN_IDT_ANO`, jamais sur `BEN_NIR_PSA` + `BEN_RNG_GEM` ni
-   sur `NIR_ANO_17` sans le dire ; causes de décès par `BEN_IDT_ANO`, perte
-   d'appariement à quantifier. Détail : `modele-donnees.md`, « Chaînage
+   sur `IR_BEN_R.BEN_IDT_ANO` (un comptage sur `BEN_NIR_PSA` + `BEN_RNG_GEM`
+   ou sur `NIR_ANO_17` surestime : constat) ; causes de décès par
+   `BEN_IDT_ANO`, perte d'appariement à quantifier. Détail : `modele-donnees.md`, « Chaînage
    patient ».
 4. **Filtres qualité du profil.** PMSI : codes retour `*_RET = '0'` (selon
    millésime), NIR fictifs exclus, GHM/GME `90*` exclus, `SEJ_TYP <> 'B'`
@@ -197,6 +197,28 @@ point renvoie à sa source de détail.
    l'environnement (seuil 11) ; écriture locale d'un identifiant, d'une date
    ou d'une localisation individuelle ; année PMSI = année de sortie, à dire
    si la requête parle d'incidence ou d'entrée.
+
+## Mode complétion
+
+L'utilisateur décrit l'étape qu'il veut écrire (« la boucle par millésime
+sur `T_MCO{aa}B` 2019-2023 », « la jointure `ER_PRS_F` → `ER_PHA_F` avec
+les filtres qualité », « le batch sur `FLX_DIS_DTD` »). Rendre le fragment
+seul, prêt à insérer, en R dbplyr par défaut ou en SQL Oracle si demandé ou
+si la requête en cours est en SQL, puis une ligne par choix fait à sa place
+(années, filtres appliqués, colonne retenue).
+
+Le fragment reprend le pattern validé de `template.R` quand il en existe un
+(étapes par millésime, patients uniques par union, jointure DCIR sur
+`DCIR_JOIN_KEY`, batch de flux), avec le nom réel des tables, les filtres
+qualité du profil applicables à l'étape et les colonnes vérifiées dans le
+dictionnaire. Le fragment est complet quand il passerait la grille de
+relecture.
+
+## Sans argument
+
+Invoquée sans requête ni question, poser une seule question : « Collez la
+requête à relire, ou posez votre question (table, variable, fragment à
+écrire). » Puis traiter la réponse dans le mode qui correspond.
 
 ## Règles communes
 
