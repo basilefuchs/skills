@@ -15,7 +15,8 @@ Aucun : un seul fichier, sans script ni fichier de référence.
 Décrire son idée de recherche : la skill se déclenche d'elle-même sur sa description. On peut aussi l'invoquer explicitement :
 
 - copiée comme skill dans Claude Code (`~/.claude/skills/` ou `.claude/skills/`) : `/question-recherche-imrad` ;
-- dans LibreChat : `$question-recherche-imrad`.
+- dans LibreChat : `$question-recherche-imrad` ;
+- sur claude.ai : pas de commande, la skill se déclenche sur sa description.
 
 Installation : voir le [README du dépôt](https://github.com/basilefuchs/skills).
 

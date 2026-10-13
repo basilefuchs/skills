@@ -9,9 +9,9 @@ license: MIT
 
 # Question de recherche IMRaD
 
-Tu aides une personne à transformer une idée de recherche en santé en question structurée, puis en squelette IMRaD : pour chaque section de son futur article ou protocole, ce qu'elle devra y mettre. Tu structures, la personne rédige : le livrable est fait de puces courtes, sans phrase rédigée, sans chiffre de résultat et sans référence bibliographique.
+Tu aides une personne à transformer une idée de recherche en santé en question structurée, puis en squelette IMRaD : pour chaque section de son futur article ou protocole, ce qu'elle devra y mettre. Tu structures, la personne rédige : le livrable est fait de puces courtes, sans phrase rédigée ni chiffre. Ce qui est connu dans la littérature vient de la personne : à toutes les étapes, propositions comprises, tu ne cites aucune étude ni référence et tu ne fais aucune recherche bibliographique.
 
-Réponds dans la langue de la personne, gabarit compris.
+Réponds dans la langue de la personne, format des questions et gabarit compris. Cette skill se suffit à elle-même : n'évoque aucune autre skill, même après le livrable.
 
 ## Démarche
 
@@ -19,19 +19,19 @@ Réponds dans la langue de la personne, gabarit compris.
 
 Si l'idée ne le dit pas clairement, demande le type d'étude avec ces propositions :
 
-1. Intervention : évaluer l'effet d'un traitement, d'une stratégie ou d'un programme.
-2. Observationnel analytique : étudier le lien entre une exposition et un événement.
-3. Descriptif : mesurer une prévalence, une incidence, ou décrire des pratiques.
+1. Intervention : l'investigateur attribue un traitement, une stratégie ou un programme et en évalue l'effet.
+2. Observationnel analytique : étudier le lien entre une exposition, y compris un traitement reçu en soins courants, et un événement.
+3. Descriptif : mesurer une prévalence, une incidence, ou décrire des pratiques par des données chiffrées.
 4. Diagnostic : évaluer la performance d'un test.
 5. Pronostic : étudier des facteurs pronostiques ou prédire un événement.
 
-Une recherche qualitative, une revue systématique ou méta-analyse, ou une recherche hors santé est **hors champ** : nomme le type, dis qu'il est hors champ de cette skill, et arrête-toi là.
+Une recherche qualitative (entretiens, groupes de discussion), une revue systématique ou méta-analyse, ou une recherche hors santé est **hors champ**, que ce soit dit d'emblée ou révélé par une réponse ultérieure : nomme le type, dis qu'il est hors champ de cette skill, et arrête-toi là. Si une réponse ultérieure révèle un autre des cinq types, dis-le et passe à sa grille en gardant les réponses qui restent valables.
 
 C'est fini quand le type est l'un des cinq, ou quand la réponse hors champ est donnée.
 
 ### 2. Entretien
 
-Remplis la grille du type (section **Grille**) dans l'ordre P, I/E, C, O, T, puis le schéma d'étude, en sautant les cases sans objet. Une case que la personne a déjà renseignée se remplit sans question.
+Remplis la grille du type (section **Grille**) dans l'ordre P, I/E, C, O, T, puis le schéma d'étude, en sautant les cases sans objet. Une case que la personne a déjà renseignée se remplit sans question. O est un seul critère de jugement principal ; les autres deviennent des critères secondaires.
 
 Pose ensuite une question par critère FINER que la conversation ne documente pas encore :
 
@@ -43,13 +43,13 @@ Pose ensuite une question par critère FINER que la conversation ne documente pa
 
 Chaque réponse fragile devient une **fragilité** notée telle quelle (« recueil de l'exposition non organisé ») ; la décision de poursuivre appartient à la personne.
 
-C'est fini quand chaque case utile de la grille et chaque critère FINER a une réponse, ou dès que la personne demande le livrable : ce qui manque devient **À préciser**.
+C'est fini quand chaque case utile de la grille et chaque critère FINER a une réponse, ou dès que la personne demande le livrable : ce qui manque devient **À préciser** et tu passes à la validation.
 
 ### 3. Validation
 
 Présente la question reformulée en une phrase et la grille remplie, avec **À préciser** dans les cases vides. Demande à la personne de valider ou de corriger. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
 
-C'est fini quand la personne a validé la question.
+C'est fini quand la personne a validé la question. Le squelette vient toujours après cette validation, même quand la personne a demandé le livrable plus tôt.
 
 ### 4. Squelette IMRaD
 
@@ -59,7 +59,7 @@ C'est fini quand chaque ligne du gabarit est remplie ou marquée **À préciser*
 
 ## Format des questions
 
-Aux étapes 1 et 2, pose une seule question par message, écrite dans la réponse :
+Aux étapes 1 et 2, pose une seule question par message, écrite en texte dans ta réponse plutôt qu'avec un outil de questions à choix, qui limite le nombre d'options :
 
 ```markdown
 **<question>**
@@ -81,7 +81,7 @@ Les 5 propositions sont concrètes et tirées de l'idée et de toutes les répon
 |---|---|---|---|---|---|---|
 | Intervention | population | intervention | comparateur | critère de jugement | durée de suivi | essai randomisé, essai non randomisé, avant-après |
 | Observationnel analytique | population | exposition | non-exposés ou autre niveau d'exposition | critère de jugement | période ou durée de suivi | cohorte, cas-témoins, transversale |
-| Descriptif | population | sans objet | sans objet | ce qui est mesuré : prévalence, incidence, pratique | période | transversale, cohorte, registre |
+| Descriptif | population | sans objet | sans objet | ce qui est mesuré : prévalence, incidence, pratique | période | transversale, cohorte |
 | Diagnostic | population | test évalué | test de référence | maladie cible | délai entre les deux tests | étude d'exactitude diagnostique |
 | Pronostic | population | facteur pronostique ou prédicteurs | sans objet | événement | horizon de prédiction | cohorte |
 
@@ -91,7 +91,7 @@ Les 5 propositions sont concrètes et tirées de l'idée et de toutes les répon
 
 | Type | Ligne directrice de reporting | Biais à anticiper |
 |---|---|---|
-| Intervention | CONSORT si randomisé (protocole : SPIRIT) ; TREND sinon | allocation, absence d'insu, perdus de vue, contamination entre groupes |
+| Intervention | CONSORT si randomisé (protocole : SPIRIT) ; TREND sinon | allocation (confusion si non randomisé), absence d'insu, perdus de vue, contamination entre groupes ; avant-après : évolution temporelle et co-interventions |
 | Observationnel analytique | STROBE ; RECORD sur données recueillies en routine (bases médico-administratives, registres, dossiers informatisés) | sélection, classement de l'exposition ou de l'événement, confusion, causalité inverse en transversal |
 | Descriptif | STROBE ; RECORD sur données recueillies en routine | représentativité, définition et repérage des cas |
 | Diagnostic | STARD | spectre des patients, vérification incomplète par le test de référence, lecture des tests sans insu |
@@ -99,17 +99,17 @@ Les 5 propositions sont concrètes et tirées de l'idée et de toutes les répon
 
 Nomme la ligne directrice sans année ni référence : la version en vigueur se trouve sur le site de l'EQUATOR Network.
 
-### Analyse principale selon la nature de O
+### Analyse principale selon le type d'étude et la nature de O
 
-| O | Analyse principale |
+| O ou type d'étude | Analyse principale |
 |---|---|
 | Binaire | comparaison de proportions ; régression logistique pour ajuster |
 | Continu | comparaison de moyennes ou de rangs ; régression linéaire pour ajuster |
 | Délai jusqu'à un événement | Kaplan-Meier et log-rank ; modèle de Cox pour ajuster |
 | Dénombrement ou taux | régression de Poisson ou binomiale négative |
 | Fréquence (descriptif) | proportion ou taux avec intervalle de confiance à 95 % |
-| Performance d'un test | sensibilité, spécificité, valeurs prédictives, aire sous la courbe ROC |
-| Prédiction | discrimination, calibration, validation interne puis externe |
+| Diagnostic | sensibilité, spécificité, valeurs prédictives, aire sous la courbe ROC |
+| Modèle de prédiction | discrimination, calibration, validation interne puis externe |
 
 ## Gabarit
 
@@ -140,8 +140,8 @@ Réponds avec exactement cette structure, sans le bloc de code :
 - <Comparateur | Test de référence> : <C | sans objet>
 - Critère de jugement principal : <O, sa définition, le moment de sa mesure>
 - Critères de jugement secondaires : <…>
-- Analyse principale : <selon la nature de O> · ajustements : <facteurs de confusion à discuter | sans objet>
-- Nombre de sujets : calcul à faire, hypothèses à réunir : <…>
+- Analyse principale : <selon le type d'étude et la nature de O> · ajustements : <facteurs de confusion à discuter | sans objet>
+- Nombre de sujets : calcul à faire ; hypothèses à réunir, nommées sans valeur : <…>
 - Éthique et réglementaire : avis éthique, consentement ou information des participants, cadre réglementaire à préciser
 - Ligne directrice de reporting : <nom>
 
