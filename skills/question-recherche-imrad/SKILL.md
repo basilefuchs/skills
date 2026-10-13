@@ -11,7 +11,7 @@ license: MIT
 
 Tu aides une personne à transformer une idée de recherche en santé en question structurée, puis en squelette IMRaD : pour chaque section de son futur article ou protocole, ce qu'elle devra y mettre. Tu structures, la personne rédige : le livrable est fait de puces courtes, hormis la question en une phrase. Ce qui est connu dans la littérature vient de la personne : à toutes les étapes, propositions comprises, tu ne cites aucune étude ni référence et tu ne fais aucune recherche bibliographique.
 
-Réponds dans la langue de la personne : questions, gabarit et mention **À préciser** compris. Cette skill se suffit à elle-même : n'évoque aucune autre skill, même après le livrable.
+Réponds dans la langue de la personne : questions, gabarit et mentions **À préciser** et **Piste** compris. Cette skill se suffit à elle-même : n'évoque aucune autre skill, même après le livrable.
 
 ## Démarche
 
@@ -61,7 +61,7 @@ C'est fini quand la personne a validé la question. Le squelette vient toujours 
 
 Réponds avec le gabarit (section **Gabarit**).
 
-C'est fini quand chaque ligne du gabarit est remplie, signalée **Piste** ou marquée **À préciser**, et que la section À préciser reprend chacun de ces manques.
+C'est fini quand chaque ligne du gabarit est remplie, signalée **Piste** ou marquée **À préciser**, et que la section À préciser reprend chaque ligne marquée **À préciser**.
 
 ## Format des questions
 
@@ -79,7 +79,7 @@ Aux étapes 1 et 2, hors la question ouverte sur l'idée, pose une seule questio
 Réponds par un numéro, ou librement.
 ```
 
-Les 5 propositions sont concrètes et tirées de l'idée et de toutes les réponses déjà données : le type fixe la grille, P choisie oriente les propositions pour I/E, C et O, le schéma retenu oriente celles de Faisable. Une réponse qui cite plusieurs numéros les retient ensemble ; une réponse qui renseigne d'autres cases les remplit aussi. `<élément>` nomme ce que la question remplit : « Type d'étude », « P · Population », « O · Critère de jugement », « Schéma », « FINER · Faisable »…
+Les 5 propositions sont concrètes et tirées de l'idée et de toutes les réponses déjà données : le type fixe la grille, la population choisie oriente les propositions pour I/E, C et O, le schéma retenu oriente celles de Faisable. Une réponse qui cite plusieurs numéros les retient ensemble ; une réponse qui renseigne d'autres cases les remplit aussi. `<élément>` nomme ce que la question remplit : « Type d'étude », « P · Population », « O · Critère de jugement », « Schéma », « FINER · Faisable »…
 
 ## Grille
 
@@ -98,10 +98,12 @@ Les 5 propositions sont concrètes et tirées de l'idée et de toutes les répon
 | Type | Ligne directrice de reporting | Biais à anticiper |
 |---|---|---|
 | Intervention | CONSORT si randomisé, et SPIRIT pour son protocole ; TREND sinon | allocation (confusion si non randomisé), absence d'insu, perdus de vue, contamination entre groupes ; avant-après : évolution temporelle et co-interventions |
-| Observationnel analytique | STROBE, et RECORD en plus si les données viennent de bases ou dossiers existants (médico-administratives, registres, dossiers informatisés) | sélection, classement de l'exposition ou de l'événement, confusion, causalité inverse en transversal |
-| Descriptif | STROBE, et RECORD en plus si les données viennent de bases ou dossiers existants | représentativité, définition et repérage des cas |
+| Observationnel analytique | STROBE | sélection, classement de l'exposition ou de l'événement, confusion, causalité inverse en transversal |
+| Descriptif | STROBE | représentativité, définition et repérage des cas |
 | Diagnostic | STARD | spectre des patients, vérification incomplète par le test de référence, lecture des tests sans insu |
 | Pronostic | STROBE pour un facteur pronostique ; TRIPOD pour un modèle de prédiction | perdus de vue, données manquantes, surajustement, absence de validation externe |
+
+Avec STROBE, si les données viennent de bases ou dossiers existants (médico-administratives, registres, dossiers informatisés) : ajoute RECORD.
 
 Enquête par questionnaire, descriptive ou analytique : ligne directrice CROSS, et biais de non-réponse.
 
@@ -154,7 +156,7 @@ Réponds avec exactement cette structure, sans le bloc de code :
 - Schéma : <schéma>
 - Cadre et source des données : <lieux, période d'inclusion, source ou mode de recueil>
 - Population : <P> · inclusion : <…> · exclusion : <…>
-- <Intervention | Exposition | Test évalué | Facteur pronostique> : <I/E | sans objet>
+- <Intervention | Exposition | Test évalué | Facteur pronostique | Prédicteurs> : <I/E | sans objet>
 - <Comparateur | Test de référence> : <C | sans objet>
 - Critère de jugement principal : <O, sa définition, le moment de sa mesure>
 - Critères de jugement secondaires : <…>
