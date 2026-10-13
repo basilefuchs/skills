@@ -124,6 +124,80 @@ Réponse courte : le fait, la source, la conséquence pour la requête. La
 réponse est complète quand chaque table, colonne et millésime cités ont été
 lus dans le dictionnaire ou le profil, pas de mémoire.
 
+## Mode relecture
+
+L'utilisateur colle une requête (SQL Oracle, R dbplyr lazy ou style
+historique `glue()` + SQL brut, ou SAS). Lire d'abord les années, tables et
+colonnes qu'elle touche, vérifier chacune dans le dictionnaire et le profil,
+puis passer les sept points de la grille, dans l'ordre. Rendre :
+
+1. **Les constats**, groupés par gravité (bloquant, à vérifier, suggestion),
+   chacun en trois éléments : la ligne visée (citée), une phrase de raison,
+   le correctif.
+2. **La requête corrigée entière**, dans le langage de l'entrée, les
+   corrections appliquées.
+
+Une requête sans constat se dit en une ligne, avec ce qui a été vérifié
+(tables, colonnes, millésimes). La relecture est complète quand les sept
+points ont été passés sur chaque table et chaque année de la requête.
+
+### Grille
+
+Gravité par défaut : points 1 à 3 **bloquant** (la requête échoue ou compte
+faux), 4 à 6 **à vérifier** (résultat plausible mais biaisé ou lent), 7
+**suggestion** (bloquant si l'utilisateur annonce une diffusion). Chaque
+point renvoie à sa source de détail.
+
+1. **Existence et noms réels.** Chaque table et colonne existe dans
+   `variables.tsv`, sur la bonne table (`SEJ_TYP` est dans `T_MCO{aa}B`, pas
+   dans `C`) ; les tables PMSI portent l'année sur deux chiffres
+   (`T_MCO23B`), jamais `aa` ; la clé du champ est la bonne (HAD/RIP :
+   `ETA_NUM_EPMSI` + `RHAD_NUM`/`RIP_NUM`, pas `ETA_NUM`). Table hors
+   dictionnaire : profil, sinon documentation officielle, en le signalant.
+2. **Millésimes.** Chaque colonne est disponible pour chaque année de la
+   requête (`debut`, `fin`, `absente`) ; ruptures connues : dates réelles de
+   séjour absentes avant 2009, `EXT_PMSI` absent avant 2015, `FP_PEC` non
+   codé après le 01/03/2023, `SOR_ANN`/`SOR_MOI` hors de `T_MCO{aa}C` après
+   2018. Variable DCIR récente : millésime déclaré ≠ alimentation effective,
+   proposer le `COUNT(*)` par année de `FLX_DIS_DTD`.
+3. **Jointures et chaînage.** Clés déclarées de `jointures.tsv` ; tables de
+   prestation DCIR jointes à `ER_PRS_F` sur les 9 colonnes techniques
+   (exceptions `ER_DCT_F`, `ER_UCD_F`, `ER_LOT_F`, `ER_TRS_F` : profil) ;
+   PMSI ↔ DCIR sur `NIR_ANO_17` = `BEN_NIR_PSA` ; patients uniques comptés
+   sur `IR_BEN_R.BEN_IDT_ANO`, jamais sur `BEN_NIR_PSA` + `BEN_RNG_GEM` ni
+   sur `NIR_ANO_17` sans le dire ; causes de décès par `BEN_IDT_ANO`, perte
+   d'appariement à quantifier. Détail : `modele-donnees.md`, « Chaînage
+   patient ».
+4. **Filtres qualité du profil.** PMSI : codes retour `*_RET = '0'` (selon
+   millésime), NIR fictifs exclus, GHM/GME `90*` exclus, `SEJ_TYP <> 'B'`
+   (MCO), doublons APHP/APHM/HCL seulement pour 2005-2017 ; DCIR : `DPN_QLF`
+   et `PRS_DPN_QLP` hors 71/72 avec les `NULL` gérés explicitement,
+   `ER_ETE_F.ETE_IND_TAA <> 1 OR IS NULL` ; population : `BEN_CDI_NIR = '00'`,
+   `BEN_NAI_ANN` hors `1600`/`0001`, `BEN_SEX_COD <> 0` avant tout comptage.
+   Filtre absent, sur la mauvaise table ou avec le mauvais seuil : constat.
+   Détail : profil, « Défauts recommandés ».
+5. **Pièges Oracle.** `col != valeur` exclut les `NULL` (écrire
+   `col IS NULL OR col != valeur` ; en dbplyr `is.na(col) | col != valeur`) ;
+   liste `IN` de plus de 1000 valeurs (ORA-01795 : `semi_join` lazy ou table
+   temporaire) ; borne de date en chaîne (`DATE 'AAAA-MM-JJ'`, en dbplyr
+   `!!ora_date(d)`) ; `TZ`/`ORA_SDTZ` posés avant `dbConnect()` ; `ORDER BY`
+   sur colonne à `NULL` (tri après `collect()`) ; `REGEXP_LIKE` via `sql()`
+   en dbplyr ; requête MySQL de la fiche filtres non traduite (`RIGHT()` →
+   `SUBSTR(x, -n)`).
+6. **Volumétrie.** `collect()` avant l'agrégation finale ; `ER_PRS_F` (et
+   tables jointes) sur plus de quelques mois sans batch mensuel sur
+   `FLX_DIS_DTD` des deux côtés de la jointure, ou sans marge de flux après la
+   période clinique (au moins 6 flux, 12 pour une extraction exhaustive,
+   jamais plus de 24, chaque batch refiltré sur `EXE_SOI_DTD`) ; table
+   temporaire réutilisée sans statistiques (`analyze = TRUE`,
+   `DBMS_STATS.GATHER_TABLE_STATS`) ; patients uniques pluriannuels sommés
+   par année au lieu d'une union avant `n_distinct`. Pattern de référence :
+   `template.R`, Pattern B et Pattern C.
+7. **Sorties.** Cellules de 1 à 10 dans un résultat destiné à sortir de
+   l'environnement (seuil 11) ; écriture locale d'un identifiant, d'une date
+   ou d'une localisation individuelle ; année PMSI = année de sortie, à dire
+   si la requête parle d'incidence ou d'entrée.
+
 ## Règles communes
 
 - **Vérification** : chaque table, colonne et millésime nommés dans une
