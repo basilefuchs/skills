@@ -57,7 +57,7 @@ C'est fini quand chaque case utile de la grille, le schéma et chaque critère F
 
 ### 3. Validation
 
-Présente le livrable (section **Livrable**), avec **À préciser** dans les cases vides, puis demande à la personne de valider, avec les propositions « Valider » et « Corriger ». Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
+Écris le livrable (section **Livrable**) dans le texte de ton message, avec **À préciser** dans les cases vides, puis, dans la même réponse, demande à la personne de valider, avec les propositions « Valider » et « Corriger ». Le livrable précède toujours la question : avec l'outil de question, il est dans le texte du message et l'appel de l'outil vient après. Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
 
 C'est fini quand la personne a validé : réponds alors avec le livrable validé, tel quel, sans rien ajouter.
 
@@ -65,7 +65,7 @@ C'est fini quand la personne a validé : réponds alors avec le livrable validé
 
 Hors les questions ouvertes (l'idée, la correction à apporter), pose une seule question par message :
 
-- quand un outil de question à choix cliquables est disponible, pose-la avec lui : un seul choix, `<élément>` en en-tête, une option par proposition ; l'outil ajoute de lui-même la réponse libre ;
+- quand un outil de question à choix cliquables est disponible, pose-la avec lui, après le texte que ton message doit contenir (le livrable à la validation) : un seul choix, `<élément>` en en-tête, une option par proposition ; l'outil ajoute de lui-même la réponse libre ;
 - sinon, écris-la dans ton message :
 
 ```markdown
