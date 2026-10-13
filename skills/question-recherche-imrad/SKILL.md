@@ -23,7 +23,9 @@ Réponds dans la langue de la personne : questions, gabarit et mention **À pré
 
 ### 1. Type d'étude
 
-Si l'idée ne le dit pas clairement, demande le type d'étude. Les 5 propositions sont ces cinq types, dans cet ordre, chacun illustré par l'idée de la personne :
+Si la personne n'a pas encore décrit son idée, demande-la d'abord par une question ouverte, sans propositions.
+
+Si l'idée ne dit pas clairement le type, demande-le. Les 5 propositions sont ces cinq types, dans cet ordre, chacun illustré par l'idée de la personne :
 
 1. Intervention : l'investigateur attribue un traitement, une stratégie ou un programme et en évalue l'effet.
 2. Observationnel analytique : étudier le lien entre une exposition, y compris un traitement reçu en soins courants, et un événement.
@@ -59,11 +61,11 @@ C'est fini quand la personne a validé la question. Le squelette vient toujours 
 
 Réponds avec le gabarit (section **Gabarit**).
 
-C'est fini quand chaque ligne du gabarit est remplie ou marquée **À préciser**, et que la section À préciser reprend chacun de ces manques.
+C'est fini quand chaque ligne du gabarit est remplie, signalée **Piste** ou marquée **À préciser**, et que la section À préciser reprend chacun de ces manques.
 
 ## Format des questions
 
-Aux étapes 1 et 2, pose une seule question par message, en texte dans ton message, même quand un outil de questions à choix est disponible : ces outils plafonnent souvent à 4 options.
+Aux étapes 1 et 2, hors la question ouverte sur l'idée, pose une seule question par message, en texte dans ton message, même quand un outil de questions à choix est disponible : ces outils plafonnent souvent à 4 options.
 
 ```markdown
 **<élément>** · <question>
@@ -176,5 +178,7 @@ Réponds avec exactement cette structure, sans le bloc de code :
 - <chaque élément marqué À préciser ci-dessus> | rien
 ```
 
-- Une ligne inconnue porte **À préciser**, suivi au besoin de ce qu'il faut décider.
+- La question et la grille reprennent la version validée.
+- Une ligne que l'entretien n'a pas abordée reçoit une piste tirée de la question validée, écrite « **Piste** : … ».
+- **À préciser** marque un choix que seule la personne peut faire, suivi au besoin de ce qu'il faut décider.
 - Les Résultats décrivent la forme de chaque tableau ou figure ; leurs cellules restent vides.
