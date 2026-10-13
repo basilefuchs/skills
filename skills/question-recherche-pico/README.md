@@ -22,9 +22,10 @@ Installation : voir le [README du dépôt](https://github.com/basilefuchs/skills
 
 ## Déroulé
 
-1. **Type d'étude** (après une question ouverte sur l'idée si elle n'a pas été décrite) : intervention, observationnel, diagnostic ou pronostic, puis analytique ou descriptif pour un observationnel.
-2. **Entretien** : une question par message, chacune avec 4 propositions tirées de l'idée et des réponses précédentes, et une réponse libre toujours possible. Les propositions s'affichent en options cliquables quand la plateforme le permet (bandeau de Claude, `AskUserQuestion` dans Claude Code), sinon en liste numérotée. Les questions remplissent la grille P, I/E, C, O, T et le schéma d'étude, puis passent en revue les critères FINER (faisable, intéressante, nouvelle, éthique, pertinente). La personne peut demander le livrable à tout moment.
-3. **Validation** : le livrable est présenté avec les propositions « Valider » et « Corriger », puis renvoyé tel quel une fois validé.
+1. **Idée** (après une question ouverte si elle n'a pas été décrite) : la skill restitue l'idée en une phrase et l'attente de la personne (thèse, article, projet à soumettre), « À préciser » si rien ne l'indique, et demande de valider avec les propositions « Valider » et « Corriger », jusqu'à validation explicite.
+2. **Type d'étude** : intervention, observationnel, diagnostic ou pronostic, puis analytique ou descriptif pour un observationnel.
+3. **Entretien** : une question par message, chacune avec 4 propositions tirées de l'idée et des réponses précédentes, et une réponse libre toujours possible. Les propositions s'affichent en options cliquables quand la plateforme le permet (bandeau de Claude, `AskUserQuestion` dans Claude Code), sinon en liste numérotée. Les questions remplissent la grille P, I/E, C, O, T et le schéma d'étude, puis passent en revue les critères FINER (faisable, intéressante, nouvelle, éthique, pertinente). La personne peut demander le livrable à tout moment.
+4. **Validation** : le livrable est présenté avec les propositions « Valider » et « Corriger », puis renvoyé tel quel une fois validé.
 
 Le livrable : le type d'étude, la question en une phrase, le tableau P / I/E / C / O / T / Schéma et les fragilités FINER. Il se copie tel quel pour la suite du projet. La skill structure, la personne rédige : le livrable ne contient ni texte rédigé, ni référence bibliographique.
 
