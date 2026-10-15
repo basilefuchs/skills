@@ -113,10 +113,12 @@ dépendances ci-dessus.
 
 ## E. Sortie attendue
 
-15. Format : script `.R` (tableau agrégé affiché, export CSV, graphique ggplot2) ou
-    **rapport `.Rmd`** (narratif méthodologique, tables interactives, figures,
+15. Format : script `.R` (dossier d'un script par étape du protocole, fichier
+    unique sur demande ; tableau agrégé affiché, export CSV, graphique ggplot2)
+    ou **rapport `.Rmd`** (narratif méthodologique, tables interactives, figures,
     flowchart d'attrition intégré) — recommandé dès que le résultat est destiné à
     être partagé tel quel (rapport, dialogue de gestion, diffusion externe).
+    Le découpage en fichiers ne fait l'objet d'aucune question.
 16. **Environnement** : ne rien demander (connexion, schémas) quand un profil
     de `references/profils/` couvre l'environnement — voir SKILL.md, Ressources.
     Sinon, demander une fois et proposer d'enregistrer un nouveau profil.

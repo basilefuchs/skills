@@ -48,12 +48,17 @@ poser les questions de clarification via l'outil de choix multiple si disponible
 5. `references/points-de-vigilance.md` — registres de risques méthodologiques
    (rupture d'interprétation, biais de définition, instabilité, diffusion) à
    vérifier pendant la clarification (étape 3) et à la synthèse (étape 4).
-6. `references/template.R` — squelette de script R et patterns dbplyr/Teradata validés
-   (livrable par défaut : script `.R` autonome).
-7. `references/template.Rmd` — squelette de rapport R Markdown (mêmes patterns
-   dbplyr/Teradata, plus mise en forme narrative : `rmdformats::robobook`, tables
-   interactives `DT`, section méthodologie, flowchart d'attrition). À utiliser
-   quand le format demandé (clarification E.15) est un rapport plutôt qu'un script.
+6. `references/template/` — squelette du dossier de scripts R (livrable par
+   défaut), un fichier par étape du protocole, et patterns dbplyr/Teradata
+   validés, chacun dans le fichier de l'étape qui l'utilise. **Source de vérité
+   des patterns** : `00_setup.R` porte les fonctions partagées
+   (`compute_volatile()`, `noter_attrition()`) et les rappels génériques.
+7. `references/template.Rmd` — squelette de rapport R Markdown : mêmes étapes,
+   mêmes noms de tables et d'objets que le dossier (un chunk par étape, nommé
+   comme le fichier correspondant), plus mise en forme narrative
+   (`rmdformats::robobook`, tables interactives `DT`, section méthodologie,
+   flowchart d'attrition). À utiliser quand le format demandé (clarification
+   E.15) est un rapport plutôt qu'un script.
 
 ## Workflow
 
@@ -141,54 +146,74 @@ signalé pendant la clarification (étape 3) — ce bloc complète, il ne répè
 
 Demander confirmation explicite (Valider / Modifier). Ne continuer qu'après un « oui ».
 
-### 5. Générer le script R (ou le rapport R Markdown)
+### 5. Générer le dossier de scripts R (ou le rapport R Markdown)
 
-Suivre `references/template.R` pour un script `.R`, ou `references/template.Rmd`
-pour un rapport (format choisi en clarification E.15 ; par défaut `.R`). Les deux
-partagent les mêmes exigences ci-dessous ; le `.Rmd` y ajoute une section
-« Méthodologie » rédigée en prose (question/périmètre, limites, secret
-statistique si diffusion externe) et des tables interactives (`dtttable()`, voir
-le template) plutôt qu'un simple `print()`.
+Format choisi en clarification E.15 ; par défaut `.R`. Un `.R` est un **dossier
+de scripts**, un fichier par étape du protocole validé, calqué sur
+`references/template/` ; un `.Rmd` suit `references/template.Rmd`, qui partage
+la même définition des étapes, mêmes noms de tables et d'objets que le dossier
+(un chunk par étape, dans le même ordre), avec en plus la section
+« Méthodologie » en prose et les tables interactives `dtttable()`.
 
-Exigences (les deux formats) :
+Dossier `.R` — fichiers, dans l'ordre d'exécution (noms sans accent) :
 
-- **Chaque variable et chaque table** utilisée est vérifiée dans le dictionnaire, avec
-  `andeb ≤ année ≤ anfin` pour toutes les années demandées. Si une variable manque pour
-  certaines années, adapter (variable alternative, restriction de période) et le signaler.
-- Une base par champ et par année (`prd_vue_mcobl_2022`…), tables référencées par
-  `tbl(conn, I("schema.table"))`. Deux patterns (voir template) : agrégats annuels
-  par `purrr::map_dfr` + `collect()` par millésime ; patients uniques pluriannuels
-  par `union_all` des requêtes lazy AVANT `n_distinct`. Le calcul reste côté
-  Teradata, `collect()` uniquement sur les agrégats.
-- Filtres CIM-10 : `substr()` + `%in%` pour les listes simples ; pour les motifs
-  multi-racines, regex Teradata via `sql("REGEXP_SIMILAR(col, '<regex>', 'c') = 1")`.
-- Connexion à la base : celle du profil d'environnement (portail ATIH :
-  `conn <- pRatihque::connection_database()`) — ne pas poser de question sur la
+| Fichier | Rôle | Table attendue → produite |
+|---|---|---|
+| `main.R` | `source()` des étapes dans l'ordre ; commentaire : une étape seule se relance tant que la session R est ouverte, `main.R` recrée tout sinon | — |
+| `00_setup.R` | en-tête normalisé (bloc titre, bloc « PROFIL DE BASE »), packages, paramètres, connexion du profil, `compute_volatile()`, `noter_attrition()`, `attrition` vide | — |
+| `01_inclusion.R` | population incluse, années empilées par `union_all` | vues PMSI → `tmp_01_inclusion` |
+| `02_exclusion.R` | exclusions successives, chacune notée dans `attrition` | `tmp_01_inclusion` → `tmp_02_exclusion` |
+| `03_critere_jugement.R` | unité de compte et variables dérivées, niveau séjour | `tmp_02_exclusion` → `tmp_03_critere_jugement` |
+| `04_covariables.R` | stratification, flags, jointures annexes sur `(ident, annee)` | `tmp_03_critere_jugement` → `tmp_04_covariables` |
+| `05_flowchart.R` | assemble `attrition`, % perdus, secret statistique si diffusion externe | `attrition` → `flowchart` |
+| `06_sorties.R` | agrégats collectés, secret statistique, figure, export | dernière `tmp_` → `resultat_annuel`… |
+| `note_methodologique.md` | note livrée dans le dossier (modèle dans le squelette) | — |
+
+Conventions :
+
+- Une étape absente du protocole validé (ex. aucune covariable) est omise du
+  dossier et de `main.R` ; la numérotation des autres ne change pas.
+- Chaque fichier d'étape 01 à 04 déclare en en-tête la table qu'il attend et
+  celle qu'il produit, et termine par `compute_volatile("tmp_NN_<etape>")`
+  (table volatile de session Teradata, forme documentée dans `00_setup.R`) ;
+  l'objet R lazy correspondant s'appelle `pop_NN_<etape>`. Tables de session
+  uniquement : rien à nettoyer en fin de `main.R`, aucun garde « sourcer
+  l'étape précédente si la table manque ».
+- Chaque étape appelle `noter_attrition()` juste après sa matérialisation (et à
+  chaque exclusion successive en 02) : `05_flowchart.R` ne redéfinit aucune
+  étape.
+- Secret statistique appliqué là où la table est produite : `05_flowchart.R`
+  pour les effectifs, `06_sorties.R` pour les résultats, selon la finalité
+  (bloc 0). Pas de fichier dédié.
+- **Chaque variable et chaque table** utilisée est vérifiée dans le dictionnaire,
+  avec `andeb ≤ année ≤ anfin` pour toutes les années demandées. Si une variable
+  manque pour certaines années, adapter (variable alternative, restriction de
+  période) et le signaler.
+- Connexion : celle du profil d'environnement (portail ATIH :
+  `conn <- pRatihque::connection_database()`) ; pas de question sur la
   connexion quand un profil la définit.
-- En-tête de script normalisé (voir template) : bloc titre (indicateur, question,
-  protocole) puis bloc « PROFIL DE BASE » listant schémas, tables, variables et
-  conventions effectivement utilisés.
-- Script commenté en français, paramétré en tête (années, codes CIM-10/CCAM,
-  FINESS…), reproductible.
-- **Flowchart d'attrition systématique** : le script produit le décompte des séjours
-  à chaque étape du protocole (population brute → chaque exclusion successive), avec
-  le % perdu à chaque étape (pattern dédié dans le template). C'est ce qui rend
-  l'analyse auditable ; les chiffres alimentent la note méthodologique.
-- Terminer le script par les sorties demandées (tableau, export CSV, graphique ggplot2
-  sur les données agrégées collectées).
+- Scripts commentés en français, paramétrés dans `00_setup.R` (années, codes
+  CIM-10/CCAM, FINESS, seuil…), reproductibles ; calcul côté Teradata,
+  `collect()` uniquement sur les agrégats.
+
+**Fichier `.R` unique**, sur demande explicite de l'utilisateur seulement : un
+seul `.R` reprenant les étapes dans le même ordre, mêmes en-têtes de section,
+mêmes noms de tables et d'objets, mêmes `compute_volatile()` par étape, sans
+`source()`. Même script, autre mise en page.
 
 ### 6. Livrer
 
-**Format `.R`** : livrer le script dans un fichier nommé d'après la question
-(ex. `patients_diabete_mco_2020_2023.R`) et l'accompagner d'une note méthodologique
-brève : définitions retenues (avec la source des codes si issue d'une recherche de
-références), flowchart d'attrition (effectifs et % perdus à chaque étape), limites
-(exhaustivité du chaînage, année PMSI = année de sortie, séjours à cheval, évolutions
-de codage), et pistes de sensibilité (élargir aux DAS, autres champs).
+**Format `.R`** : dossier nommé d'après la question (ex.
+`patients_diabete_mco_2020_2023/`) contenant les fichiers de l'étape 5 et
+`note_methodologique.md` : définitions retenues (avec la source des codes si
+issue d'une recherche de références), flowchart d'attrition (effectifs et %
+perdus à chaque étape, sortie de `05_flowchart.R`), limites (exhaustivité du
+chaînage, année PMSI = année de sortie, séjours à cheval, évolutions de codage),
+pistes de sensibilité (élargir aux DAS, autres champs).
 
-**Format `.Rmd`** : livrer le rapport dans un fichier nommé de la même façon
-(ex. `patients_diabete_mco_2020_2023.Rmd`) ; la note méthodologique ci-dessus est
-intégrée au rapport (section « Méthodologie », voir template) plutôt que livrée à
-part. Signaler à l'utilisateur les packages requis pour le rendu s'ils ne sont pas
-déjà dans le template (`rmarkdown`, `rmdformats`, `DT`, et `DiagrammeR` uniquement
-si le flowchart graphique multi-sources est utilisé).
+**Format `.Rmd`** : rapport dans un fichier nommé de la même façon (ex.
+`patients_diabete_mco_2020_2023.Rmd`) ; la note méthodologique ci-dessus est
+intégrée au rapport (section « Méthodologie », voir `template.Rmd`) plutôt que
+livrée à part. Signaler à l'utilisateur les packages requis pour le rendu s'ils
+ne sont pas déjà dans le template (`rmarkdown`, `rmdformats`, `DT`, et
+`DiagrammeR` uniquement si le flowchart graphique multi-sources est utilisé).

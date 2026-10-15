@@ -84,14 +84,14 @@ Exemples :
 
 Comme pour `snds-query` : la connaissance propre à l'environnement vit dans
 `references/profils/`. Dupliquer `hdh_oracle.md`, adapter les valeurs, et la
-skill l'utilise. Les patterns de `template.R` contiennent des éléments
+skill l'utilise. Les patterns de `references/template/` contiennent des éléments
 propres à Oracle (`REGEXP_LIKE`, `ora_date()`, limite des listes `IN`) à
 adapter pour un autre SGBD.
 
 ## Mise à jour des références
 
 Les fichiers de `references/dictionnaire/`, `references/modele-donnees.md`,
-`references/profils/hdh_oracle.md`, `references/template.R` et
+`references/profils/hdh_oracle.md`, `references/template/` et
 `scripts/build-dictionary.py` sont des copies de ceux de `snds-query` : les
 mettre à jour là-bas, puis recopier ici. Dans le dépôt, le test
 `tests/test_sync_snds.py` signale toute divergence.

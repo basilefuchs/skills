@@ -265,7 +265,7 @@ tout comptage de patients uniques.
     demandée — marge officielle : au moins 5 mois de données après la
     période (6 flux), 12 mois pour une extraction exhaustive, jamais plus de
     24 (voir `points-de-vigilance.md`). Pattern de code validé :
-    `template.R`, Pattern C.
+    `template/01_inclusion.R`, Pattern C.
 
 ## Comment utiliser le dictionnaire
 
