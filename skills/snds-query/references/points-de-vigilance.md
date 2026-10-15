@@ -74,7 +74,7 @@ Croiser avec `KI_CCI_R` (via `BEN_IDT_ANO`) et les décès hospitaliers
 ## Délai de remontée DCIR (`FLX_DIS_DTD` vs `EXE_SOI_DTD`)
 
 Toute extraction `ER_PRS_F` batchée par flux technique (`FLX_DIS_DTD`, voir
-`modele-donnees.md` piège n°11 et `template.R` Pattern C) risque de perdre
+`modele-donnees.md` piège n°11 et `template/01_inclusion.R` Pattern C) risque de perdre
 les prestations de fin de période remontées en retard si la boucle de flux
 s'arrête pile à la fin de la période clinique demandée (`EXE_SOI_DTD`).
 Marge officielle (documentation HDH, fiche synthèse des filtres) : au minimum

@@ -5,9 +5,9 @@ et les autres agents compatibles [Agent Skills](https://agentskills.io), destin�
 aux statisticiens de DIM travaillant sur le **SNDS via le
 Health Data Hub** (Oracle). Elle traduit une question en langage naturel —
 « combien de patients diabétiques hospitalisés entre 2020 et 2023 ? » — en un
-script R dplyr/dbplyr prêt à exécuter sur l'environnement du Health Data Hub,
-**en passant par les mêmes étapes qu'un statisticien** : clarification,
-protocole validé, puis script.
+dossier de scripts R dplyr/dbplyr prêt à exécuter sur l'environnement du
+Health Data Hub, **en passant par les mêmes étapes qu'un statisticien** :
+clarification, protocole validé, puis scripts.
 
 ## Comment ça se passe concrètement
 
@@ -27,14 +27,21 @@ protocole validé, puis script.
    > **Exclusions** : GHM en erreur (CMD 90), doublons établissement, chaînage défaillant.
    > **Critère de jugement** : patients uniques (`NIR_ANO_17`), par année.
    > **Stratification** : année, sexe, classe d'âge.
-4. **Après votre validation seulement**, elle génère le script `.R` : paramétré
-   en tête, commenté, avec en-tête normalisé (question, protocole, « PROFIL DE
-   BASE » listant tables et variables utilisées), un **flowchart d'attrition**
-   (effectifs et % perdus à chaque étape d'exclusion), une vérification
-   **secret statistique** (seuil de diffusion) et une note méthodologique
-   (limites, pistes de sensibilité).
+4. **Après votre validation seulement**, elle génère un **dossier de
+   scripts** `.R`, un script par étape du protocole (`00_setup.R`,
+   `01_inclusion.R`, `02_exclusion.R`, `03_critere_jugement.R`,
+   `04_covariables.R`, `05_flowchart.R`, `06_sorties.R`) enchaînés par un
+   `main.R` : paramétrés dans `00_setup.R`, commentés, avec en-tête normalisé
+   (question, protocole, « PROFIL DE BASE » listant sources, tables et
+   variables utilisées), chaque étape matérialisée dans une table de session
+   Oracle que la suivante reprend, un **flowchart d'attrition** (effectifs et
+   % perdus à chaque étape d'exclusion), une vérification **secret
+   statistique** (seuil de diffusion) et une note méthodologique (limites,
+   pistes de sensibilité, rappel de non-persistance locale) livrée dans le
+   dossier. Un fichier `.R` unique est fourni sur demande, mêmes sections
+   dans le même ordre.
 
-Vous exécutez le script vous-même sur l'environnement du Health Data Hub :
+Vous exécutez les scripts vous-même sur l'environnement du Health Data Hub :
 **Claude n'accède jamais aux données** — il ne voit que la question, le
 protocole et le code généré. Le dictionnaire embarqué (généré depuis le
 dépôt open source [schema-snds](https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds)
@@ -74,7 +81,7 @@ du Health Data Hub, licence MPL-2.0 — voir [NOTICE](NOTICE)) décrit la base
   cartographie de l'écosystème SNDS complètent ponctuellement (dépannage,
   définitions de cohortes déjà validées).
 
-Le script généré reste **à relire avant exécution**, comme celui d'un interne :
+Les scripts générés restent **à relire avant exécution**, comme ceux d'un interne :
 la skill fiabilise la traduction question → code, elle ne remplace pas la
 validation métier ni le respect du secret statistique sur les sorties.
 
@@ -112,10 +119,10 @@ Exemples de questions :
 Toute la connaissance spécifique à l'environnement (connexion, tables,
 mapping colonne, défauts) vit dans `references/profils/`.
 Pour un autre environnement (base locale, export parquet/DuckDB…), dupliquer
-`hdh_oracle.md`, adapter les valeurs, et la skill l'utilisera. Les templates
-(`template.R`/`.Rmd`) contiennent aussi des éléments propres à Oracle
-(`REGEXP_LIKE` via `sql()`, `ora_date()`, limite des listes `IN`) à adapter
-pour un autre SGBD. Les profils **font foi** : c'est aussi là que capitaliser vos
+`hdh_oracle.md`, adapter les valeurs, et la skill l'utilisera. Le squelette
+(`references/template/`) et `template.Rmd` contiennent aussi des éléments
+propres à Oracle (`REGEXP_LIKE` via `sql()`, `ora_date()`, tables temporaires
+de session, limite des listes `IN`) à adapter pour un autre SGBD. Les profils **font foi** : c'est aussi là que capitaliser vos
 mappings validés et pièges découverts, pour que les scripts suivants en
 profitent.
 

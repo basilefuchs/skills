@@ -143,10 +143,12 @@ valable).
 
 ## E. Sortie attendue
 
-17. Format : script `.R` (tableau agrégé affiché, export CSV, graphique
+17. Format : script `.R` (dossier d'un script par étape du protocole, fichier
+    unique sur demande ; tableau agrégé affiché, export CSV, graphique
     ggplot2) ou **rapport `.Rmd`** (narratif méthodologique, tables
     interactives, flowchart d'attrition intégré) — recommandé dès que le
     résultat est destiné à être partagé tel quel.
+    Le découpage en fichiers ne fait l'objet d'aucune question.
 18. **Environnement** : ne rien demander (connexion, schéma) quand le profil
     `references/profils/hdh_oracle.md` couvre l'environnement — voir
     SKILL.md, Ressources. Sinon, demander une fois et proposer d'enregistrer

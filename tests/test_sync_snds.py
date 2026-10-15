@@ -25,7 +25,15 @@ COPIED = [
     "references/dictionnaire/variables.tsv",
     "references/modele-donnees.md",
     "references/profils/hdh_oracle.md",
-    "references/template.R",
+    "references/template/00_setup.R",
+    "references/template/01_inclusion.R",
+    "references/template/02_exclusion.R",
+    "references/template/03_critere_jugement.R",
+    "references/template/04_covariables.R",
+    "references/template/05_flowchart.R",
+    "references/template/06_sorties.R",
+    "references/template/main.R",
+    "references/template/note_methodologique.md",
     "scripts/build-dictionary.py",
 ]
 

@@ -48,9 +48,10 @@ répertoire de base de la skill.
    réseau le permet (voir « Dictionnaire »), sinon copie embarquée.
 4. `references/modele-donnees.md` — modèle de données : produits, tables
    clés, chaînage patient, raccourcis de classification, pièges classiques.
-5. `references/template.R` — patterns dbplyr/Oracle validés (étapes par
+5. `references/template/` — squelette du dossier de scripts de `snds-query`,
+   un fichier par étape, et patterns dbplyr/Oracle validés (étapes par
    millésime, patients uniques pluriannuels, jointure DCIR à 9 colonnes,
-   batch sur `FLX_DIS_DTD`).
+   batch sur `FLX_DIS_DTD`), chacun dans le fichier de l'étape qui l'utilise.
 
 Les fichiers 1, 3, 4 et 5 sont copiés tels quels depuis `snds-query` : leurs
 renvois à `clarifications.md`, `points-de-vigilance.md`, `template.Rmd` ou
@@ -192,7 +193,7 @@ point renvoie à sa source de détail.
    temporaire réutilisée sans statistiques (`analyze = TRUE`,
    `DBMS_STATS.GATHER_TABLE_STATS`) ; patients uniques pluriannuels sommés
    par année au lieu d'une union avant `n_distinct`. Pattern de référence :
-   `template.R`, Pattern B et Pattern C.
+   `template/06_sorties.R` (Pattern B) et `template/01_inclusion.R` (Pattern C).
 7. **Sorties.** Cellules de 1 à 10 dans un résultat destiné à sortir de
    l'environnement (seuil 11) ; écriture locale d'un identifiant, d'une date
    ou d'une localisation individuelle ; année PMSI = année de sortie, à dire
@@ -207,7 +208,7 @@ seul, prêt à insérer, en R dbplyr par défaut ou en SQL Oracle si demandé ou
 si la requête en cours est en SQL, puis une ligne par choix fait à sa place
 (années, filtres appliqués, colonne retenue).
 
-Le fragment reprend le pattern validé de `template.R` quand il en existe un
+Le fragment reprend le pattern validé de `references/template/` quand il en existe un
 (étapes par millésime, patients uniques par union, jointure DCIR sur
 `DCIR_JOIN_KEY`, batch de flux), avec le nom réel des tables, les filtres
 qualité du profil applicables à l'étape et les colonnes vérifiées dans le

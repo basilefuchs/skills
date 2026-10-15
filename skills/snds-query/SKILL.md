@@ -12,8 +12,9 @@ license: MIT
 Tu es le statisticien d'un DIM (CHU de Brest, ou toute structure ayant accès
 au SNDS via le Health Data Hub). On te pose une question en langage naturel ;
 tu la traduis en un **protocole d'analyse explicite**, validé par
-l'utilisateur, puis en un **script R dbplyr** exécutable sur la base SNDS
-(Oracle, accès Health Data Hub).
+l'utilisateur, puis en un **dossier de scripts R dbplyr** (un script par
+étape du protocole) exécutable sur la base SNDS (Oracle, accès Health Data
+Hub).
 
 ## Règle d'or
 
@@ -37,8 +38,9 @@ répertoire de base de la skill, pas au répertoire courant de l'utilisateur.
    documentation officielle, sur les filtres. Le lire avant toute génération ; citer son
    chemin dans le bloc « PROFIL DE BASE » du script. Connexion, conventions de
    nommage de table et défauts locaux viennent de ce profil, jamais du reste
-   de la skill ; les templates contiennent en outre des éléments propres à
-   Oracle (`sql()`, `REGEXP_LIKE`, `ora_date()`) à adapter pour un autre SGBD.
+   de la skill ; le squelette `references/template/` et `template.Rmd`
+   contiennent en outre des éléments propres à Oracle (`sql()`, `REGEXP_LIKE`,
+   `ora_date()`, `compute_session()`) à adapter pour un autre SGBD.
    Si l'utilisateur travaille sur un environnement différent (export local,
    entrepôt de données de recherche autre que le SNDS national…), lui demander
    une fois les équivalents et lui proposer d'écrire un nouveau profil dans ce
@@ -77,11 +79,15 @@ répertoire de base de la skill, pas au répertoire courant de l'utilisateur.
    (source SNDS, inclusion, exclusion, critère de jugement, stratification).
 6. `references/points-de-vigilance.md` — registres de risques méthodologiques
    à vérifier pendant la clarification (étape 3) et à la synthèse (étape 4).
-7. `references/template.R` — squelette de script R et patterns dbplyr/Oracle
-   validés (livrable par défaut : script `.R` autonome).
+7. `references/template/` — squelette du dossier de scripts R (livrable par
+   défaut), un fichier par étape du protocole, et patterns dbplyr/Oracle
+   validés, chacun dans le fichier de l'étape qui l'utilise. **Source de vérité
+   des patterns** : `00_setup.R` porte le bloc « Connexion » du profil, les
+   fonctions partagées (`compute_session()`, `noter_attrition()`) et les
+   rappels génériques.
 8. `references/template.Rmd` — squelette de rapport R Markdown (mêmes
    patterns, plus mise en forme narrative). À utiliser quand le format demandé
-   (clarification E) est un rapport plutôt qu'un script.
+   (clarification E.17) est un rapport plutôt qu'un script.
 
 ### Ressources complémentaires (non autoritatives)
 
@@ -320,72 +326,103 @@ s'applique à ce protocole précis et n'a pas déjà été signalé en étape 3
 non-répétition). Demander confirmation explicite (Valider / Modifier). Ne
 continuer qu'après un « oui ».
 
-### 5. Générer le script R (ou le rapport R Markdown)
+### 5. Générer le dossier de scripts R (ou le rapport R Markdown)
 
-Suivre `references/template.R` (livrable par défaut) ou
-`references/template.Rmd` (format choisi en clarification E). Exigences
-communes aux deux formats :
+Format choisi en clarification E.17 ; par défaut `.R`. Un `.R` est un **dossier
+de scripts**, un fichier par étape du protocole validé, calqué sur
+`references/template/` ; un `.Rmd` suit `references/template.Rmd` (section
+« Méthodologie » en prose, tables interactives `dtttable()`).
 
-- Chaque table et chaque variable utilisées vérifiées dans le dictionnaire
-  (`variables.tsv`), disponibilité par millésime confirmée pour toutes les
-  années demandées (voir étape 2).
-- Connexion et fuseau : recopier le bloc « Connexion » du profil actif
-  (`profils/hdh_oracle.md`) — `TZ`/`ORA_SDTZ` posés AVANT `dbConnect()`
+Dossier `.R` — fichiers, dans l'ordre d'exécution (noms sans accent) :
+
+| Fichier | Rôle | Table attendue → produite |
+|---|---|---|
+| `main.R` | `source()` des étapes dans l'ordre ; commentaire : une étape seule se relance tant que la session R est ouverte, `main.R` recrée tout sinon | — |
+| `00_setup.R` | en-tête normalisé (bloc titre, bloc « PROFIL DE BASE » : sources SNDS, tables, variables, dictionnaire utilisé), packages, paramètres, bloc « Connexion » du profil, `ora_date()`, `compute_session()`, `noter_attrition()`, `attrition` vide, rappel de non-persistance | — |
+| `01_inclusion.R` | population incluse, millésimes empilés par `union_all` (nom réel de table reconstruit : `paste0("T_MCO", aa, "B")`) ; croisement de sources (intersection ou union) ; Pattern C de batching `ER_PRS_F` | tables SNDS → `tmp_01_inclusion` |
+| `02_exclusion.R` | exclusions successives (chaînage, PIE, GHM 90, doublons 2005-2017…), chacune notée dans `attrition` | `tmp_01_inclusion` → `tmp_02_exclusion` |
+| `03_critere_jugement.R` | unité de compte et variables dérivées, niveau séjour | `tmp_02_exclusion` → `tmp_03_critere_jugement` |
+| `04_covariables.R` | stratification, flags, jointures annexes sur `(ETA_NUM, RSA_NUM, annee)` | `tmp_03_critere_jugement` → `tmp_04_covariables` |
+| `05_flowchart.R` | assemble `attrition`, % perdus, secret statistique (effectifs et exclus) si diffusion externe | `attrition` → `flowchart` |
+| `06_sorties.R` | agrégats collectés (Patterns A et B), secret statistique, figure, export d'agrégats | dernière `tmp_` → `resultat_annuel`… |
+| `note_methodologique.md` | note livrée dans le dossier (modèle dans le squelette) | — |
+
+Conventions :
+
+- Une étape absente du protocole validé (ex. aucune covariable) est omise du
+  dossier et de `main.R` ; la numérotation des autres ne change pas.
+- Chaque fichier d'étape 01 à 04 déclare en en-tête la table qu'il attend et
+  celle qu'il produit, et termine par `compute_session("tmp_NN_<etape>")`
+  (table temporaire de session Oracle, statistiques calculées, forme
+  documentée dans `00_setup.R`) ; l'objet R lazy correspondant s'appelle
+  `pop_NN_<etape>`. Tables de session uniquement : rien à nettoyer en fin de
+  `main.R`, aucun garde « sourcer l'étape précédente si la table manque ».
+- Chaque étape appelle `noter_attrition()` juste après sa matérialisation (et à
+  chaque exclusion successive en 02) : `05_flowchart.R` ne redéfinit aucune
+  étape.
+- Secret statistique (seuil 11) appliqué là où la table est produite :
+  `05_flowchart.R` pour les effectifs et nombres d'exclus, `06_sorties.R`
+  pour les résultats, selon la finalité (bloc 0). Pas de fichier dédié.
+- **Chaque table et chaque variable** utilisées sont vérifiées dans le
+  dictionnaire (`variables.tsv`), disponibilité par millésime confirmée pour
+  toutes les années demandées (étape 2) ; si une variable manque pour
+  certaines années, adapter (variable alternative, restriction de période)
+  et le signaler.
+- Connexion : bloc « Connexion » du profil actif (`profils/hdh_oracle.md`)
+  recopié dans `00_setup.R`, `TZ`/`ORA_SDTZ` posés AVANT `dbConnect()`
   (`ORA_SDTZ` est lu à l'ouverture de session ; sinon décalage de date par
-  conversion UTC, en particulier sur les dates de décès).
-- Bornes de date dans `filter()` : toujours `!!ora_date(d)` (littéral
-  `DATE 'AAAA-MM-JJ'`), jamais une date R brute (traduite en chaîne).
-  Listes de codes : `%in%` est limité à 1000 valeurs en Oracle
-  (ORA-01795) ; au-delà, `semi_join` sur une requête lazy.
-- Style dbplyr par défaut : `tbl(conn, I("TABLE"))`, pipe natif `|>`, `sql()`
-  pour les fonctions Oracle sans équivalent dbplyr (ex.
+  conversion UTC, en particulier sur les dates de décès) ; pas de question
+  sur la connexion quand un profil la définit.
+- Oracle : bornes de date dans `filter()` toujours `!!ora_date(d)` (littéral
+  `DATE 'AAAA-MM-JJ'`), jamais une date R brute ; `%in%` limité à 1000
+  valeurs (ORA-01795), au-delà `semi_join` sur une requête lazy ; `sql()`
+  pour les fonctions sans équivalent dbplyr (ex.
   `filter(sql("REGEXP_LIKE(CAM_PRS_IDE, '^[A-Z]{3}L')"))` — le code CCAM en
-  ville est `CAM_PRS_IDE`, `CAM_ACT_COD` est le code activité). Le style
-  historique `glue()` + chaîne SQL brute (répandu dans des scripts R
-  existants) reste à reconnaître et à savoir relire si l'utilisateur colle
-  un script existant dans cette convention, mais n'est pas le style de
-  génération par défaut.
-- Boucle par millésime (`purrr::map_dfr` / `furrr::future_map_dfr`) pour les
-  tables PMSI/DCIR annualisées, avec reconstruction du nom de table réel
-  (`paste0("T_MCO", aa, "B")`) à partir du nom générique du dictionnaire. Cas distinct :
-  toute requête touchant `ER_PRS_F` (et tables jointes) au-delà de quelques
-  mois doit batcher sur `FLX_DIS_DTD` (voir `modele-donnees.md`, piège n°11,
-  et `template.R` Pattern C) — ce n'est pas un millésime de table mais une
-  date de flux à l'intérieur d'une table non millésimée.
-- Filtres qualité systématiques du profil appliqués (voir `points-de-vigilance.md`
-  et `modele-donnees.md`), et **jamais de `collect()`** avant l'agrégation
-  finale — le calcul reste côté Oracle — **sauf pour le pattern de batching
-  volumétrique DCIR sur `ER_PRS_F`** (Pattern C de `template.R`), où un
-  `collect()` par batch de flux est inévitable avant l'empilement final en R.
-  Si le protocole porte sur des séjours MCO 2005-2017 et que WebFetch est
-  disponible, récupérer la liste à jour des FINESS APHP/APHM/HCL sur la
-  documentation officielle (ressource 2) plutôt que d'en improviser une. De
-  même, pour toute extraction batchée sur `ER_PRS_F`, consulter la
-  documentation officielle (WebFetch) pour la marge de flux à appliquer après
-  la période clinique demandée ; à défaut, marge officielle : au moins 5
-  mois de données (6 flux), 12 pour une extraction exhaustive, jamais plus
-  de 24 (voir `points-de-vigilance.md`).
-- Toute table temporaire réutilisée : `copy_to()`/`compute()` avec
-  `analyze = TRUE` (statistiques Oracle) et index utiles, ou
-  `DBMS_STATS.GATHER_TABLE_STATS` après un `CREATE TABLE`.
-- En-tête de script normalisé : bloc titre (indicateur, question, protocole)
-  puis bloc « PROFIL DE BASE » listant sources SNDS, tables, variables et
-  conventions effectivement utilisées.
-- Flowchart d'attrition systématique (population brute → chaque exclusion),
-  construit sur les **mêmes étapes, dans le même ordre** que l'extraction
-  (une seule définition des étapes, cf. `template.R`), et soumis au secret
-  statistique (effectifs et nombres d'exclus) si la finalité l'impose.
+  ville est `CAM_PRS_IDE`, `CAM_ACT_COD` est le code activité) ; style
+  `tbl(conn, I("TABLE"))`, pipe natif `|>`. Le style historique `glue()` +
+  chaîne SQL brute reste à savoir relire si l'utilisateur colle un script
+  existant, mais n'est pas le style de génération.
+- `ER_PRS_F` (et tables jointes) au-delà de quelques mois : batching par flux
+  `FLX_DIS_DTD` (Pattern C de `01_inclusion.R`, `modele-donnees.md` piège
+  n°11 — une date de flux à l'intérieur d'une table non millésimée, pas un
+  millésime), avec marge de flux après la période clinique : la consulter
+  dans la documentation officielle (WebFetch) ; à défaut, marge officielle :
+  au moins 5 mois de données (6 flux), 12 pour une extraction exhaustive,
+  jamais plus de 24 (`points-de-vigilance.md`). Le `collect()` par batch du
+  Pattern C est la seule exception à « calcul côté Oracle, `collect()`
+  uniquement sur les agrégats ».
+- Filtres qualité systématiques du profil appliqués (`points-de-vigilance.md`,
+  `modele-donnees.md`). Séjours MCO 2005-2017 : liste à jour des FINESS
+  APHP/APHM/HCL récupérée sur la documentation officielle (ressource 2) si
+  WebFetch est disponible, jamais improvisée.
+- Scripts commentés en français, paramétrés dans `00_setup.R` (années, codes
+  CIM-10/CCAM/ATC, seuil…), reproductibles.
 - **Aucune écriture de fichier local contenant un identifiant, une date ou
-  une localisation individuelle** — rappeler la règle SNDS dans le script et
-  dans la livraison (étape 6).
+  une localisation individuelle** : règle SNDS rappelée dans `00_setup.R`,
+  `06_sorties.R` et `note_methodologique.md`.
+
+**Fichier `.R` unique**, sur demande explicite de l'utilisateur seulement : un
+seul `.R` reprenant les étapes dans le même ordre, mêmes en-têtes de section,
+mêmes noms de tables et d'objets, mêmes `compute_session()` par étape, sans
+`source()`. Même script, autre mise en page.
 
 ### 6. Livrer
 
-Livrer le fichier nommé d'après la question, accompagné d'une note
-méthodologique (ou intégrée au `.Rmd`) : définitions retenues (source des
-codes si recherche), flowchart d'attrition, limites (fiabilité du chaînage
-inter-source le cas échéant, année PMSI = année de sortie, évolutions de
-codage, alimentation effective des variables DCIR, dates PMSI avant 2009,
-réforme SMR 2023, exhaustivité du statut vital), et un rappel explicite de la règle de
-non-persistance locale des extractions SNDS identifiantes avant de clore
+**Format `.R`** : dossier nommé d'après la question (ex.
+`patients_diabete_mco_2021_2024/`) contenant les fichiers de l'étape 5 et
+`note_methodologique.md` : sources SNDS et chaînage retenu, définitions
+retenues (avec la source des codes si issue d'une recherche de références),
+flowchart d'attrition (effectifs et % perdus à chaque étape, sortie de
+`05_flowchart.R`), limites (fiabilité du chaînage inter-source le cas
+échéant, année PMSI = année de sortie, évolutions de codage, alimentation
+effective des variables DCIR, dates PMSI avant 2009, réforme SMR 2023,
+exhaustivité du statut vital), pistes de sensibilité, et la section
+« Confidentialité » rappelant la règle de non-persistance locale des
+extractions SNDS identifiantes — à répéter à l'utilisateur avant de clore
 l'échange.
+
+**Format `.Rmd`** : rapport dans un fichier nommé de la même façon (ex.
+`patients_diabete_mco_2021_2024.Rmd`) ; la note méthodologique ci-dessus est
+intégrée au rapport (section « Méthodologie », voir `template.Rmd`) plutôt que
+livrée à part. Signaler à l'utilisateur les packages requis pour le rendu
+(`rmarkdown`, `rmdformats`, `DT`).
