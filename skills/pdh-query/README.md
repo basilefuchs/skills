@@ -5,9 +5,9 @@ et les autres agents compatibles [Agent Skills](https://agentskills.io), destin�
 aux statisticiens de DIM (et d'agences : ATIH, ARS…)
 travaillant sur la **base nationale PMSI du portail ATIH** (Teradata). Elle
 traduit une question en langage naturel — « combien de patients hospitalisés
-pour diabète entre 2020 et 2023 ? » — en un script R dplyr/dbplyr prêt à
+pour diabète entre 2020 et 2023 ? » — en un dossier de scripts R dplyr/dbplyr prêt à
 exécuter sur le portail, **en passant par les mêmes étapes qu'un
-statisticien** : clarification, protocole validé, puis script.
+statisticien** : clarification, protocole validé, puis scripts.
 
 ## Comment ça se passe concrètement
 
@@ -27,13 +27,19 @@ statisticien** : clarification, protocole validé, puis script.
    > **Exclusions** : séances (CMD 28), GHM en erreur (90Z), chaînage en erreur.
    > **Critère de jugement** : patients uniques (clé `anonyme`), par année.
    > **Stratification** : année, sexe, classe d'âge.
-4. **Après votre validation seulement**, elle génère le script `.R` : paramétré
-   en tête, commenté, avec en-tête normalisé (question, protocole, « PROFIL DE
-   BASE » listant schémas et variables utilisés), un **flowchart d'attrition**
-   (effectifs et % perdus à chaque étape d'exclusion) et une note méthodologique
-   (limites, pistes de sensibilité).
+4. **Après votre validation seulement**, elle génère un **dossier de
+   scripts** `.R`, un script par étape du protocole (`00_setup.R`,
+   `01_inclusion.R`, `02_exclusion.R`, `03_critere_jugement.R`,
+   `04_covariables.R`, `05_flowchart.R`, `06_sorties.R`) enchaînés par un
+   `main.R` : paramétrés dans `00_setup.R`, commentés, avec en-tête normalisé
+   (question, protocole, « PROFIL DE BASE » listant schémas et variables
+   utilisés), chaque étape matérialisée dans une table de session Teradata
+   que la suivante reprend, un **flowchart d'attrition** (effectifs et %
+   perdus à chaque étape d'exclusion) et une note méthodologique (limites,
+   pistes de sensibilité) livrée dans le dossier. Un fichier `.R` unique est
+   fourni sur demande, mêmes sections dans le même ordre.
 
-Vous exécutez le script vous-même sur le portail : **Claude n'accède jamais aux
+Vous exécutez les scripts vous-même sur le portail : **Claude n'accède jamais aux
 données** — il ne voit que la question, le protocole et le code généré. Le
 dictionnaire des variables embarqué est le document de description de la base
 (métadonnées), sans aucune donnée patient.
@@ -52,7 +58,7 @@ dictionnaire des variables embarqué est le document de description de la base
 - L'existence et la disponibilité de **chaque variable utilisée**, vérifiées
   dans le dictionnaire (plage `andeb`/`anfin` couvrant les années demandées).
 
-Le script généré reste **à relire avant exécution**, comme celui d'un interne :
+Les scripts générés restent **à relire avant exécution**, comme ceux d'un interne :
 la skill fiabilise la traduction question → code, elle ne remplace pas la
 validation métier ni le respect du secret statistique sur les sorties.
 
