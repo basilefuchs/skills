@@ -85,9 +85,12 @@ répertoire de base de la skill, pas au répertoire courant de l'utilisateur.
    des patterns** : `00_setup.R` porte le bloc « Connexion » du profil, les
    fonctions partagées (`compute_session()`, `noter_attrition()`) et les
    rappels génériques.
-8. `references/template.Rmd` — squelette de rapport R Markdown (mêmes
-   patterns, plus mise en forme narrative). À utiliser quand le format demandé
-   (clarification E.17) est un rapport plutôt qu'un script.
+8. `references/template.Rmd` — squelette de rapport R Markdown : mêmes étapes,
+   mêmes noms de tables et d'objets que le dossier (un chunk par étape, nommé
+   comme le fichier correspondant), plus mise en forme narrative
+   (`rmdformats::robobook`, tables interactives `DT`, section méthodologie,
+   flowchart d'attrition). À utiliser quand le format demandé (clarification
+   E.17) est un rapport plutôt qu'un script.
 
 ### Ressources complémentaires (non autoritatives)
 
@@ -330,8 +333,10 @@ continuer qu'après un « oui ».
 
 Format choisi en clarification E.17 ; par défaut `.R`. Un `.R` est un **dossier
 de scripts**, un fichier par étape du protocole validé, calqué sur
-`references/template/` ; un `.Rmd` suit `references/template.Rmd` (section
-« Méthodologie » en prose, tables interactives `dtttable()`).
+`references/template/` ; un `.Rmd` suit `references/template.Rmd`, qui partage
+la même définition des étapes, mêmes noms de tables et d'objets que le dossier
+(un chunk par étape, dans le même ordre), avec en plus la section
+« Méthodologie » en prose et les tables interactives `dtttable()`.
 
 Dossier `.R` — fichiers, dans l'ordre d'exécution (noms sans accent) :
 

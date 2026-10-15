@@ -20,11 +20,21 @@ h1, h2, h3, h4, h5, h6, legend {
 }
 </style>
 
-```{r Setup, include = FALSE}
+<!-- Un chunk par étape du protocole, nommé comme le fichier correspondant de
+references/template/ et dans le même ordre : mêmes tables tmp_NN_<etape>,
+mêmes objets pop_NN_<etape>, même compute_session(), même objet attrition.
+Une étape absente du protocole validé est omise, sans renuméroter les autres.
+Les variantes (DAS, CCAM PMSI et DCIR, ATC, croisement de sources, Pattern C
+de batching ER_PRS_F, SSR, site géographique, flags, ALD…) et les rappels
+dbplyr/Oracle sont dans le fichier de l'étape du dossier (00_setup.R pour les
+rappels) : ne garder ici que le code du protocole validé.
+Rendu : rmarkdown, rmdformats, DT (packages à signaler à l'utilisateur). -->
+
+```{r setup, include = FALSE}
 # ==============================================================================
 # Indicateur : <titre court de l'indicateur / de la question>
 # Question   : <question en langage naturel de l'utilisateur>
-# Protocole  : <résumé 1 ligne : population, exclusions, critère de jugement>
+# Protocole  : <résumé 1 ligne : sources SNDS, population, exclusions, critère de jugement>
 # Source     : <si indicateur documenté : référence biblio, DOI>          [optionnel]
 # Catégorie  : <ex. 02_casemix_patientele, 04_efficience_capacitaire>     [optionnel]
 # Fiche      : <chemin de la fiche indicateur si elle existe>             [optionnel]
@@ -33,18 +43,28 @@ h1, h2, h3, h4, h5, h6, legend {
 # ==== PROFIL DE BASE (mapping utilisé — profils/hdh_oracle.md) =====
 # Base       : SNDS via le Health Data Hub — Oracle, interrogé en dbplyr
 # Connexion  : bloc « Connexion » du profil actif (profils/hdh_oracle.md)
-# Tables     : PMSI = tables suffixées par l'année de sortie (T_MCO{aa}C/B/A/D...)
-#              DCIR = tables continues (ER_PRS_F, ER_CAM_F, ER_PHA_F...)
-# Pseudonyme patient PMSI : NIR_ANO_17 (= BEN_NIR_PSA du DCIR)
-# Jointure DCIR -> IR_BEN_R : BEN_NIR_PSA + BEN_RNG_GEM ; individu : IR_BEN_R.BEN_IDT_ANO
-# Causes de décès : KI_CCI_R.BEN_IDT_ANO = IR_BEN_R.BEN_IDT_ANO (cf. modele-donnees.md, « Chaînage patient »)
-# GHM (6 car) / CMD (2 car) : GRG_GHM / substr(GRG_GHM, 1, 2)
+# Sources    : <PMSI MCO / DCIR / CAUSE_DECES — et méthode de chaînage si plusieurs>
+# Tables     : PMSI = tables suffixées par l'année de sortie (2 chiffres),
+#              pas de schéma millésimé (ex. T_MCO24C, T_MCO24B, T_MCO24A, T_MCO24D)
+#              DCIR = tables continues (ER_PRS_F, ER_CAM_F, ER_PHA_F...), filtrées
+#              par date de soins (EXE_SOI_DTD) ou par flux (FLX_DIS_DTD)
+#
+# Séjour MCO (RSA, 1 ligne)    : T_MCO{aa}B, clé (ETA_NUM, RSA_NUM)
+# Chaînage / qualité MCO       : T_MCO{aa}C (mêmes clés ETA_NUM, RSA_NUM)
+# Pseudonyme patient PMSI      : NIR_ANO_17 (tous champs PMSI) = BEN_NIR_PSA du DCIR
+# Jointure DCIR -> référentiel : BEN_NIR_PSA + BEN_RNG_GEM (clé de IR_BEN_R, PAS un
+#   identifiant d'individu : un individu peut porter plusieurs BEN_NIR_PSA)
+# Individu (tous SNDS)         : IR_BEN_R.BEN_IDT_ANO ; causes de décès reliées par
+#   KI_CCI_R.BEN_IDT_ANO = IR_BEN_R.BEN_IDT_ANO — voir modele-donnees.md,
+#   section « Chaînage patient », avant tout rapprochement inter-sources.
+# GHM (6 car) / CMD (2 car)    : GRG_GHM / substr(GRG_GHM, 1, 2)
+# Géo. résidence patient       : BDI_DEP (T_MCO{aa}B) ; BEN_RES_COM / BEN_RES_DPT (ER_PRS_F)
 # ==========================================
-# NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le script.
+# NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le rapport,
+#      vérifiés dans le dictionnaire (variables.tsv), millésimes compris.
+# Dictionnaire : schema-snds (Health Data Hub, MPL-2.0), commit <SOURCE.txt>
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, eval = TRUE, message = FALSE)
-# NB : warning = FALSE masque les avertissements dans le rapport ; le contrôle du
-# secret statistique (chunk « Contrôle secret statistique ») utilise donc stop().
 options(knitr.kable.NA = '')
 
 # Wrapper DT::datatable : export copy/csv/excel + filtres de colonnes, à utiliser
@@ -71,112 +91,230 @@ library(tidyr)
 library(purrr)
 library(ggplot2)
 library(scales)
-```
 
-```{r Paramètres}
 # ==== PARAMÈTRES ====
-annees     <- 2021:2024
-an         <- sprintf("%02d", annees %% 100)            # suffixe table PMSI
-codes_cim3 <- c("E10", "E11", "E12", "E13", "E14")
+annees     <- 2021:2024                                # années PMSI (année de sortie)
+codes_cim3 <- c("E10", "E11", "E12", "E13", "E14")      # codes CIM-10 (3 caractères)
 
-SEUIL <- 11   # secret statistique : effectifs < SEUIL regroupés sous "Autre"
-              # à fixer selon la finalité (bloc 0 des clarifications) — pas de
-              # secret statistique nécessaire pour un dénombrement interne.
-DIFFUSION_EXTERNE <- TRUE   # FALSE pour un dénombrement interne (bloc 0)
+# Secret statistique : selon la finalité validée (bloc 0 des clarifications).
+# FALSE pour un dénombrement interne ; TRUE dès que les sorties sont diffusées
+# à l'extérieur (aucune cellule < seuil). Appliqué en 05_flowchart (effectifs
+# et nombres d'exclus) et 06_sorties (résultats).
+secret_statistique <- FALSE
+seuil              <- 11
 
-# NIR_ANO_17 fictifs (documentation officielle HDH), à exclure des comptages
+# NIR_ANO_17 fictifs (documentation officielle HDH) : à exclure avant tout
+# comptage de patients, sinon chaque valeur fictive compte comme un patient.
 NIR_FICTIFS <- c("xxxxxxxxxxxxxxxxx", "XXXXXXXXXXXXXXXXD", "BXXXXXXXXXXXXXXXX",
                  "XXXXXXXXXXXXXXXXS", "XXXXXXXXXXXXXXXXE")
 
-# Littéral DATE Oracle pour les bornes de date dans filter() : !!ora_date(d)
-ora_date <- function(d) dbplyr::sql(sprintf("DATE '%s'", format(as.Date(d), "%Y-%m-%d")))
-
+# Clé de jointure composite DCIR (ER_PRS_F <-> ER_CAM_F/ER_PHA_F/ER_BIO_F/ER_ETE_F...) —
+# les 9 colonnes techniques identifiant une ligne de prestation.
 DCIR_JOIN_KEY <- c(
   "FLX_DIS_DTD", "FLX_TRT_DTD", "FLX_EMT_TYP", "FLX_EMT_NUM", "FLX_EMT_ORD",
   "ORG_CLE_NUM", "DCT_ORD_NUM", "PRS_ORD_NUM", "REM_TYP_AFF"
 )
 
-# Connexion — profil Health Data Hub (cf. profils/hdh_oracle.md) ; fuseau
-# posé AVANT dbConnect() (ORA_SDTZ est lu à l'ouverture de session)
+# Littéral DATE Oracle : dbplyr traduit une date R en simple chaîne '2020-01-01',
+# que Oracle convertit selon NLS_DATE_FORMAT (erreur ORA-01861 ou filtre faux).
+# Toujours écrire les bornes de date avec !!ora_date(d) dans filter().
+ora_date <- function(d) dbplyr::sql(sprintf("DATE '%s'", format(as.Date(d), "%Y-%m-%d")))
+
+# ==== CONNEXION (profil Health Data Hub — cf. profils/hdh_oracle.md) ====
+# Fuseau posé AVANT l'ouverture de session : ORA_SDTZ est lu par le client
+# Oracle à la connexion ; posé après dbConnect(), il est sans effet et une date
+# de soin ou de décès remontée par ROracle peut changer de jour (conversion UTC).
 Sys.setenv(TZ = "Europe/Paris")
 Sys.setenv(ORA_SDTZ = "Europe/Paris")
 .drv <- dbDriver("Oracle")
 options(connectionObserver = NULL)
 conn <- dbConnect(.drv, dbname = "IPIAMPR2.WORLD")
-```
 
-```{r Référentiels}
-# ==== RÉFÉRENTIELS (si besoin de libellés dans le rapport) ====
-# ref_etab <- tbl(conn, I(paste0("T_MCO", an[length(an)], "E"))) |>
-#   select(ETA_NUM, SOC_RAI) |>
-#   distinct() |>
-#   collect()
-```
-
-```{r Extraction}
-# ==== EXTRACTION ====
-# Étapes du protocole, dans l'ordre de l'extraction ET du flowchart (une seule
-# définition, cf. template.R).
-etapes_mco <- function(an) {
-  mco_c <- tbl(conn, I(paste0("T_MCO", an, "C")))
-  mco_b <- tbl(conn, I(paste0("T_MCO", an, "B")))
-
-  e0 <- mco_c |> inner_join(mco_b, by = c("ETA_NUM", "RSA_NUM"))   # population brute
-  # Qualité de chaînage (source : documentation officielle HDH) — COH_NAI_RET/
-  # COH_SEX_RET depuis 2013 uniquement ; doublons APHP/APHM/HCL non applicables
-  # ici (période 2005-2017 uniquement, cf. template.R).
-  e1 <- e0 |> filter(
-    NIR_RET == '0', NAI_RET == '0', SEX_RET == '0', SEJ_RET == '0',
-    FHO_RET == '0', PMS_RET == '0', DAT_RET == '0',
-    COH_NAI_RET == '0', COH_SEX_RET == '0',
-    !NIR_ANO_17 %in% NIR_FICTIFS
-  )
-  e2 <- e1 |> filter(SEJ_TYP != 'B' | is.na(SEJ_TYP))   # hors prestations inter-établissements (SEJ_TYP : table B)
-  e3 <- e2 |> filter(substr(DGN_PAL, 1, 3) %in% codes_cim3)
-  e4 <- e3 |> filter(substr(GRG_GHM, 1, 2) != "90")
-
-  list("0. Sejours MCO (population brute)" = e0,
-       "1. Qualite du chainage"            = e1,
-       "2. Hors prestations inter-etab."   = e2,
-       "3. DP cible"                       = e3,
-       "4. Hors GHM en erreur"             = e4)
+# ==== MATÉRIALISATION PAR ÉTAPE : table temporaire de session Oracle ====
+# Même fonction que 00_setup.R du dossier de scripts (qui documente la forme
+# retenue et pourquoi compute(temporary = TRUE) ne convient pas sur Oracle).
+# Chaque chunk 01 à 04 termine par la matérialisation de sa sortie dans
+# tmp_NN_<etape> (objet R lazy pop_NN_<etape>) ; le chunk suivant en repart.
+# Table de session : ses lignes disparaissent à la déconnexion, rien à
+# nettoyer. TRUNCATE puis DROP préalables, silencieux : une table temporaire
+# globale dont la session détient des lignes refuse le DROP (ORA-14452).
+compute_session <- function(requete, nom) {
+  try(DBI::dbExecute(conn, paste0("TRUNCATE TABLE ", nom)), silent = TRUE)
+  try(DBI::dbExecute(conn, paste0("DROP TABLE ", nom)), silent = TRUE)
+  DBI::dbExecute(conn, paste0(
+    "CREATE GLOBAL TEMPORARY TABLE ", nom, " ON COMMIT PRESERVE ROWS AS ",
+    dbplyr::remote_query(requete)
+  ))
+  DBI::dbExecute(conn, paste0(
+    "BEGIN DBMS_STATS.GATHER_TABLE_STATS(USER, '", toupper(nom), "'); END;"
+  ))
+  tbl(conn, I(nom))
 }
 
-# Pattern A (par défaut) — agrégats PAR ANNÉE PMSI.
-resultat_annuel <- purrr::map2_dfr(annees, an, function(annee, an) {
-  etapes <- etapes_mco(an)
-  etapes[[length(etapes)]] |>
-    mutate(sejour_id = paste0(ETA_NUM, "-", RSA_NUM)) |>
-    summarise(
-      nb_sejours  = n_distinct(sejour_id),
-      nb_patients = n_distinct(NIR_ANO_17)
-    ) |>
-    collect() |>
-    mutate(annee = annee)
-})
+# ==== FLOWCHART D'ATTRITION : un objet partagé, rempli par les étapes ====
+# Chaque étape appelle noter_attrition() juste après sa matérialisation (et à
+# chaque exclusion successive en 02) ; 05_flowchart assemble, sans rien
+# redéfinir. Libellé : préfixe du chunk + lettre si plusieurs étapes dans un
+# chunk ("02a", "02b"…) ; le tri alphabétique restitue l'ordre du protocole.
+# nb_sejours : 1 ligne = 1 séjour en PMSI ; renommer (nb_prestations,
+# nb_deces) si l'unité du protocole est la prestation DCIR ou le décès.
+attrition <- tibble::tibble(etape = character(), annee = integer(), nb_sejours = numeric())
 
-# -- Variante DCIR : critère médicamenteux (ATC) via ER_PHA_F + IR_PHA_R, ou
-# actes CCAM via ER_CAM_F (code CCAM = CAM_PRS_IDE, clé composite DCIR_JOIN_KEY)
-# — cf. template.R Pattern C pour le détail complet ; ER_PRS_F est trop
-# volumineuse au-delà de quelques mois (modele-donnees.md, piège n°11) : itérer
-# par flux mensuel (FLX_DIS_DTD) avec furrr::future_map_dfr, avec une marge de
-# flux après la période clinique (points-de-vigilance.md).
+noter_attrition <- function(attrition, requete, etape) {
+  effectifs <- requete |>
+    count(annee, name = "nb_sejours") |>       # COUNT par année, côté Oracle
+    collect() |>
+    mutate(etape = !!etape, annee = as.integer(annee), nb_sejours = as.numeric(nb_sejours))
+  attrition |>
+    filter(etape != !!etape) |>
+    bind_rows(effectifs)
+}
+
+# ==== RÈGLE SNDS : NON-PERSISTANCE LOCALE ====
+# Aucun fichier local ne contient un identifiant (NIR_ANO_17, BEN_NIR_PSA,
+# BEN_IDT_ANO…), une date ou une localisation individuelle : les tables de
+# session restent dans Oracle, et seuls des AGRÉGATS vérifiés vis-à-vis du
+# seuil (06_sorties) sortent de l'environnement HDH. Le rapport rendu ne
+# contient que du code, des agrégats et la section Méthodologie.
 ```
 
-```{r Flowchart attrition}
-# ==== FLOWCHART D'ATTRITION (systématique) — mêmes étapes que l'extraction ====
-attrition <- purrr::map2_dfr(annees, an, function(annee, an) {
-  purrr::imap_dfr(etapes_mco(an), function(req, etape) {
-    req |>
-      mutate(sejour_id = paste0(ETA_NUM, "-", RSA_NUM)) |>
-      summarise(nb_sejours = n_distinct(sejour_id)) |>
-      collect() |>
-      mutate(etape = etape)
-  }) |>
-    mutate(annee = annee)
-})
+```{r 01_inclusion}
+# ==== 01 — POPULATION INCLUSE ====
+# Table attendue : aucune (lecture de T_MCO{aa}C et T_MCO{aa}B par millésime)
+# Table produite : tmp_01_inclusion (pop_01_inclusion), 1 ligne par séjour inclus,
+#                  toutes années empilées
+# Critère d'inclusion validé : <ex. DP en codes_cim3, MCO, annees>
+# Source(s) SNDS : <PMSI MCO seul / + DCIR / + CAUSE_DECES ; intersection ou union>
+# Variantes (DAS, REGEXP_LIKE, CCAM PMSI ou DCIR, SSR, ATC, croisement de
+# sources, Pattern C de batching ER_PRS_F) : references/template/01_inclusion.R
 
-attrition <- attrition |>
+# Une requête lazy par millésime, mêmes colonnes + colonne annee, puis
+# empilement par union_all. Empiler AVANT toute déduplication inter-années :
+# on ne peut pas sommer des comptes distincts annuels (patients uniques sur la
+# période en 06_sorties).
+requete_inclusion <- function(annee) {
+  aa    <- sprintf("%02d", annee %% 100)              # suffixe réel : T_MCO24B
+  mco_c <- tbl(conn, I(paste0("T_MCO", aa, "C")))     # chaînage / codes retour
+  mco_b <- tbl(conn, I(paste0("T_MCO", aa, "B")))     # séjour (GHM, DP, DR, SEJ_TYP...)
+
+  mco_c |>
+    inner_join(mco_b, by = c("ETA_NUM", "RSA_NUM")) |>
+    # -- Inclusion : position du diagnostic selon le protocole -----------------
+    filter(substr(DGN_PAL, 1, 3) %in% codes_cim3) |>
+    mutate(annee = !!annee) |>
+    # -- Colonnes utiles aux étapes suivantes seulement (table de session
+    #    légère) : clé du séjour, pseudonyme, codes retour filtrés en 02 -------
+    select(ETA_NUM, RSA_NUM, annee, NIR_ANO_17,
+           NIR_RET, NAI_RET, SEX_RET, SEJ_RET, FHO_RET, PMS_RET, DAT_RET,
+           COH_NAI_RET, COH_SEX_RET,                   # 2013+ : retirer avant
+           SEJ_TYP, GRG_GHM, DGN_PAL, COD_SEX, AGE_ANN, SEJ_NBJ, SOR_MOD, BDI_DEP)
+}
+
+pop_01_inclusion <- annees |>
+  purrr::map(requete_inclusion) |>
+  purrr::reduce(union_all) |>
+  compute_session("tmp_01_inclusion")
+
+attrition <- noter_attrition(attrition, pop_01_inclusion, "01 Sejours DP cible")
+```
+
+```{r 02_exclusion}
+# ==== 02 — EXCLUSIONS SUCCESSIVES ====
+# Table attendue : tmp_01_inclusion (pop_01_inclusion)
+# Table produite : tmp_02_exclusion (pop_02_exclusion)
+# Exclusions validées, dans l'ordre : <ex. qualité de chaînage, prestations
+# inter-établissements, GHM en erreur (CMD 90)>. Chacune est notée dans `attrition`.
+# Autres exclusions (doublons APHP/APHM/HCL 2005-2017, séances, durée, décès,
+# âge) : references/template/02_exclusion.R
+
+# 02a. qualité de chaînage (source : documentation officielle HDH) : codes
+#      retour à '0' et NIR fictifs exclus — obligatoire pour compter des
+#      patients. COH_NAI_RET/COH_SEX_RET disponibles depuis 2013 uniquement,
+#      DAT_RET depuis 2006 : retirer ces conditions (et les colonnes du select()
+#      de 01) si le protocole remonte avant.
+etape_02a <- pop_01_inclusion |>
+  filter(
+    NIR_RET == "0", NAI_RET == "0", SEX_RET == "0", SEJ_RET == "0",
+    FHO_RET == "0", PMS_RET == "0", DAT_RET == "0",
+    COH_NAI_RET == "0", COH_SEX_RET == "0",
+    !NIR_ANO_17 %in% NIR_FICTIFS
+  )
+attrition <- noter_attrition(attrition, etape_02a, "02a chainage exploitable")
+
+# 02b. hors prestations inter-établissements (PIE, séjours de type B) —
+#      SEJ_TYP vient de T_MCO{aa}B (présent dans la table de session depuis 01).
+etape_02b <- etape_02a |>
+  filter(SEJ_TYP != "B" | is.na(SEJ_TYP))
+attrition <- noter_attrition(attrition, etape_02b, "02b hors prestations inter-etab.")
+
+# 02c. hors GHM en erreur (CMD 90)
+etape_02c <- etape_02b |>
+  filter(substr(GRG_GHM, 1, 2) != "90")
+attrition <- noter_attrition(attrition, etape_02c, "02c hors GHM en erreur (90)")
+
+pop_02_exclusion <- compute_session(etape_02c, "tmp_02_exclusion")
+```
+
+```{r 03_critere_jugement}
+# ==== 03 — CRITÈRE DE JUGEMENT (niveau séjour) ====
+# Table attendue : tmp_02_exclusion (pop_02_exclusion)
+# Table produite : tmp_03_critere_jugement (pop_03_critere_jugement)
+#                  = population analysée + colonne(s) du critère de jugement
+# Critère validé : <ex. patients uniques (NIR_ANO_17) par année>
+# Unité de compte et variables dérivées, 1 ligne par séjour ; l'agrégation
+# (par année, par strate, sur toute la période) est faite en 06_sorties.
+# Le pseudonyme NIR_ANO_17 est fiable : codes retour filtrés en 02_exclusion.
+# Variantes (individus stricts BEN_IDT_ANO, statut vital à N jours, taux pour
+# 100 000, lectures d'une évolution) : references/template/03_critere_jugement.R
+
+pop_03_critere_jugement <- pop_02_exclusion |>
+  mutate(
+    # Variables dérivées selon le critère validé (supprimer celles sans objet) :
+    sejour_id = paste0(ETA_NUM, "-", RSA_NUM),         # clé séjour composite (-> ||)
+    journees  = SEJ_NBJ,                               # journées : sum() en 06
+    deces     = if_else(SOR_MOD == "9", 1L, 0L)        # mortalité hospitalière
+  ) |>
+  compute_session("tmp_03_critere_jugement")
+
+# Effectif inchangé en général ; le noter trace l'étape dans le flowchart
+# (un critère restrictif, ex. ré-hospitalisation à 30 jours, y ferait une perte).
+attrition <- noter_attrition(attrition, pop_03_critere_jugement, "03 Critere de jugement")
+```
+
+```{r 04_covariables}
+# ==== 04 — COVARIABLES (stratification, caractérisation) ====
+# Table attendue : tmp_03_critere_jugement (pop_03_critere_jugement)
+# Table produite : tmp_04_covariables (pop_04_covariables)
+# Stratification validée : <ex. année, sexe, classe d'âge>
+# Chunk omis si le protocole n'a aucune covariable (06_sorties repart alors de
+# pop_03_critere_jugement). La clé du séjour (ETA_NUM, RSA_NUM) n'est unique
+# que dans un millésime : toute jointure annexe se fait sur (ETA_NUM, RSA_NUM, annee).
+# Variantes (type de séjour, site géographique, flags DAS, ALD IR_IMB_R) :
+# references/template/04_covariables.R
+
+pop_04_covariables <- pop_03_critere_jugement |>
+  mutate(
+    classe_age = case_when(
+      AGE_ANN < 18 ~ "0-17",
+      AGE_ANN < 65 ~ "18-64",
+      AGE_ANN < 80 ~ "65-79",
+      TRUE         ~ "80+"
+    ),
+    sexe_lib = case_when(COD_SEX == "1" ~ "Homme", COD_SEX == "2" ~ "Femme", TRUE ~ "Inconnu")
+  ) |>
+  compute_session("tmp_04_covariables")
+
+attrition <- noter_attrition(attrition, pop_04_covariables, "04 Covariables")
+```
+
+```{r 05_flowchart}
+# ==== 05 — FLOWCHART D'ATTRITION ====
+# Attendu : objet `attrition`, rempli par les chunks 01 à 04
+# Produit : objet `flowchart` (annee, etape, nb_sejours, nb_exclus, pct_perdu),
+#           affiché dans la section Méthodologie. Ne redéfinit aucune étape.
+
+flowchart <- attrition |>
+  arrange(annee, etape) |>                  # le préfixe "01", "02a"… donne l'ordre
   group_by(annee) |>
   mutate(
     nb_exclus = lag(nb_sejours) - nb_sejours,
@@ -185,26 +323,69 @@ attrition <- attrition |>
   ungroup() |>
   select(annee, etape, nb_sejours, nb_exclus, pct_perdu)
 
-derniere <- attrition |> filter(etape == last(names(etapes_mco(an[1]))))
-stopifnot(all(derniere$nb_sejours == resultat_annuel$nb_sejours[match(derniere$annee, resultat_annuel$annee)]))
+# Secret statistique : diffusion externe seulement (paramètre du chunk setup).
+# Effectifs ET nombres d'exclus entre étapes (un exclus < seuil se déduit
+# sinon de deux effectifs diffusés) ; 0 reste diffusable.
+if (secret_statistique) {
+  flowchart <- flowchart |>
+    mutate(
+      nb_sejours = if_else(nb_sejours > 0 & nb_sejours < seuil, NA_real_, nb_sejours),
+      nb_exclus  = if_else(nb_exclus > 0 & nb_exclus < seuil, NA_real_, nb_exclus)
+    )
+}
 ```
 
-```{r Contrôle secret statistique}
-# ==== SECRET STATISTIQUE — AVANT tout affichage ====
-# stop() plutôt que warning() : warning = FALSE (chunk Setup) masquerait l'alerte.
-verifier_seuil <- function(df, col_effectif, seuil = SEUIL) {
-  n_masque <- sum(df[[col_effectif]] > 0 & df[[col_effectif]] < seuil, na.rm = TRUE)   # 0 diffusable
-  if (DIFFUSION_EXTERNE && n_masque > 0) {
+```{r 06_sorties}
+# ==== 06 — RÉSULTAT ====
+# Table attendue : tmp_04_covariables (pop_04_covariables), ou
+#                  tmp_03_critere_jugement si le protocole n'a pas de covariable
+# Produit        : objets `resultat_annuel`, `nb_patients_periode`
+# Le calcul reste côté Oracle ; collect() uniquement sur les agrégats.
+# Libellés (référentiels), indicateurs méthodologiques : references/template/06_sorties.R
+
+pop_analyse <- pop_04_covariables      # pop_03_critere_jugement si 04 omis
+
+# -- Pattern A — agrégats par année (et par strate) ----------------------------
+resultat_annuel <- pop_analyse |>
+  group_by(annee) |>                   # + sexe_lib, classe_age… selon la stratification
+  summarise(
+    nb_sejours  = n(),                 # 1 ligne = 1 séjour (ou n_distinct(sejour_id))
+    nb_patients = n_distinct(NIR_ANO_17)   # patients uniques PAR ANNÉE — pseudonymes
+                                           # PMSI ; individus stricts : BEN_IDT_ANO (03)
+  ) |>
+  collect() |>
+  arrange(annee)
+
+# -- Pattern B — patients uniques SUR TOUTE LA PÉRIODE : n_distinct sur
+#    l'empilement des années (fait en 01), jamais la somme des distincts annuels
+nb_patients_periode <- pop_analyse |>
+  summarise(nb_patients = n_distinct(NIR_ANO_17)) |>
+  collect()
+
+# -- Secret statistique (seuil = 11) : diffusion externe seulement (chunk setup)
+# verifier_seuil() arrête le rendu sur toute cellule de 1 à seuil - 1 (0
+# diffusable) : stop() plutôt que warning(), car warning = FALSE (chunk setup)
+# masquerait l'alerte dans le rapport. Corriger en regroupant les modalités
+# < seuil sous "Autre" puis en ré-agrégeant (group_by + summarise une seconde
+# fois), plutôt que masquer : les totaux restent justes.
+verifier_seuil <- function(df, col_effectif) {
+  n_masque <- sum(df[[col_effectif]] > 0 & df[[col_effectif]] < seuil, na.rm = TRUE)
+  if (n_masque > 0) {
     stop(sprintf(
-      "%d cellule(s) < %d (%s) - regrouper sous 'Autre' avant diffusion externe.",
+      "%d cellule(s) < %d (%s) - à regrouper sous 'Autre' avant toute diffusion externe.",
       n_masque, seuil, col_effectif
     ))
   }
   df
 }
-
-resultat_annuel <- resultat_annuel |> verifier_seuil("nb_patients") |> verifier_seuil("nb_sejours")
-attrition       <- attrition |> verifier_seuil("nb_sejours") |> verifier_seuil("nb_exclus")
+if (secret_statistique) {
+  resultat_annuel     <- resultat_annuel |> verifier_seuil("nb_patients") |> verifier_seuil("nb_sejours")
+  nb_patients_periode <- nb_patients_periode |> verifier_seuil("nb_patients")
+  # resultat_annuel <- resultat_annuel |>
+  #   mutate(classe_age = if_else(nb_patients < seuil, "Autre", classe_age)) |>
+  #   group_by(annee, classe_age) |>
+  #   summarise(across(c(nb_sejours, nb_patients), sum), .groups = "drop")
+}
 ```
 
 # Méthodologie
@@ -214,36 +395,74 @@ attrition       <- attrition |> verifier_seuil("nb_sejours") |> verifier_seuil("
 <Reformuler la question en 2-3 phrases : population, phénomène mesuré, période,
 source(s) SNDS, unité de compte.>
 
-- **Source** : SNDS via le Health Data Hub (Oracle), <champ(s) PMSI et/ou DCIR, millésime(s)>.
-- **Population** : <critères d'inclusion validés avec l'utilisateur>.
+- **Sources SNDS** : <PMSI MCO / DCIR / CAUSE_DECES ; si plusieurs : intersection
+  ou union, et méthode de chaînage retenue (`NIR_ANO_17` = `BEN_NIR_PSA`,
+  individu `IR_BEN_R.BEN_IDT_ANO`)>.
+- **Population** : <champ(s), années, critères d'inclusion validés avec l'utilisateur>.
+- **Exclusions** : <dans l'ordre du chunk 02_exclusion>.
 - **Unité de compte** : <patients uniques / séjours / journées / délivrances>.
 - **Période** : <années>.
+- **Stratification** : <année, sexe, classe d'âge…>.
+- **Dictionnaire** : schema-snds, commit <SOURCE.txt> ; chaque table et variable
+  vérifiée pour chaque millésime demandé.
+
+## Définitions et source des codes
+
+<Codes CIM-10 / CCAM / ATC retenus, avec la source si issue d'une recherche de
+références (Santé publique France, cartographie CNAM, HAS, projet de
+l'écosystème SNDS, publication), et les amendements de l'utilisateur.>
 
 <!-- Si la finalité implique une diffusion externe (bloc 0 des clarifications) :
 
 ## Secret statistique
 
-Les répartitions par <dimension> appliquent un secret statistique : toute
-combinaison regroupant moins de `r SEUIL` <séjours/patients> est reclassée sous
-la modalité "Autre" avant ré-agrégation.
+Les effectifs du flowchart (séjours et exclus) inférieurs à `r seuil` sont
+masqués, et les répartitions par <dimension> appliquent un secret statistique :
+toute combinaison regroupant moins de `r seuil` <séjours/patients> est
+reclassée sous la modalité "Autre" avant ré-agrégation.
 -->
 
-## Limites connues
+## Flowchart d'attrition
 
-<2-3 alertes ciblées sur ce protocole précis — cf. « Points de vigilance » du
-workflow de la skill (chaînage NIR_ANO_17/BEN_NIR_PSA/BEN_IDT_ANO selon les
-sources, petits effectifs, biais de définition...). Ne rien lister qui ne
-s'applique pas.>
+Effectifs à chaque étape du protocole, tels que notés par les chunks 01 à 04 :
+c'est ce qui rend l'analyse auditable.
 
-```{r Table attrition}
-attrition |>
+```{r 05_flowchart_table}
+flowchart |>
   setNames(c("Année", "Étape", "Nombre de séjours", "Exclus", "% perdu")) |>
   dtttable()
 ```
 
+## Limites connues
+
+<2-3 limites ciblées sur ce protocole précis — cf. « Points de vigilance » du
+workflow de la skill (fiabilité du chaînage inter-source le cas échéant,
+année PMSI = année de sortie, évolutions de codage, alimentation effective des
+variables DCIR, dates PMSI absentes avant 2009, réforme SMR 2023, exhaustivité
+du statut vital, années Covid dans une tendance, petits effectifs…). Ne rien
+lister qui ne s'applique pas.>
+
+## Pistes de sensibilité
+
+<ex. élargir aux DAS (variante de `01_inclusion.R`), croiser avec le DCIR
+(pharmacie, actes en ville), inclure les séances, codes complets plutôt que
+troncature à 3 caractères, marge de flux DCIR plus large.>
+
+## Confidentialité
+
+Aucune donnée individuelle n'a quitté l'environnement du Health Data Hub :
+les tables intermédiaires sont des tables de session Oracle, et aucun fichier
+local ne contient d'identifiant, de date ou de localisation individuelle. Les
+seules sorties sont des agrégats, <soumis au seuil de 11 / sans secret
+statistique (dénombrement interne)>.
+
 # Résultats
 
-```{r Figure principale}
+Sur l'ensemble de la période, `r format(nb_patients_periode$nb_patients, big.mark = " ")`
+patients uniques.
+
+```{r 06_sorties_figure}
+# ==== FIGURE (adapter au critère de jugement) ====
 ggplot(resultat_annuel, aes(x = annee, y = nb_patients)) +
   geom_col(fill = "#4E79A7") +
   scale_x_continuous(breaks = annees) +
@@ -256,42 +475,20 @@ ggplot(resultat_annuel, aes(x = annee, y = nb_patients)) +
   theme_minimal(base_size = 11)
 ```
 
-```{r Table résultats}
+```{r 06_sorties_table}
 resultat_annuel |>
-  setNames(c("Nombre de séjours", "Nombre de patients", "Année")) |>
+  setNames(c("Année", "Nombre de séjours", "Nombre de patients")) |>
   dtttable()
 ```
 
-```{r Export}
+```{r 06_sorties_export}
 # ==== EXPORT (décommenter si besoin) ====
-# ⚠️ Règle SNDS : ne jamais persister en local un fichier avec des identifiants
-# potentiels — uniquement des agrégats déjà vérifiés vis-à-vis du seuil.
+# Règle SNDS (chunk setup) : ne jamais persister en local un fichier contenant
+# un identifiant (pseudonyme patient, clé de séjour), une date de soin ou une
+# localisation fine — seuls des AGRÉGATS vérifiés par verifier_seuil() sortent.
 # readr::write_csv(resultat_annuel, "resultat_annuel.csv")
+# readr::write_csv(flowchart, "flowchart.csv")
 
+# Fin du travail : les lignes des tables de session disparaissent à la déconnexion.
 dbDisconnect(conn)
-```
-
-```{r Aide-mémoire dbplyr, eval = FALSE, include = FALSE}
-# ==============================================================================
-# Patterns dbplyr/Oracle/Rmd — rappels
-# - Tables : tbl(conn, I("NOM_TABLE")) — PMSI suffixé par année, DCIR non
-#   millésimé.
-# - substr(x, a, b) %in% c(...) pour les codes courts -> IN (...) côté SQL ;
-#   motifs complexes -> filter(sql("REGEXP_LIKE(col, '<regex>')")) (fonction
-#   Oracle).
-# - n_distinct(x) -> COUNT(DISTINCT x). Pas de clé séjour unique nativement :
-#   construire paste0(ETA_NUM, "-", RSA_NUM) avant n_distinct().
-# - collect() : jamais sur une table de séjours/prestations entière, toujours
-#   après agrégation (ou compute() pour matérialiser côté base) — sauf
-#   batching volumétrique DCIR ci-dessous (collect() par batch, cf. SKILL.md).
-# - ER_PRS_F volumineux : filtrer par date/flux, itérer par mois avec
-#   furrr::future_map_dfr au-delà de quelques mois (1 connexion Oracle/worker,
-#   voir template.R Pattern C et modele-donnees.md piège n°11).
-# - Secret statistique : verifier_seuil() (chunk dédié) avant tout affichage ;
-#   regroupement via case_when(...) puis ré-agrégation (group_by + summarise).
-# - %in% -> IN (...) limité à 1000 valeurs en Oracle (ORA-01795) : au-delà,
-#   semi_join sur une requête lazy. Dates : !!ora_date(d), jamais une date R brute.
-# - Tables interactives : dtttable() (chunk Setup) plutôt qu'un kable brut.
-# - Contrôle du SQL généré : requete |> show_query().
-# ==============================================================================
 ```

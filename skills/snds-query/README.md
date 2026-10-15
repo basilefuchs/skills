@@ -39,7 +39,8 @@ clarification, protocole validé, puis scripts.
    statistique** (seuil de diffusion) et une note méthodologique (limites,
    pistes de sensibilité, rappel de non-persistance locale) livrée dans le
    dossier. Un fichier `.R` unique est fourni sur demande, mêmes sections
-   dans le même ordre.
+   dans le même ordre ; un rapport `.Rmd` suit les mêmes étapes, un chunk par
+   étape, avec la note méthodologique intégrée.
 
 Vous exécutez les scripts vous-même sur l'environnement du Health Data Hub :
 **Claude n'accède jamais aux données** — il ne voit que la question, le
