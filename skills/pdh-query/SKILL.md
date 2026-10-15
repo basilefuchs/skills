@@ -53,10 +53,12 @@ poser les questions de clarification via l'outil de choix multiple si disponible
    validés, chacun dans le fichier de l'étape qui l'utilise. **Source de vérité
    des patterns** : `00_setup.R` porte les fonctions partagées
    (`compute_volatile()`, `noter_attrition()`) et les rappels génériques.
-7. `references/template.Rmd` — squelette de rapport R Markdown (mêmes patterns
-   dbplyr/Teradata, plus mise en forme narrative : `rmdformats::robobook`, tables
-   interactives `DT`, section méthodologie, flowchart d'attrition). À utiliser
-   quand le format demandé (clarification E.15) est un rapport plutôt qu'un script.
+7. `references/template.Rmd` — squelette de rapport R Markdown : mêmes étapes,
+   mêmes noms de tables et d'objets que le dossier (un chunk par étape, nommé
+   comme le fichier correspondant), plus mise en forme narrative
+   (`rmdformats::robobook`, tables interactives `DT`, section méthodologie,
+   flowchart d'attrition). À utiliser quand le format demandé (clarification
+   E.15) est un rapport plutôt qu'un script.
 
 ## Workflow
 
@@ -148,8 +150,10 @@ Demander confirmation explicite (Valider / Modifier). Ne continuer qu'après un 
 
 Format choisi en clarification E.15 ; par défaut `.R`. Un `.R` est un **dossier
 de scripts**, un fichier par étape du protocole validé, calqué sur
-`references/template/` ; un `.Rmd` suit `references/template.Rmd` (section
-« Méthodologie » en prose, tables interactives `dtttable()`).
+`references/template/` ; un `.Rmd` suit `references/template.Rmd`, qui partage
+la même définition des étapes, mêmes noms de tables et d'objets que le dossier
+(un chunk par étape, dans le même ordre), avec en plus la section
+« Méthodologie » en prose et les tables interactives `dtttable()`.
 
 Dossier `.R` — fichiers, dans l'ordre d'exécution (noms sans accent) :
 

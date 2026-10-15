@@ -37,7 +37,9 @@ statisticien** : clarification, protocole validé, puis scripts.
    que la suivante reprend, un **flowchart d'attrition** (effectifs et %
    perdus à chaque étape d'exclusion) et une note méthodologique (limites,
    pistes de sensibilité) livrée dans le dossier. Un fichier `.R` unique est
-   fourni sur demande, mêmes sections dans le même ordre.
+   fourni sur demande, mêmes sections dans le même ordre ; un rapport `.Rmd`
+   suit les mêmes étapes, un chunk par étape, avec la note méthodologique
+   intégrée.
 
 Vous exécutez les scripts vous-même sur le portail : **Claude n'accède jamais aux
 données** — il ne voit que la question, le protocole et le code généré. Le
