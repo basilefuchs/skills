@@ -53,6 +53,27 @@ se relit à la main.
    `check_skills.py` affiche « OK » et que les tests passent ; la CI de la PR
    doit être verte.
 
+## Références communes à une famille
+
+Une skill est distribuée seule : une référence utile à plusieurs skills est
+copiée dans chacune, jamais partagée par un chemin vers une autre skill.
+
+Une famille réunit les skills de même préfixe, le premier segment du nom
+(`snds-`, `pdh-`). Deux skills d'une famille qui ont un fichier au même chemin
+relatif sous `references/` ou `scripts/` l'ont identique octet à octet.
+
+Pour modifier un fichier copié, l'éditer dans la skill qui le détient (la
+source), puis le recopier dans les autres skills de la famille :
+
+```
+cp skills/snds-query/references/profils/hdh_oracle.md skills/snds-copilot/references/profils/hdh_oracle.md
+```
+
+`tests/test_sync_familles.py` lit le dépôt et échoue sur chaque divergence :
+il nomme les deux fichiers et donne la commande `cp` de la source, le fichier
+modifié en dernier, vers la copie. Aucune liste à tenir : un fichier copié
+sous le même chemin relatif entre dans le test de lui-même.
+
 ## Chaîne de skills
 
 Les skills du parcours (`question-recherche-pico`, skills schema, skills

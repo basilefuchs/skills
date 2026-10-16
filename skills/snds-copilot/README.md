@@ -90,8 +90,6 @@ adapter pour un autre SGBD.
 
 ## Mise à jour des références
 
-Les fichiers de `references/dictionnaire/`, `references/modele-donnees.md`,
-`references/profils/hdh_oracle.md`, `references/template/` et
-`scripts/build-dictionary.py` sont des copies de ceux de `snds-query` : les
-mettre à jour là-bas, puis recopier ici. Dans le dépôt, le test
-`tests/test_sync_snds.py` signale toute divergence.
+Les références communes avec `snds-query` sont des copies, jamais partagées :
+voir la
+[règle de copie](https://github.com/basilefuchs/skills/blob/main/CONTRIBUTING.md#références-communes-à-une-famille).
