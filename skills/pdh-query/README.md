@@ -126,18 +126,21 @@ profil, adapter les valeurs, et la skill l'utilisera — le reste ne change pas.
 Les profils **font foi** : c'est aussi là que capitaliser vos mappings validés
 et pièges découverts, pour que les scripts suivants en profitent.
 
-## Mise à jour du dictionnaire
+## Références communes
 
-Remplacer `references/dictionnaire/variables-*.csv` par la
-dernière version issue du portail ATIH (format : `librairie;table;var;libelle;
-andeb;anfin;jointure;commentaire;type;longueur;droits`). L'export natif du
-portail est en **Windows-1252** ; le fichier embarqué dans la skill doit rester
-en **UTF-8** (fichier unique, utilisé quel que soit le mode d'installation) —
-convertir avant de remplacer, par exemple depuis le dossier de la skill :
+Une skill est distribuée seule : les références utiles à plusieurs skills
+sont copiées, jamais partagées, et les copies restent identiques octet à
+octet (règle de copie du
+[CONTRIBUTING](https://github.com/basilefuchs/skills/blob/main/CONTRIBUTING.md#références-communes-à-une-famille)).
+Modifier la source, puis recopier.
 
-```
-iconv -f WINDOWS-1252 -t UTF-8 nouvel-export.csv > references/dictionnaire/variables-AAAA-MM-JJ.csv
-```
+- Copies ici, source dans
+  [`pdh-schema`](https://github.com/basilefuchs/skills/tree/main/skills/pdh-schema),
+  qui décrit la mise à jour du dictionnaire : le dictionnaire
+  (`references/dictionnaire/`), `references/modele-donnees.md` et
+  `references/points-de-vigilance.md`.
+- Sources ici, copies dans `pdh-schema` : `references/profils/`.
 
 Un fichier `variables-*.csv` placé à la racine d'un projet prime sur celui
-embarqué dans la skill (celui-là peut rester dans l'encodage de l'export).
+embarqué dans la skill ; il peut rester dans l'encodage de l'export
+(Windows-1252).
