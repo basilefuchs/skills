@@ -41,10 +41,13 @@ statisticien** : clarification, protocole validé, puis scripts.
    suit les mêmes étapes, un chunk par étape, avec la note méthodologique
    intégrée.
 
-Vous exécutez les scripts vous-même sur le portail : **Claude n'accède jamais aux
-données** — il ne voit que la question, le protocole et le code généré. Le
-dictionnaire des variables embarqué est le document de description de la base
-(métadonnées), sans aucune donnée patient.
+Vous exécutez les scripts vous-même sur le portail. **Claude ne voit jamais de
+données individuelles** : il reçoit des agrégats sous seuil, sortis par la
+procédure d'export de la plateforme, seule juge de ce qui sort. Un
+téléversement sur claude.ai est un transfert à un tiers, acceptable pour ces
+agrégats seulement. Pour générer les scripts, il ne voit que la question, le
+protocole et le code généré. Le dictionnaire des variables embarqué est le
+document de description de la base (métadonnées), sans aucune donnée patient.
 
 ## Ce que la skill sait (et vérifie)
 

@@ -1,6 +1,6 @@
 # question-recherche-pico
 
-Skill qui aide à transformer une idée de recherche ou d'étude en santé en question structurée : finalité et source de données, type d'étude, question en une phrase, grille de type PICO (P, I/E, C, O, T et schéma d'étude), sous-groupes, fragilités FINER. Elle écrit le résultat dans `protocole.md`, premier maillon du parcours SNDS / PMSI du dépôt, et reste utilisable seule.
+Skill qui aide à transformer une idée de recherche ou d'étude en santé en question structurée : finalité et source de données, type d'étude, question en une phrase, grille de type PICO (P, I/E, C, O, T et schéma d'étude), sous-groupes, fragilités FINER. Elle écrit le résultat dans `protocole.md`, premier maillon du [parcours SNDS / PMSI du dépôt](https://github.com/basilefuchs/skills#parcours), et reste utilisable seule.
 
 ## Contenu
 
@@ -39,7 +39,7 @@ La ligne de fin nomme la commande suivante selon la source de données, et la ph
 | Source de données | Étape suivante |
 | --- | --- |
 | SNDS (Health Data Hub) | `/snds-schema` — téléverser `protocole.md` et taper « vérifier les données du protocole » |
-| PMSI national (portail ATIH) | `/pdh-schema` — téléverser `protocole.md` et taper « vérifier les données du protocole » |
+| PMSI national (portail ATIH) | `/pdh-schema` (skill à venir ; d'ici là, `/pdh-query <question>`) — téléverser `protocole.md` et taper « vérifier les données du protocole » |
 | autre ou aucune | `/squelette-imrad` — coller le livrable et taper « squelette IMRaD d'un protocole ou d'un article » |
 
 La skill structure, la personne rédige : le livrable ne contient ni texte rédigé, ni référence bibliographique.

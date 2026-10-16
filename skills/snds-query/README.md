@@ -14,6 +14,8 @@ millésimes sont vérifiés par `snds-schema`.
 /question-recherche-pico  →  /snds-schema  →  /snds-query  →  plateforme  →  /rapport-imrad
 ```
 
+Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/skills#parcours).
+
 ## Contenu
 
 - `SKILL.md` : la skill (démarche, contrat de `sorties/`, livrable, ligne de fin).

@@ -72,9 +72,9 @@ répertoire de base de la skill.
 Les fichiers 1, 3, 4 et 5 sont des copies, identiques à leur source : le
 dictionnaire (3), `scripts/build-dictionary.py` et le modèle de données (4)
 viennent de `snds-schema` ; le profil (1) et le squelette de scripts (5)
-viennent de `snds-query`. Leurs renvois à `protocole.md`, à
-`points-de-vigilance.md` ou à `SKILL.md` visent le parcours et ces autres
-skills : sans objet ici.
+viennent de `snds-query`. Leurs renvois à `protocole.md` ou à
+`points-de-vigilance.md` visent le parcours et ces autres skills : sans objet
+ici.
 
 ## Dictionnaire
 

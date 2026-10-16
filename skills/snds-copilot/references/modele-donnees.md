@@ -201,8 +201,7 @@ tout comptage de patients uniques.
   glue(query, an = ..., table = ...))`) reste répandu dans des scripts R
   existants : à savoir reconnaître et relire si l'utilisateur colle un script
   existant dans cette convention, mais ce n'est **pas** le style de
-  génération par défaut de cette skill (voir SKILL.md, étape 5 — dbplyr
-  lazy + `sql()` est le défaut).
+  génération par défaut : dbplyr lazy + `sql()` est le défaut.
 
 ## Pièges classiques (à vérifier / signaler systématiquement)
 
@@ -264,7 +263,7 @@ tout comptage de patients uniques.
     ensuite précisément sur `EXE_SOI_DTD` pour ne garder que la période
     demandée — marge officielle : au moins 5 mois de données après la
     période (6 flux), 12 mois pour une extraction exhaustive, jamais plus de
-    24 (voir `points-de-vigilance.md`). Pattern de code validé :
+    24. Pattern de code validé :
     `template/01_inclusion.R`, Pattern C.
 
 ## Comment utiliser le dictionnaire
@@ -272,7 +271,7 @@ tout comptage de patients uniques.
 Fichiers TSV dans `references/dictionnaire/` (colonnes décrites dans son
 `README.md`) : `tables.tsv`, `variables.tsv`, `jointures.tsv`,
 `nomenclatures.tsv`, `valeurs.tsv`. Recherche par `grep` / `awk -F'\t'`,
-jamais de lecture intégrale — exemples de commandes dans `SKILL.md`, étape 2.
+jamais de lecture intégrale.
 
 Les pièges propres à l'environnement (disponibilité exacte des schémas…)
 sont dans `profils/hdh_oracle.md`, qui fait foi.
@@ -291,10 +290,9 @@ croiser avec le dictionnaire en cas de doute (même source schema-snds). Le dét
 pour bâtir ce document (filtres recommandés, valeurs manquantes) est dans
 `profils/hdh_oracle.md`, section « Documentation officielle en ligne ».
 
-Deux ressources complémentaires, non autoritatives (voir `SKILL.md` § « Ressources
-complémentaires » pour leur usage précis) : le [forum d'entraide](https://entraide.health-data-hub.fr/)
+Deux ressources complémentaires, non autoritatives : le [forum d'entraide](https://entraide.health-data-hub.fr/)
 (communauté active, utile en dépannage sur un comportement de table ou un
 message d'erreur Oracle non documenté ailleurs) et la
 [cartographie de l'écosystème SNDS](https://ecosysteme-snds.health-data-hub.fr/)
 (annuaire de projets/algorithmes déjà validés, à consulter pour sourcer une
-définition de cohorte/pathologie à l'étape 3 du workflow).
+définition de cohorte/pathologie).

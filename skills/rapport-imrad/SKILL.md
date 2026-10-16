@@ -43,7 +43,7 @@ Fichiers attendus, rien d'autre. Une colonne de comptage commence par `nb_` ; un
 | `figure_<nom>.png`, optionnelles | — | figure référencée par son nom |
 | `manifeste.md` | question, répertoire, date d'exécution, années, sources, seuil, secret appliqué, dictionnaire, date de validation du protocole, tableau fichier / cellules masquées | état de l'export, en tête du rapport |
 
-`nb_sejours` du flowchart compte l'unité du protocole quelle qu'elle soit (séjours, prestations, décès) : le rapport la nomme d'après l'Unité de compte de `## Données`.
+`nb_sejours` du flowchart compte les lignes de la source, quelle que soit l'unité de compte : séjours en PMSI, prestations en DCIR, décès en CépiDc. Le rapport les nomme d'après Sources de `## Données`.
 
 ## Démarche
 
@@ -132,7 +132,7 @@ Réponds avec exactement cette structure, sans le bloc de code ; les titres rest
 
 <prose depuis flowchart.csv>
 
-| Année | Étape | <Unité de compte> | Exclus |
+| Année | Étape | <Séjours | Prestations | Décès> | Exclus |
 |---|---|---|---|
 | <…> | <…> | <n | < 11> | <n | < 11> |
 

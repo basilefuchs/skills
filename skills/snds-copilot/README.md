@@ -7,8 +7,9 @@ sur le **SNDS via le Health Data Hub** (Oracle), en SQL ou en R dbplyr. Elle
 répond directement, sans protocole : vous tenez le clavier, elle relit,
 renseigne ou complète.
 
-Elle est hors du parcours question → protocole → scripts, avec un point de
-contact : après une erreur d'exécution d'un dossier généré par
+Elle est hors du [parcours](https://github.com/basilefuchs/skills#parcours)
+question → protocole → scripts, avec un point de contact : après une erreur
+d'exécution d'un dossier généré par
 [`snds-query`](https://github.com/basilefuchs/skills/tree/main/skills/snds-query),
 la relecture du fichier en cause est le chemin de correction, sans toucher au
 protocole.

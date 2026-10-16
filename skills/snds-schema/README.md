@@ -14,6 +14,8 @@ seule fois et passe la main à `snds-query`, qui génère les scripts.
 /question-recherche-pico  →  /snds-schema  →  /snds-query  →  plateforme  →  /rapport-imrad
 ```
 
+Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/skills#parcours).
+
 ## Contenu
 
 - `SKILL.md` : la skill (démarche, format des questions, livrable, ligne de fin).
@@ -62,7 +64,8 @@ La skill retrouve le protocole seule : chemin passé en argument, sinon
 `./protocole.md`, sinon fichier téléversé, sinon une question. Une question
 en langage naturel sans protocole est renvoyée vers
 `/question-recherche-pico <question>` ; un protocole dont la source est le
-PMSI national (portail ATIH) est renvoyé vers `/pdh-schema`.
+PMSI national (portail ATIH) est renvoyé vers `/pdh-schema` (skill à
+venir).
 
 ## Déroulé
 

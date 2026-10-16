@@ -13,6 +13,11 @@ IMRaD : Méthodes et Résultats en prose, Introduction et Discussion en puces.
         →  plateforme (hors Claude) : exécution, export de sorties/  →  /rapport-imrad
 ```
 
+Parcours complet : voir le
+[README du dépôt](https://github.com/basilefuchs/skills#parcours). La branche
+PMSI national (portail ATIH) est à venir : aujourd'hui, seul le parcours SNDS
+écrit un `sorties/` conforme.
+
 ## Contenu
 
 - `SKILL.md` : la skill (entrées lues, démarche, gabarit du rapport).
