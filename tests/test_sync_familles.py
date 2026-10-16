@@ -5,8 +5,8 @@ jamais partagées. Une famille réunit les skills de même préfixe, le premier
 segment du nom (`snds-`, `pdh-`). Deux skills d'une famille qui ont un fichier
 au même chemin relatif sous `references/` ou `scripts/` l'ont identique octet
 à octet. Le test échoue sur chaque divergence en nommant les deux fichiers et
-en donnant la commande `cp` dans les deux sens, le mainteneur choisissant la
-source ; il n'y a aucune liste à tenir.
+en donnant la commande `cp` dans les deux sens ; la source est nommée dans le
+README de la skill qui porte la copie, et il n'y a aucune liste à tenir.
 
 Lancement : python3 -m unittest discover -s tests
 """
@@ -25,7 +25,7 @@ def divergences(root):
     """Un message par paire de fichiers copiés qui divergent, sous `root/skills/`.
 
     Le message nomme les deux fichiers et propose `cp` dans les deux sens : la
-    source n'est pas devinée, le mainteneur choisit.
+    source n'est pas devinée, le README de la skill qui porte la copie la nomme.
     """
     families = defaultdict(list)
     for skill in sorted((root / "skills").iterdir()):
@@ -46,7 +46,8 @@ def divergences(root):
                     a, b = (p.relative_to(root).as_posix() for p in (one, other))
                     messages.append(
                         f"{a} et {b} divergent ; recopier dans le sens de la "
-                        f"source : cp {a} {b} ou cp {b} {a}"
+                        f"source, nommée dans le README de la skill qui porte "
+                        f"la copie : cp {a} {b} ou cp {b} {a}"
                     )
     return messages
 

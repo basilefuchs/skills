@@ -90,6 +90,6 @@ adapter pour un autre SGBD.
 
 ## Mise à jour des références
 
-Les références communes avec `snds-query` sont des copies, jamais partagées :
-voir la
+Les références communes avec `snds-query` en sont des copies, jamais partagées :
+`snds-query` est la source, à modifier là-bas avant de recopier ici. Voir la
 [règle de copie](https://github.com/basilefuchs/skills/blob/main/CONTRIBUTING.md#références-communes-à-une-famille).

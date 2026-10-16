@@ -62,8 +62,10 @@ Une famille réunit les skills de même préfixe, le premier segment du nom
 (`snds-`, `pdh-`). Deux skills d'une famille qui ont un fichier au même chemin
 relatif sous `references/` ou `scripts/` l'ont identique octet à octet.
 
-Pour modifier un fichier copié, l'éditer dans la skill qui le détient (la
-source), puis le recopier dans les autres skills de la famille :
+Pour modifier un fichier copié, l'éditer dans sa source, puis le recopier dans
+les autres skills de la famille. Le README de la skill qui porte des copies
+nomme leur source (`snds-copilot` : `snds-query`) ; une skill qui copie un
+fichier d'une autre le dit de même.
 
 ```
 cp skills/snds-query/references/profils/hdh_oracle.md skills/snds-copilot/references/profils/hdh_oracle.md
@@ -71,9 +73,9 @@ cp skills/snds-query/references/profils/hdh_oracle.md skills/snds-copilot/refere
 
 `tests/test_sync_familles.py` lit le dépôt et échoue sur chaque divergence :
 il nomme les deux fichiers et donne la commande `cp` dans les deux sens, sans
-désigner la source ; appliquer celle qui va de la source vers la copie. Aucune
-liste à tenir : un fichier copié sous le même chemin relatif entre dans le test
-de lui-même.
+désigner la source ; appliquer celle qui va de la source, nommée dans le README,
+vers la copie. Aucune liste à tenir : un fichier copié sous le même chemin
+relatif entre dans le test de lui-même.
 
 ## Chaîne de skills
 
