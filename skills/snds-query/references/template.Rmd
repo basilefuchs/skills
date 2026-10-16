@@ -108,7 +108,7 @@ seuil              <- 11
 dossier_sorties  <- "sorties"
 question         <- "<question en langage naturel de l'utilisateur>"
 sources          <- "<PMSI MCO / DCIR / CAUSE_DECES>"
-dictionnaire     <- "schema-snds, commit <ligne Dictionnaire de ## Données>"
+dictionnaire     <- "<ligne Dictionnaire de ## Données, recopiée telle quelle>"
 protocole_valide <- "<AAAA-MM-JJ, date de validation du protocole>"
 
 # NIR_ANO_17 fictifs (documentation officielle HDH) : à exclure avant tout
