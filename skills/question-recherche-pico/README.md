@@ -18,7 +18,7 @@ Se placer dans le répertoire de l'étude (un répertoire par étude : `protocol
 - dans LibreChat : `$question-recherche-pico` ;
 - sur claude.ai : pas de commande, la skill se déclenche sur sa description ; téléverser `protocole.md` pour reprendre une étude.
 
-Un `protocole.md` déjà présent (chemin passé, `./protocole.md`, fichier téléversé) est proposé à reprendre ; il n'est jamais réécrit pour une nouvelle étude, qui demande un autre répertoire.
+Un `protocole.md` déjà présent (chemin passé, `./protocole.md`, fichier téléversé) est proposé à reprendre ; il n'est jamais réécrit pour une nouvelle étude, qui demande un autre répertoire. Une reprise qui change un protocole déjà validé le signale : il devra être revalidé.
 
 Installation : voir le [README du dépôt](https://github.com/basilefuchs/skills).
 

@@ -87,10 +87,11 @@ jamais un effectif ni une donnée individuelle : il se colle sur claude.ai
 sans relecture.
 
 **Amendement.** Relancer `/pdh-schema` sur un protocole déjà validé ouvre
-un amendement : la skill demande ce qui change, repasse `## Statut` à
-`brouillon` pendant l'entretien, revalide, puis ajoute une ligne datée dans
-`## Modifications`. Les scripts générés depuis l'ancienne version sont à
-régénérer avec `/pdh-query`.
+un amendement : la skill reprend l'écart entre la question et le protocole
+validé quand `question-recherche-pico` a changé la question, sinon demande
+ce qui change, repasse `## Statut` à `brouillon` pendant l'entretien,
+revalide, puis ajoute une ligne datée dans `## Modifications`. Les scripts
+générés depuis l'ancienne version sont à régénérer avec `/pdh-query`.
 
 Conventions du parcours : voir le
 [CONTRIBUTING du dépôt](https://github.com/basilefuchs/skills/blob/main/CONTRIBUTING.md).

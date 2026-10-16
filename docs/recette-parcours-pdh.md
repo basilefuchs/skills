@@ -10,8 +10,9 @@ dénombrement interne, source PMSI national, sous-groupe sexe.
 ## Préparation
 
 - [ ] Les quatre skills copiées depuis la branche à recetter
-      (`cp -r skills/<nom> ~/.claude/skills/`), et `snds-schema` pour
-      l'étape 7 ; plugins `snds-hdh` et `pdh-atih` désinstallés.
+      (`cp -r skills/<nom> ~/.claude/skills/`), et `snds-schema` et
+      `snds-query` pour l'étape 7 ; plugins `snds-hdh` et `pdh-atih`
+      désinstallés.
 - [ ] Répertoire vide (`mkdir etude-diabete-pmsi && cd etude-diabete-pmsi`),
       Claude Code lancé dedans.
 
@@ -115,9 +116,30 @@ en-têtes du contrat, avec une cellule masquée :
 2023,"Homme",98995,73789,56.7
 ```
 
-`manifeste.md` : la forme qu'écrit `exporter()` dans `00_setup.R`, avec les
-valeurs du protocole, la date du jour, le seuil 11, et 1 cellule masquée pour
-`flowchart.csv`, 0 pour les autres.
+`manifeste.md`, tel qu'`exporter()` l'écrit, chevrons remplacés par les
+valeurs de `protocole.md` ; la figure, que la recette ne simule pas, en est
+absente :
+
+```
+# Manifeste de sorties/
+
+- Question : <question en une phrase de ## Question>
+- Répertoire : etude-diabete-pmsi
+- Date d'exécution : <AAAA-MM-JJ HH:MM du jour>
+- Années : 2021, 2022, 2023
+- Sources : <valeur de la ligne Sources de ## Données>
+- Seuil : 11
+- Secret appliqué : comptages de 1 à 10 masqués (NA), colonnes dérivées de leur ligne aussi
+- Dictionnaire : <valeur de la ligne Dictionnaire de ## Données>
+- Protocole validé le : <date de ## Statut>
+
+| Fichier | Cellules masquées |
+| --- | --- |
+| flowchart.csv | 1 |
+| resultat_annuel.csv | 0 |
+| nb_patients_periode.csv | 0 |
+| strate_sexe_lib.csv | 0 |
+```
 
 ## 5. Rapport : `/rapport-imrad`
 
@@ -160,6 +182,8 @@ Dans un autre répertoire, une copie des trois sections de l'étape 1.
       `/pdh-schema`. », et rien d'autre ; `protocole.md` intact.
 - [ ] `/pdh-query` : une ligne, « Le protocole n'est pas validé : lancez
       `/pdh-schema`. », et rien d'autre.
+- [ ] `/snds-query` : une ligne, « Ce protocole vise le PMSI national :
+      `/pdh-query`. », et rien d'autre.
 
 Dans un répertoire vide :
 
@@ -196,8 +220,10 @@ utilisées par l'étude présentes de 2016 à 2026.
 - Corrigé : l'en-tête et les Méthodes de `rapport-imrad` attendaient un
   commit de dictionnaire ; le PMSI national a une version
   (`variables-<AAAA-MM-JJ>.csv`).
-- Noté : ni `pdh-query` ni `snds-query` ne renvoient un protocole de l'autre
-  base. `/pdh-query` sur un protocole SNDS validé répond « lancez
-  `/pdh-schema` », qui renvoie à son tour vers `/snds-schema` ; sur
-  claude.ai, les deux descriptions portent « générer les scripts du
-  protocole », seul le mot-clé de la base les distingue.
+- Corrigé depuis (ticket #43) : ni `pdh-query` ni `snds-query` ne
+  renvoyaient un protocole de l'autre base ; `/pdh-query` sur un protocole
+  SNDS validé répondait « lancez `/pdh-schema` », qui renvoyait à son tour
+  vers `/snds-schema`. Chaque skill query lit désormais la source de données
+  de `## Finalité` et renvoie vers l'autre query. Case ajoutée à l'étape 7,
+  jouée le 2026-10-16 sur la branche du ticket #43, SKILL.md suivi à la
+  main : conforme.

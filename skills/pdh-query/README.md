@@ -51,9 +51,10 @@ Se placer dans le répertoire de l'étude (un répertoire par étude :
 
 La skill retrouve le protocole seule : chemin passé en argument, sinon
 `./protocole.md`, sinon fichier téléversé, sinon une question. Un protocole
-non validé (`## Statut` en brouillon, ou sans `## Données`) est renvoyé vers
-`/pdh-schema` ; une question en langage naturel sans protocole, vers
-`/question-recherche-pico <question>`.
+du SNDS (source de données de `## Finalité`) est renvoyé vers
+`/snds-query` ; un protocole non validé (`## Statut` en brouillon, ou sans
+`## Données`), vers `/pdh-schema` ; une question en langage naturel sans
+protocole, vers `/question-recherche-pico <question>`.
 
 Elle ne pose qu'une question, le format : dossier `scripts/` de fichiers
 `.R` (par défaut) ou rapport `analyse.Rmd`. Un fichier `analyse.R` unique
@@ -116,7 +117,10 @@ copier le profil du champ (`references/profils/portail_atih_<champ>.md`)
 sous un autre nom dans `references/profils/`, adapter ses valeurs, puis
 `/pdh-query <profil>`. Le squelette contient aussi des éléments propres à
 Teradata (tables volatiles de session, `REGEXP_SIMILAR` via `sql()`) à
-adapter pour un autre SGBD. Les profils font foi : y capitaliser les
+adapter pour un autre SGBD. Au cadrage, choisir la source « PMSI national
+via le portail ATIH », même pour une base locale au même format :
+`pdh-schema` vérifie le protocole dans le dictionnaire du portail, et une
+source « autre » sort du parcours. Les profils font foi : y capitaliser les
 mappings validés et les pièges découverts.
 
 ## Références communes

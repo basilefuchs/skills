@@ -25,7 +25,8 @@ PMSI national (portail ATIH) : quatre skills se relaient par un fichier,
 `protocole.md`, et chacune termine par la commande suivante. La source de
 données inscrite au cadrage choisit la branche : `snds-schema` et
 `snds-query` pour le SNDS, `pdh-schema` et `pdh-query` pour le PMSI
-national. Les quatre skills de la branche sont à installer (voir
+national. Les quatre skills de la branche sont à installer, plus
+`snds-copilot` côté SNDS pour corriger une erreur d'exécution (voir
 [Installation](#installation)).
 
 ```
@@ -46,6 +47,12 @@ phrase.
 | 3. Générer les scripts | `/snds-query` ou `/pdh-query` | téléverser `protocole.md`, taper « générer les scripts du protocole » | `scripts/` (ou `analyse.Rmd`) ; `protocole.md` : scripts, confidentialité |
 | 4. Exécuter sur la plateforme | hors Claude | hors Claude | `sorties/` : agrégats sous seuil et `manifeste.md` |
 | 5. Rédiger le rapport | `/rapport-imrad` | téléverser `protocole.md` et les fichiers de `sorties/`, taper « rédiger le rapport IMRaD » | `rapport.md` |
+
+La colonne « Écrit » vaut pour Claude Code. Sur claude.ai, Claude n'écrit
+aucun fichier : enregistrer le livrable de l'étape 1 sous `protocole.md`, y
+ajouter les sections livrées aux étapes 2 et 3, placer les scripts livrés à
+côté, et téléverser cette version à jour à l'étape suivante ; sans ce geste,
+la skill suivante répond que le protocole n'est pas validé.
 
 Un dénombrement interne ou un rapport de gestion prend un chemin court, sans
 critères FINER.
@@ -76,8 +83,9 @@ corrige le fichier sans toucher au protocole ; côté PMSI national, aucune
 skill ne corrige un script. Une correction faite dans les scripts n'est pas
 mémorisée : une régénération l'écrase.
 
-**Mauvaise base.** Une skill schema lancée sur un protocole de l'autre base
-le dit en une ligne et renvoie vers la bonne commande.
+**Mauvaise base.** Une skill schema ou query lancée sur un protocole de
+l'autre base (source de données de `## Finalité`) le dit en une ligne et
+renvoie vers la bonne commande.
 
 **Hors parcours.** Sans base médico-administrative, `question-recherche-pico`
 mène à `/squelette-imrad`. `snds-copilot` sert aussi seul, pour relire ou
@@ -107,13 +115,15 @@ npx skills add basilefuchs/skills --skill pdh-query -a claude-code -g
 ```
 
 **Installer une branche du parcours.** Les quatre skills d'une branche, ici
-le SNDS ; pour le PMSI national, `pdh-schema` et `pdh-query` à la place de
-`snds-schema` et `snds-query`. Depuis un clone du dépôt :
+le SNDS, avec `snds-copilot` ; pour le PMSI national, `pdh-schema` et
+`pdh-query` à la place de `snds-schema` et `snds-query`, sans
+`snds-copilot`. Depuis un clone du dépôt (une version déjà copiée est
+remplacée) :
 
 ```
 mkdir -p ~/.claude/skills
-for s in question-recherche-pico snds-schema snds-query rapport-imrad; do
-  cp -r skills/$s ~/.claude/skills/
+for s in question-recherche-pico snds-schema snds-query rapport-imrad snds-copilot; do
+  rm -rf ~/.claude/skills/$s && cp -r skills/$s ~/.claude/skills/
 done
 ```
 
@@ -124,6 +134,7 @@ npx skills add basilefuchs/skills --skill question-recherche-pico -a claude-code
 npx skills add basilefuchs/skills --skill snds-schema -a claude-code -g
 npx skills add basilefuchs/skills --skill snds-query -a claude-code -g
 npx skills add basilefuchs/skills --skill rapport-imrad -a claude-code -g
+npx skills add basilefuchs/skills --skill snds-copilot -a claude-code -g
 ```
 
 La skill s'invoque alors avec `/<nom>`, par exemple `/pdh-query` depuis le
@@ -140,6 +151,10 @@ git pull && rm -rf ~/.claude/skills/pdh-query && cp -r skills/pdh-query ~/.claud
 
 Installée avec la CLI `skills` : `npx skills update pdh-query`.
 
+Pour une branche entière, relancer après `git pull` la boucle d'installation
+ci-dessus : elle remplace les skills copiées et ajoute celles qui manquent
+(`snds-schema`, `rapport-imrad`… pour qui n'avait copié que `snds-query`).
+
 ### claude.ai
 
 1. Activer l'exécution de code dans les réglages de claude.ai : les skills
@@ -148,6 +163,9 @@ Installée avec la CLI `skills` : `npx skills update pdh-query`.
    [dernière release](https://github.com/basilefuchs/skills/releases/latest)
    (`<nom>.zip`).
 3. Le téléverser tel quel dans **Customize → Skills**.
+
+Pour le parcours, un zip par skill de la branche : les quatre, plus
+`snds-copilot.zip` côté SNDS.
 
 Il n'y a pas de commande d'invocation : la skill se déclenche d'elle-même sur
 sa description.

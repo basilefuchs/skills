@@ -51,9 +51,10 @@ Se placer dans le répertoire de l'étude (un répertoire par étude :
 
 La skill retrouve le protocole seule : chemin passé en argument, sinon
 `./protocole.md`, sinon fichier téléversé, sinon une question. Un protocole
-non validé (`## Statut` en brouillon, ou sans `## Données`) est renvoyé vers
-`/snds-schema` ; une question en langage naturel sans protocole, vers
-`/question-recherche-pico <question>`.
+du PMSI national (source de données de `## Finalité`) est renvoyé vers
+`/pdh-query` ; un protocole non validé (`## Statut` en brouillon, ou sans
+`## Données`), vers `/snds-schema` ; une question en langage naturel sans
+protocole, vers `/question-recherche-pico <question>`.
 
 Elle ne pose qu'une question, le format : dossier `scripts/` de fichiers
 `.R` (par défaut) ou rapport `analyse.Rmd`. Un fichier `analyse.R` unique
@@ -116,7 +117,10 @@ copier `references/profils/hdh_oracle.md` sous un autre nom dans
 `references/profils/`, adapter ses valeurs, puis `/snds-query <profil>`. Le
 squelette contient aussi des éléments propres à Oracle (`REGEXP_LIKE` via
 `sql()`, `ora_date()`, tables temporaires de session, limite des listes
-`IN`) à adapter pour un autre SGBD.
+`IN`) à adapter pour un autre SGBD. Au cadrage, choisir la source « SNDS
+via le Health Data Hub », même pour une copie locale au même format :
+`snds-schema` vérifie le protocole dans le dictionnaire du SNDS, et une
+source « autre » sort du parcours.
 
 ## Références communes
 

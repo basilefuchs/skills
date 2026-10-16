@@ -9,9 +9,9 @@ dénombrement interne, source SNDS, sous-groupe sexe.
 
 ## Préparation
 
-- [ ] Les quatre skills copiées depuis la branche à recetter
-      (`cp -r skills/<nom> ~/.claude/skills/`) ; plugins `snds-hdh` et
-      `pdh-atih` désinstallés.
+- [ ] Les quatre skills et `snds-copilot`, copiées depuis la branche à
+      recetter (`cp -r skills/<nom> ~/.claude/skills/`) ; plugins
+      `snds-hdh` et `pdh-atih` désinstallés.
 - [ ] Répertoire vide (`mkdir etude-diabete && cd etude-diabete`), Claude Code
       lancé dedans.
 
@@ -115,9 +115,30 @@ en-têtes du contrat, avec une cellule masquée :
 2023,"Femme",80220,58745,43.6
 ```
 
-`manifeste.md` : la forme qu'écrit `exporter()` dans `00_setup.R`, avec les
-valeurs du protocole, la date du jour, le seuil 11, et 1 cellule masquée pour
-`flowchart.csv`, 0 pour les autres.
+`manifeste.md`, tel qu'`exporter()` l'écrit, chevrons remplacés par les
+valeurs de `protocole.md` ; la figure, que la recette ne simule pas, en est
+absente :
+
+```
+# Manifeste de sorties/
+
+- Question : <question en une phrase de ## Question>
+- Répertoire : etude-diabete
+- Date d'exécution : <AAAA-MM-JJ HH:MM du jour>
+- Années : 2021, 2022, 2023
+- Sources : <valeur de la ligne Sources de ## Données>
+- Seuil : 11
+- Secret appliqué : comptages de 1 à 10 masqués (NA), colonnes dérivées de leur ligne aussi
+- Dictionnaire : <valeur de la ligne Dictionnaire de ## Données>
+- Protocole validé le : <date de ## Statut>
+
+| Fichier | Cellules masquées |
+| --- | --- |
+| flowchart.csv | 1 |
+| resultat_annuel.csv | 0 |
+| nb_patients_periode.csv | 0 |
+| strate_sexe.csv | 0 |
+```
 
 ## 5. Rapport : `/rapport-imrad`
 
@@ -129,6 +150,8 @@ Taper `/rapport-imrad`, sans argument.
 - [ ] Avertissement de tête : 1 cellule masquée dans `flowchart.csv` ;
       « < 11 » à sa place dans le tableau, signalé sous lui.
 - [ ] Colonne d'effectif du flowchart libellée « Séjours ».
+- [ ] Méthodes : « étude descriptive sur base médico-administrative »,
+      schéma marqué **À préciser** (chemin court).
 - [ ] Chaque chiffre est une cellule de `sorties/` ; STROBE et RECORD
       nommées ; limites tirées des points de vigilance de `## Données`.
 
@@ -167,16 +190,23 @@ absent : scripts non exécutés, `sorties/` simulé (étape 4). Réseau présent
 dictionnaire frais, schema-snds commit 7bfdf37 (2026-04-27), tables et
 variables de l'étude présentes de 2021 à 2023.
 
-Étapes 1 à 7 conformes, aux écarts près :
+Étapes 1 à 6 conformes, aux écarts près :
 
 - Corrigé : `rapport-imrad` nommait la colonne `nb_sejours` du flowchart
   d'après l'unité de compte du protocole, soit « Patients » pour cette étude,
   alors que le flowchart compte des séjours à chaque étape. Il la nomme
   désormais d'après la source : séjours en PMSI, prestations en DCIR, décès
   en CépiDc.
-- Noté : le chemin court n'a pas de schéma d'étude, que la section Méthodes
-  de `rapport-imrad` demande ; la skill n'a pas de règle pour ce cas.
-- Noté : `/pdh-schema`, nommée par la ligne de fin de
-  `question-recherche-pico` (source PMSI national) et par le renvoi de
-  `snds-schema`, n'existe pas encore (ticket #52) ; le README du dépôt
-  oriente vers `/pdh-query <question>` d'ici là.
+- Corrigé (8ecdf9b) : le chemin court n'a pas de schéma d'étude, que la
+  section Méthodes de `rapport-imrad` demandait ; elle écrit désormais
+  « étude descriptive sur base médico-administrative », schéma marqué
+  **À préciser** (case ajoutée à l'étape 5).
+- Corrigé (8ecdf9b) : la valeur par défaut de `dictionnaire` dans les
+  squelettes ajoutait « schema-snds, commit » devant la ligne Dictionnaire
+  de `## Données`, préfixe doublé dans le manifeste ; elle recopie
+  désormais la ligne telle quelle.
+
+L'étape 7 jouait alors `/snds-schema` sur un protocole PMSI national, faute
+de `pdh-schema` (ticket #52). Dans sa forme actuelle, `/pdh-schema` sur les
+trois sections de l'étape 1, elle a été rejouée le 2026-10-16 sur la branche
+du ticket #43, SKILL.md suivi à la main : conforme.

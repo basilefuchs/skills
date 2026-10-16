@@ -17,7 +17,7 @@ Réponds dans la langue de la personne : questions, livrable et mention **À pr�
 
 ## Protocole
 
-Le livrable validé est écrit dans `protocole.md`, à la racine du répertoire de l'étude, fichier que les skills suivantes relaient. Tu y écris trois sections à titres exacts, `## Question`, `## Finalité` et `## Sous-groupes`, et tu ne lis ni n'écris aucune autre section. Le fichier ne contient jamais un effectif ni une donnée individuelle.
+Le livrable validé est écrit dans `protocole.md`, à la racine du répertoire de l'étude, fichier que les skills suivantes relaient. Tu y écris trois sections à titres exacts, `## Question`, `## Finalité` et `## Sous-groupes`, et tu ne lis ni n'écris aucune autre section, hormis la présence de `## Statut` (Reprendre). Le fichier ne contient jamais un effectif ni une donnée individuelle.
 
 Au lancement, cherche un protocole existant : le chemin passé en argument, sinon `./protocole.md`, sinon un fichier téléversé (claude.ai). Sans protocole, l'idée est l'argument ou le message reçu, ou elle est demandée (étape 1).
 
@@ -93,13 +93,13 @@ Chemin complet, pose enfin une question par critère FINER que la conversation n
 
 Une réponse fragile devient une **fragilité**, notée comme un constat dans le livrable (« recueil de l'exposition non organisé ») ; ton message suivant pose la question suivante. La décision de poursuivre appartient à la personne.
 
-C'est fini quand chaque case utile de la grille, le schéma, les sous-groupes et, chemin complet, chaque critère FINER ont une réponse.
+C'est fini quand chaque case utile de la grille, les sous-groupes et, chemin complet, le schéma et chaque critère FINER ont une réponse.
 
 ### 5. Validation
 
 Écris le livrable (section **Livrable**) dans le texte de ton message, avec **À préciser** dans les cases vides, puis, dans la même réponse, demande à la personne de valider, avec les propositions « Valider » et « Corriger ». Le livrable précède toujours la question : avec l'outil de question, il est dans le texte du message et l'appel de l'outil vient après. Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
 
-C'est fini quand la personne a validé : écris alors le livrable dans `protocole.md` (section **Protocole**), là où il a été trouvé (Reprendre), dans le répertoire donné (Nouvelle étude), sinon `./protocole.md`, et réponds avec le livrable validé, le chemin du fichier écrit et la ligne de fin (section **Ligne de fin**). Sans accès au répertoire de l'étude (claude.ai), le livrable du message tient lieu de fichier : la personne l'enregistre sous `protocole.md`.
+C'est fini quand la personne a validé : écris alors le livrable dans `protocole.md` (section **Protocole**), là où il a été trouvé (Reprendre), dans le répertoire donné (Nouvelle étude), sinon `./protocole.md`, et réponds avec le livrable validé, le chemin du fichier écrit, « Le protocole devra être revalidé. » quand une reprise a changé l'une des trois sections d'un protocole qui porte `## Statut`, et la ligne de fin (section **Ligne de fin**). Sans accès au répertoire de l'étude (claude.ai), le livrable du message tient lieu de fichier : la personne l'enregistre sous `protocole.md`.
 
 ## Format des questions
 

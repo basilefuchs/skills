@@ -8,8 +8,10 @@ distribué seul (zip claude.ai, `npx skills`).
 frontmatter (`name`, `description`), le nom du dossier, la présence d'au
 moins une skill, la ligne au catalogue du README racine et les noms de
 `metadata.suivante`. `tests/test_sync_familles.py` vérifie la règle de copie
-des références communes. La CI lance les deux à chaque push et à chaque PR ;
-le reste se relit à la main.
+des références communes, `tests/test_contrat_sorties.py` le contrat
+`sorties/` dans les squelettes de scripts des deux bases. La CI lance le
+vérificateur et tous les tests à chaque push et à chaque PR ; le reste se
+relit à la main.
 
 ## Ajouter une skill
 
@@ -104,7 +106,13 @@ téléversé (claude.ai), sinon une seule question.
 
 **Ligne de fin.** Le livrable se termine par « Étape suivante : `/<skill>` »,
 suivie de la phrase à taper sur claude.ai, reprise mot pour mot d'un libellé
-de la description de la skill suivante.
+de la description de la skill suivante. Deux exceptions. La ligne de fin
+d'une skill query passe par la plateforme (« Étape suivante : exécutez sur la
+plateforme, exportez `sorties/` à côté de `protocole.md`, puis
+`/rapport-imrad` », et la phrase), puis un paragraphe nomme les retours :
+critère à changer, la skill schema puis la skill query ; erreur à
+l'exécution SNDS, `/snds-copilot`. La dernière skill, `rapport-imrad`, n'a
+ni ligne de fin ni `metadata.suivante`.
 
 **`metadata.suivante`.** Le frontmatter porte la même cible : un ou plusieurs
 noms de dossiers de `skills/` séparés par des espaces, chemin principal
@@ -119,6 +127,18 @@ metadata:
 
 **Câblage.** Le ticket qui crée une skill câble la `suivante` de la skill en
 amont et ajoute sa ligne au catalogue du README racine.
+
+**Contrat `sorties/`.** Les scripts générés n'écrivent de fichier que par
+`exporter()`, définie dans le script de mise en place du squelette, sous des
+noms et des colonnes fixes, les mêmes pour les deux bases :
+`flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`,
+`strate_<variable>.csv`, `figure_resultat_annuel.png` et `manifeste.md`.
+Le contrat est écrit dans trois tableaux qui changent ensemble : ceux de
+`snds-query` et de `pdh-query`, identiques, et celui de `rapport-imrad`, qui
+le lit. `tests/test_contrat_sorties.py` vérifie les squelettes : `exporter()`
+définie une seule fois (`00_setup.R`, chunk `setup` du `.Rmd`), appelée par
+le flowchart et les sorties, aucune autre écriture de fichier, noms du
+contrat présents.
 
 ## Modifier le script de vérification
 

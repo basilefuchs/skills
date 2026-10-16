@@ -17,13 +17,14 @@ Réponds dans la langue de la personne ; les titres des sections et les libellé
 
 ## Protocole
 
-`protocole.md` est à la racine du répertoire de l'étude ; les scripts et `sorties/` sont à côté. Tu lis `## Question`, `## Données`, `## Protocole validé` et `## Statut` ; tu écris `## Scripts` et `## Confidentialité`, à titres exacts, en laissant le reste du fichier intact. Le fichier ne contient jamais un effectif ni une donnée individuelle.
+`protocole.md` est à la racine du répertoire de l'étude ; les scripts et `sorties/` sont à côté. Tu lis `## Question`, `## Données`, `## Protocole validé` et `## Statut`, et la source de données de `## Finalité` pour les renvois ; tu écris `## Scripts` et `## Confidentialité`, à titres exacts, en laissant le reste du fichier intact. Le fichier ne contient jamais un effectif ni une donnée individuelle.
 
 Découverte, dans cet ordre : le chemin passé en argument, sinon `./protocole.md`, sinon un fichier téléversé (claude.ai), sinon une seule question : « Donnez le chemin de `protocole.md`, ou téléversez-le. »
 
 Renvois, en une ligne, puis arrêt :
 
 - un argument ou un message qui est une question en langage naturel, sans protocole : « Cadrez d'abord la question : `/question-recherche-pico <question>`. » ;
+- une source de données `PMSI national (portail ATIH)` dans `## Finalité` : « Ce protocole vise le PMSI national : `/pdh-query`. » ;
 - un protocole sans `## Données` portant la ligne Dictionnaire et son commit, ou dont `## Statut` n'est pas `validé le AAAA-MM-JJ` : « Le protocole n'est pas validé : lancez `/snds-schema`. »
 
 Des scripts déjà générés, ou un `## Scripts` déjà présent, font de la génération une régénération : les scripts sont réécrits en entier depuis le protocole, ceux devenus sans objet retirés, et ton message final liste les fichiers réécrits et retirés.
@@ -76,7 +77,7 @@ Chaque étape vient d'une partie du protocole :
 | `03_critere_jugement` | Critère de jugement, Unité de compte |
 | `04_covariables` | Stratification ; omise si aucune |
 | `05_flowchart` | `attrition` |
-| `06_sorties` | Pattern A et B du squelette, puis un `strate_<variable>` par variable de Stratification, et la figure de `resultat_annuel`, toujours |
+| `06_sorties` | Pattern A et B du squelette, Dénominateur, puis un `strate_<variable>` par variable de Stratification, et la figure de `resultat_annuel`, toujours |
 
 Recopie depuis le protocole :
 
@@ -103,7 +104,7 @@ Règles :
 | `figure_resultat_annuel.png` | figure de `resultat_annuel`, toujours générée, construite depuis la table renvoyée par `exporter()` | `06_sorties` |
 | `manifeste.md` | question, répertoire, date d'exécution, années, sources, seuil, secret appliqué, cellules masquées par fichier, dictionnaire, date de validation du protocole | `exporter()` |
 
-Un comptage se nomme `nb_…`, une dérivée `pct_…` ou `taux…` ; `nb_sejours` garde son nom quelle que soit l'unité de compte. `exporter()` masque (NA) tout comptage de 1 à `seuil - 1` et les dérivées de sa ligne, et écrit un CSV UTF-8 séparé par des virgules.
+Un comptage se nomme `nb_…`, une dérivée `pct_…` ou `taux…` ; un taux sur Dénominateur porte la population en `nb_…` et le taux en `taux…`. `nb_sejours` garde son nom quelle que soit l'unité de compte. `exporter()` masque (NA) tout comptage de 1 à `seuil - 1` et les dérivées de sa ligne, et écrit un CSV UTF-8 séparé par des virgules.
 
 C'est fini quand chaque étape du protocole a son fichier ou son chunk, que chaque table et chaque colonne des scripts vient de `## Données`, du squelette, ou du profil avec le marqueur « À VÉRIFIER », et que chaque fichier de `sorties/` passe par `exporter()`.
 

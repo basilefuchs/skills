@@ -25,9 +25,9 @@ Renvois, en une ligne, puis arrêt :
 
 - un argument ou un message qui est une question en langage naturel, sans protocole : « Cadrez d'abord la question : `/question-recherche-pico <question>`. » ;
 - une source de données `PMSI national (portail ATIH)` : « Ce protocole vise le PMSI national : `/pdh-schema`. » ;
-- une source `autre` ou `aucune` : le protocole n'a pas de source SNDS, dis-le.
+- une source `autre` ou `aucune` : « Ce protocole n'a pas de source SNDS : `/question-recherche-pico` pour changer la source, sinon `/squelette-imrad`. »
 
-Un `## Données` déjà présent fait de l'entretien un amendement : demande ce qui change (question ouverte, sans propositions), écris `brouillon` dans `## Statut` avant la première question, ne rouvre que les blocs touchés par le changement, revalide (étape 4) et ajoute une ligne datée dans `## Modifications`.
+Un `## Données` déjà présent fait de l'entretien un amendement. Quand `## Question` ou `## Sous-groupes` s'écartent de `## Protocole validé` (question reprise par `question-recherche-pico`), cet écart est le changement : restitue-le en une ligne, « Ok : … » ; sinon, demande ce qui change (question ouverte, sans propositions). Écris `brouillon` dans `## Statut` avant la première question, ne rouvre que les blocs touchés par le changement, revalide (étape 4) et ajoute une ligne datée dans `## Modifications`.
 
 ## Ressources
 
@@ -89,7 +89,7 @@ Codes CIM-10, CCAM ou ATC : si WebSearch existe, cherche une définition publié
 
 Pose ensuite ce qui reste ouvert, par **lots de quatre questions au plus**, ordonnés par les dépendances de `references/traduction.md` (section **Format des questions**) :
 
-- le premier lot est précédé de la proposition par défaut, une ligne par bloc, et sa première question porte une proposition supplémentaire « Tout par défaut » : elle vaut acceptation du défaut de chaque question restante, et tu passes à l'étape 4 ;
+- le premier lot est précédé de la proposition par défaut, une ligne par bloc, et sa première question a 3 propositions au plus, plus « Tout par défaut » (l'outil de question en accepte 4) : « Tout par défaut » vaut acceptation du défaut de chaque question restante, et tu passes à l'étape 4 ;
 - un risque de `references/points-de-vigilance.md` qu'une réponse fait apparaître est signalé dans le message suivant, avant le lot suivant ;
 - après chaque lot, restitue en une ligne ce qui est acté, « Ok : … », puis enchaîne ; une réponse qui ouvre une ambiguïté nouvelle ajoute une question au lot suivant.
 
@@ -124,7 +124,7 @@ Un lot = un message, après la restitution « Ok : … » du lot précédent (ou
 Réponds par un numéro par question, ou librement.
 ```
 
-Chaque question a 2 à 4 propositions concrètes, tirées du protocole et des réponses déjà données ; la proposition par défaut porte « (Recommandé) » à la fin de son libellé. Une question de codes montre la liste proposée et sa source, avec les propositions « Cette liste (Recommandé) », une variante (codes complets ou troncature, inclusion d'une catégorie voisine) et « Amender ». Une dépendance entre une question et une réponse déjà donnée est dite dans la question. `<élément>` nomme en 12 caractères au plus ce que la question remplit : « Sources », « Champ PMSI », « Codes », « Position », « Période », « Lecture », « Dénominateur », « Exclusions », « Chaînage », « Validation »…
+Chaque question a 2 à 4 propositions concrètes (la première du premier lot, 2 ou 3, plus « Tout par défaut »), tirées du protocole et des réponses déjà données ; la proposition par défaut porte « (Recommandé) » à la fin de son libellé. Une question de codes montre la liste proposée et sa source, avec les propositions « Cette liste (Recommandé) », une variante (codes complets ou troncature, inclusion d'une catégorie voisine) et « Amender ». Une dépendance entre une question et une réponse déjà donnée est dite dans la question. `<élément>` nomme en 12 caractères au plus ce que la question remplit : « Sources », « Champ PMSI », « Codes », « Position », « Période », « Lecture », « Dénominateur », « Exclusions », « Chaînage », « Validation »…
 
 ## Livrable
 
