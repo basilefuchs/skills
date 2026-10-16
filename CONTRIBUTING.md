@@ -65,7 +65,8 @@ relatif sous `references/` ou `scripts/` l'ont identique octet à octet.
 
 Pour modifier un fichier copié, l'éditer dans sa source, puis le recopier dans
 les skills de la famille qui en portent une copie. Le README de la skill qui
-porte des copies nomme leur source (`snds-copilot` : `snds-query`).
+porte des copies nomme leur source (`snds-copilot` : `snds-schema` et
+`snds-query`).
 
 ```
 cp skills/snds-query/references/profils/hdh_oracle.md skills/snds-copilot/references/profils/hdh_oracle.md
