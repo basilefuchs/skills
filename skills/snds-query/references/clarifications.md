@@ -10,8 +10,9 @@ valable).
 
 ## Dépendances entre questions (à signaler explicitement)
 
-- **Q0 → bloc E** : diffusion externe/publication impose le secret
-  statistique (aucune cellule < 11) dans le format de sortie.
+- **Q0 → Q17** : diffusion externe ou publication fait recommander le
+  rapport `.Rmd`. Le secret statistique ne dépend pas de Q0 : tout fichier
+  écrit par les scripts est sous seuil.
 - **Q1 → Q3a/Q3b/Q3c** : la ou les sources SNDS retenues déterminent quelle(s)
   définition(s) de code s'appliquent — CIM-10 via le diagnostic PMSI et/ou la
   cause de décès CépiDc (`KI_CCI_R`/`KI_ECD_R`), CCAM via les actes PMSI et/ou
@@ -46,8 +47,9 @@ valable).
 
 0. **Usage des résultats** : dénombrement interne rapide, rapport ou dialogue
    de gestion, diffusion externe (ARS, tutelle), publication scientifique ?
-   Conditionne le niveau de rigueur, le secret statistique des sorties
-   (aucune cellule < 11 en diffusion externe) et le format de livraison.
+   Conditionne le niveau de rigueur, l'affichage à l'écran
+   (`secret_statistique`) et le format de livraison ; les fichiers écrits
+   sont toujours sous seuil.
 
 ## A. Source(s) SNDS et population — critères d'inclusion
 

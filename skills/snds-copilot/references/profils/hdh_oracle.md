@@ -422,7 +422,7 @@ demande explicite.
 |----------------------------------------|------------------------------------------------------------------|
 | Connexion                              | `dbConnect(dbDriver("Oracle"), dbname = "IPIAMPR2.WORLD")`      |
 | Fuseau                                 | `TZ = "Europe/Paris"`, `ORA_SDTZ = "Europe/Paris"`               |
-| Seuil de diffusion (secret statistique) | 11 (`SEUIL`), convention usuelle sur les extractions SNDS        |
+| Seuil de diffusion (secret statistique) | 11 (`seuil`), convention usuelle sur les extractions SNDS        |
 | Filtres qualité PMSI par défaut         | `NIR_RET`/`NAI_RET`/`SEX_RET`/`SEJ_RET`/`FHO_RET`/`PMS_RET` = `'0'` (depuis 2005), `+ DAT_RET = '0'` (depuis 2006), `+ COH_NAI_RET`/`COH_SEX_RET` = `'0'` (depuis 2013), `+` NIR fictifs exclus |
 | Exclusion prestations inter-établissements (MCO) | `SEJ_TYP <> 'B' OR SEJ_TYP IS NULL` (table `T_MCO{aa}B`) |
 | Exclusion doublons de transmission (MCO, 2005-2017 uniquement) | Liste de ~50 FINESS APHP/APHM/HCL — à récupérer en direct sur la fiche officielle (voir ci-dessus), non codée en dur |

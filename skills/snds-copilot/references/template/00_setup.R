@@ -143,8 +143,9 @@ compute_session <- function(requete, nom) {
 # Libellé : préfixe du fichier + lettre si plusieurs étapes dans un fichier
 # ("02a", "02b"…) ; le tri alphabétique restitue l'ordre du protocole.
 # Relancer une étape remplace ses lignes au lieu de les dupliquer.
-# nb_sejours : 1 ligne = 1 séjour en PMSI ; renommer (nb_prestations,
-# nb_deces) si l'unité du protocole est la prestation DCIR ou le décès.
+# nb_sejours : nom fixé par le contrat de sorties/flowchart.csv, gardé quelle
+# que soit l'unité du protocole (1 ligne = 1 séjour en PMSI, 1 prestation en
+# DCIR, 1 décès en CAUSE_DECES) ; ne pas le renommer.
 attrition <- tibble::tibble(etape = character(), annee = integer(), nb_sejours = numeric())
 
 noter_attrition <- function(attrition, requete, etape) {

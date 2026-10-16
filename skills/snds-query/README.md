@@ -14,7 +14,8 @@ clarification, protocole validé, puis scripts.
 1. **Vous posez la question** en langage naturel, comme un clinicien la poserait.
 2. **La skill fait préciser** ce qu'un DIM ferait préciser, en commençant par la
    **finalité** (dénombrement interne, rapport, diffusion externe, publication —
-   qui conditionne rigueur, seuils et secret statistique), puis : codes CIM-10
+   qui conditionne rigueur et format ; les fichiers écrits sont toujours sous
+   secret statistique), puis : codes CIM-10
    exacts (proposés d'après les définitions publiées trouvées par recherche web —
    sources citées, liste amendable), source(s) mobilisée(s) (PMSI hospitalier,
    DCIR ambulatoire, causes de décès), position du diagnostic, période, patients
