@@ -5,9 +5,10 @@ sous-dossier de catégorie : chaque dossier de `skills/` est une skill. Il est
 distribué seul (zip claude.ai, `npx skills`).
 
 `check_skills.py` vérifie une partie des conventions ci-dessous : le
-frontmatter (`name`, `description`), le nom du dossier et la présence d'au
-moins une skill. La CI le lance à chaque push et à chaque PR ; le reste se
-relit à la main.
+frontmatter (`name`, `description`), le nom du dossier, la présence d'au
+moins une skill, la ligne au catalogue du README racine et les noms de
+`metadata.suivante`. La CI le lance à chaque push et à chaque PR ; le reste
+se relit à la main.
 
 ## Ajouter une skill
 
@@ -51,6 +52,48 @@ relit à la main.
    La skill est prête quand les étapes 1 à 3 sont faites, que
    `check_skills.py` affiche « OK » et que les tests passent ; la CI de la PR
    doit être verte.
+
+## Chaîne de skills
+
+Les skills du parcours (`question-recherche-pico`, skills schema, skills
+query, `rapport-imrad`) se relaient par un fichier unique, `protocole.md`, à
+la racine du répertoire de l'étude. Une skill de la chaîne suit ces
+conventions.
+
+**Sections de `protocole.md`.** Un titre exact par section, un seul
+propriétaire par section, pas de gabarit partagé : chaque SKILL.md liste les
+sections qu'il écrit et celles qu'il lit.
+
+| Propriétaire | Sections écrites |
+| --- | --- |
+| `question-recherche-pico` | `## Question`, `## Finalité`, `## Sous-groupes` |
+| skills schema (`snds-schema`, `pdh-schema`) | `## Données`, `## Protocole validé`, `## Statut`, `## Modifications` |
+| skills query (`snds-query`, `pdh-query`) | `## Scripts`, `## Confidentialité` |
+
+Le fichier ne contient jamais un effectif : les chiffres vivent dans
+`sorties/`.
+
+**Découverte sans argument.** La skill retrouve le protocole dans cet ordre :
+le chemin passé en argument, sinon `./protocole.md`, sinon un fichier
+téléversé (claude.ai), sinon une seule question.
+
+**Ligne de fin.** Le livrable se termine par « Étape suivante : `/<skill>` »,
+suivie de la phrase à taper sur claude.ai, reprise mot pour mot d'un libellé
+de la description de la skill suivante.
+
+**`metadata.suivante`.** Le frontmatter porte la même cible : un ou plusieurs
+noms de dossiers de `skills/` séparés par des espaces, chemin principal
+seulement (`question-recherche-pico` : `snds-schema pdh-schema
+squelette-imrad` ; schema : sa query ; query : `rapport-imrad`). La règle
+`suivante` de `check_skills.py` refuse un nom sans dossier.
+
+```
+metadata:
+  suivante: snds-schema pdh-schema squelette-imrad
+```
+
+**Câblage.** Le ticket qui crée une skill câble la `suivante` de la skill en
+amont et ajoute sa ligne au catalogue du README racine.
 
 ## Modifier le script de vérification
 

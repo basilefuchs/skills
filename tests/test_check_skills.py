@@ -16,10 +16,16 @@ from pathlib import Path
 CHECK = Path(__file__).resolve().parent.parent / "check_skills.py"
 
 FOLDED_DESCRIPTION = "description: >\n  Fait une chose précise,\n  sur plusieurs lignes.\n"
+CATALOGUE_HEADER = ("# Dépôt\n\n## Catalogue\n\n"
+                    "| Skill | Ce qu'elle fait | Documentation |\n| --- | --- | --- |\n")
 
 
-def frontmatter(name, description="description: Fait une chose précise.\n"):
-    return f"---\nname: {name}\n{description}license: MIT\n---\n\n# {name}\n"
+def frontmatter(name, description="description: Fait une chose précise.\n", metadata=""):
+    return f"---\nname: {name}\n{description}license: MIT\n{metadata}---\n\n# {name}\n"
+
+
+def suivante(names):
+    return f"metadata:\n  suivante: {names}\n"
 
 
 class CheckSkillsTest(unittest.TestCase):
@@ -28,10 +34,18 @@ class CheckSkillsTest(unittest.TestCase):
         self.addCleanup(tmp.cleanup)
         self.root = Path(tmp.name)
 
-    def add_skill(self, folder, skill_md):
+    def add_skill(self, folder, skill_md, catalogue=True):
         (self.root / "skills" / folder).mkdir(parents=True)
         if skill_md is not None:
             (self.root / "skills" / folder / "SKILL.md").write_text(skill_md, encoding="utf-8")
+        if catalogue:
+            self.add_catalogue_line(folder)
+
+    def add_catalogue_line(self, folder):
+        readme = self.root / "README.md"
+        text = readme.read_text(encoding="utf-8") if readme.is_file() else CATALOGUE_HEADER
+        line = f"| `{folder}` | Fait une chose. | [README](skills/{folder}/README.md) |\n"
+        readme.write_text(text + line, encoding="utf-8")
 
     def valid_repo(self):
         self.add_skill("alpha", frontmatter("alpha", FOLDED_DESCRIPTION))
@@ -43,11 +57,18 @@ class CheckSkillsTest(unittest.TestCase):
                                 env={**os.environ, "PYTHONIOENCODING": "utf-8"})
         return result.returncode, result.stdout
 
-    def assertViolation(self, rule, subject):
+    def violations(self, rule, subject):
         code, out = self.run_check()
+        return code, out, [line for line in out.splitlines() if line.startswith(rule + " ") and subject in line]
+
+    def assertViolation(self, rule, subject):
+        code, out, lines = self.violations(rule, subject)
         self.assertNotEqual(code, 0, out)
-        lines = [line for line in out.splitlines() if line.startswith(rule + " ")]
-        self.assertTrue(any(subject in line for line in lines), f"{rule} / {subject} absent de :\n{out}")
+        self.assertTrue(lines, f"{rule} / {subject} absent de :\n{out}")
+
+    def assertNoViolation(self, rule, subject):
+        _, out, lines = self.violations(rule, subject)
+        self.assertFalse(lines, f"{rule} / {subject} présent dans :\n{out}")
 
     def test_depot_valide(self):
         self.valid_repo()
@@ -106,7 +127,7 @@ class CheckSkillsTest(unittest.TestCase):
         self.assertEqual(code, 0, out)
 
     def test_frontmatter_avec_bom_crlf_guillemets_et_metadata_accepte(self):
-        skill_md = ('\ufeff---\r\nname: gamma\r\ndescription: "Fait ceci : une chose."\r\n'
+        skill_md = ('﻿---\r\nname: gamma\r\ndescription: "Fait ceci : une chose."\r\n'
                     "metadata:\r\n  auteur: Basile\r\n  version: 1\r\n---\r\n")
         self.add_skill("gamma", skill_md)
         code, out = self.run_check()
@@ -148,6 +169,37 @@ class CheckSkillsTest(unittest.TestCase):
     def test_frontmatter_sans_description(self):
         self.add_skill("gamma", "---\nname: gamma\n---\n")
         self.assertViolation("champs-requis", "gamma")
+
+    def test_skill_absente_du_catalogue(self):
+        self.valid_repo()
+        self.add_skill("gamma", frontmatter("gamma"), catalogue=False)
+        self.assertViolation("catalogue", "gamma")
+        self.assertNoViolation("catalogue", "alpha")
+        self.assertNoViolation("catalogue", "beta")
+
+    def test_depot_sans_readme(self):
+        self.valid_repo()
+        (self.root / "README.md").unlink()
+        self.assertViolation("catalogue", "alpha")
+        self.assertViolation("catalogue", "beta")
+
+    def test_suivante_sans_dossier(self):
+        for names in ["delta", "alpha delta"]:
+            with self.subTest(suivante=names):
+                self.setUp()
+                self.valid_repo()
+                self.add_skill("gamma", frontmatter("gamma", metadata=suivante(names)))
+                self.assertViolation("suivante", "gamma")
+                self.assertNoViolation("suivante", "alpha")
+
+    def test_suivante_absente_ou_existante_acceptee(self):
+        for metadata in ["", "metadata:\n  auteur: Basile\n", suivante("alpha"), suivante("alpha beta")]:
+            with self.subTest(metadata=metadata):
+                self.setUp()
+                self.valid_repo()
+                self.add_skill("gamma", frontmatter("gamma", metadata=metadata))
+                code, out = self.run_check()
+                self.assertEqual(code, 0, out)
 
     def test_plusieurs_violations_sur_une_meme_skill(self):
         self.add_skill("gamma", "---\nname: Autre\n---\n")
