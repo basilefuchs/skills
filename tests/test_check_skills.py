@@ -127,7 +127,7 @@ class CheckSkillsTest(unittest.TestCase):
         self.assertEqual(code, 0, out)
 
     def test_frontmatter_avec_bom_crlf_guillemets_et_metadata_accepte(self):
-        skill_md = ('﻿---\r\nname: gamma\r\ndescription: "Fait ceci : une chose."\r\n'
+        skill_md = ('\ufeff---\r\nname: gamma\r\ndescription: "Fait ceci : une chose."\r\n'
                     "metadata:\r\n  auteur: Basile\r\n  version: 1\r\n---\r\n")
         self.add_skill("gamma", skill_md)
         code, out = self.run_check()
