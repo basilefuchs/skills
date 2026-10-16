@@ -36,8 +36,6 @@ Chemins relatifs au répertoire de base de la skill.
 2. `references/template/` — squelette du dossier `.R`, un fichier par étape. `00_setup.R` définit les fonctions partagées (`compute_session()`, `noter_attrition()`, `exporter()`) et rappelle les règles dbplyr/Oracle ; chaque fichier d'étape porte en commentaire ses variantes (DAS, CCAM, ATC, croisement de sources, batching de `ER_PRS_F`, SSR…).
 3. `references/template.Rmd` — squelette du `.Rmd` : mêmes étapes, mêmes tables et objets, un chunk par étape nommé comme le fichier.
 
-Les renvois du profil et du squelette au dictionnaire, à `modele-donnees.md`, à `points-de-vigilance.md` ou aux questions de `clarifications.md` visent la traduction faite par `snds-schema` : son résultat est dans `## Données` et `## Protocole validé`.
-
 ## Démarche
 
 ### 1. Lecture et format

@@ -40,7 +40,7 @@ Chemins relatifs au répertoire de base de la skill. Ordre d'autorité : filtres
 5. `references/traduction.md` — les blocs de questions de l'étape 3, avec leurs dépendances.
 6. `references/points-de-vigilance.md` — registres de risques méthodologiques, à signaler dès qu'ils apparaissent (étape 3) ou à la synthèse (étape 4).
 
-Les renvois de `modele-donnees.md`, `points-de-vigilance.md` et du profil à `template/` ou à `clarifications.md` visent le squelette de scripts de `snds-query` : ici, la traduction est l'étape 3 et la synthèse l'étape 4.
+Les renvois de `modele-donnees.md` et de `points-de-vigilance.md` à `template/` visent le squelette de scripts de `snds-query`.
 
 ## Démarche
 

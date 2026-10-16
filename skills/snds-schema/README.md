@@ -149,5 +149,5 @@ octet (règle de copie du
   `references/modele-donnees.md`.
 - Copie ici, source dans `snds-query` : `references/profils/hdh_oracle.md`.
 
-Les renvois de ces fichiers à `template/` ou à `clarifications.md` visent le
-squelette de scripts de `snds-query`.
+Les renvois de `modele-donnees.md` et de `points-de-vigilance.md` à
+`template/` visent le squelette de scripts de `snds-query`.
