@@ -3,7 +3,7 @@
 Checklist des risques méthodologiques classiques à évaluer pour un protocole
 SNDS. Utilisée par `SKILL.md` à deux moments :
 
-- **étape 3 (clarification)** : dès qu'une réponse fait apparaître un des
+- **étape 3 (traduction)** : dès qu'une réponse fait apparaître un des
   risques ci-dessous, le signaler immédiatement — c'est le moment le moins
   coûteux pour corriger ;
 - **étape 4 (synthèse)** : pour les risques qui n'apparaissent qu'une fois
@@ -87,6 +87,6 @@ mois. Le signaler dans le protocole, avec la marge retenue.
 
 **Ne jamais enregistrer localement un extrait SNDS contenant un identifiant,
 une date ou une localisation individuelle potentiellement ré-identifiante.**
-Le rappeler explicitement à la livraison (étape 6 du workflow) : tout export
-destiné à quitter l'environnement HDH doit être agrégé et respecter le seuil
-de diffusion.
+Tout export destiné à quitter l'environnement HDH doit être agrégé et
+respecter le seuil de diffusion ; à la livraison des scripts, `snds-query` le
+rappelle dans `## Confidentialité`.
