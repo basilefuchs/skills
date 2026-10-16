@@ -39,7 +39,7 @@ La ligne de fin nomme la commande suivante selon la source de données, et la ph
 | Source de données | Étape suivante |
 | --- | --- |
 | SNDS (Health Data Hub) | `/snds-schema` — téléverser `protocole.md` et taper « vérifier les données du protocole » |
-| PMSI national (portail ATIH) | `/pdh-schema` (skill à venir ; d'ici là, `/pdh-query <question>`) — téléverser `protocole.md` et taper « vérifier les données du protocole » |
+| PMSI national (portail ATIH) | `/pdh-schema` — téléverser `protocole.md` et taper « vérifier les données du protocole » |
 | autre ou aucune | `/squelette-imrad` — coller le livrable et taper « squelette IMRaD d'un protocole ou d'un article » |
 
 La skill structure, la personne rédige : le livrable ne contient ni texte rédigé, ni référence bibliographique.

@@ -64,8 +64,7 @@ La skill retrouve le protocole seule : chemin passé en argument, sinon
 `./protocole.md`, sinon fichier téléversé, sinon une question. Une question
 en langage naturel sans protocole est renvoyée vers
 `/question-recherche-pico <question>` ; un protocole dont la source est le
-PMSI national (portail ATIH) est renvoyé vers `/pdh-schema` (skill à
-venir).
+PMSI national (portail ATIH) est renvoyé vers `/pdh-schema`.
 
 ## Déroulé
 

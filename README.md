@@ -9,6 +9,7 @@ ou dans tout agent compatible [Agent Skills](https://agentskills.io).
 | Skill | Ce qu'elle fait | Documentation |
 | --- | --- | --- |
 | `pdh-query` | Statisticien DIM virtuel : traduit une question PMSI (base nationale ATIH : MCO, SMR, HAD, PSY, RPU) en dossier de scripts R dbplyr/Teradata, un script par étape du protocole, après clarification du protocole. | [README](skills/pdh-query/README.md) |
+| `pdh-schema` | Traduit en données PMSI (base nationale du portail ATIH) le `protocole.md` écrit par `question-recherche-pico` : champs, tables, variables et années vérifiés dans le dictionnaire, codes avec leur source, exclusions, points de vigilance, puis validation unique du protocole. | [README](skills/pdh-schema/README.md) |
 | `question-recherche-pico` | Transforme une idée de recherche ou d'étude en santé en question structurée (finalité, source de données, type d'étude, grille PICO, mesure, sous-groupes, critères FINER), au fil d'un entretien, et l'écrit dans `protocole.md`. | [README](skills/question-recherche-pico/README.md) |
 | `rapport-imrad` | Rédige le rapport IMRaD d'une étude SNDS ou PMSI depuis `protocole.md` et les agrégats de `sorties/` exportés de la plateforme : Méthodes et Résultats en prose, Introduction et Discussion en puces. | [README](skills/rapport-imrad/README.md) |
 | `situation-clinique-mco` | Classe un CRH ou une lettre de liaison MCO dans sa situation clinique PMSI (guide méthodologique ATIH 2026) et argumente le DP et le DR. Avec Claude, CR fictifs uniquement. | [README](skills/situation-clinique-mco/README.md) |
@@ -68,8 +69,10 @@ n'est pas mémorisée : une régénération l'écrase.
 mène à `/squelette-imrad`. `snds-copilot` sert aussi seul, pour relire ou
 écrire sa propre requête SNDS. `situation-clinique-mco` est indépendante.
 
-**PMSI national (portail ATIH).** La branche du parcours est à venir ; d'ici
-là, `/pdh-query <question>` va de la question aux scripts d'un bloc.
+**PMSI national (portail ATIH).** `/pdh-schema` traduit et valide le
+protocole, comme `/snds-schema`. `/pdh-query` ne lit pas encore
+`protocole.md` et ne prend donc pas la suite de `/pdh-schema` : d'ici là,
+`/pdh-query <question>` va de la question aux scripts d'un bloc.
 
 Désinstaller les plugins `snds-hdh` et `pdh-atih`, sur claude.ai comme dans
 Claude Code : ce parcours les remplace.
