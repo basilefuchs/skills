@@ -45,9 +45,10 @@ def divergences(root):
                 if one.read_bytes() != other.read_bytes():
                     a, b = (p.relative_to(root).as_posix() for p in (one, other))
                     messages.append(
-                        f"{a} et {b} divergent ; recopier dans le sens de la "
-                        f"source, nommée dans le README de la skill qui porte "
-                        f"la copie : cp {a} {b} ou cp {b} {a}"
+                        f"{a} et {b} divergent : recopier de la source vers la "
+                        f"copie, la source étant nommée dans le README de la "
+                        f"skill qui porte la copie (cp {a} {b} si la source "
+                        f"est {a}, sinon cp {b} {a})"
                     )
     return messages
 

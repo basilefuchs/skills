@@ -7,8 +7,9 @@ distribué seul (zip claude.ai, `npx skills`).
 `check_skills.py` vérifie une partie des conventions ci-dessous : le
 frontmatter (`name`, `description`), le nom du dossier, la présence d'au
 moins une skill, la ligne au catalogue du README racine et les noms de
-`metadata.suivante`. La CI le lance à chaque push et à chaque PR ; le reste
-se relit à la main.
+`metadata.suivante`. `tests/test_sync_familles.py` vérifie la règle de copie
+des références communes. La CI lance les deux à chaque push et à chaque PR ;
+le reste se relit à la main.
 
 ## Ajouter une skill
 
@@ -63,9 +64,8 @@ Une famille réunit les skills de même préfixe, le premier segment du nom
 relatif sous `references/` ou `scripts/` l'ont identique octet à octet.
 
 Pour modifier un fichier copié, l'éditer dans sa source, puis le recopier dans
-les autres skills de la famille. Le README de la skill qui porte des copies
-nomme leur source (`snds-copilot` : `snds-query`) ; une skill qui copie un
-fichier d'une autre le dit de même.
+les skills de la famille qui en portent une copie. Le README de la skill qui
+porte des copies nomme leur source (`snds-copilot` : `snds-query`).
 
 ```
 cp skills/snds-query/references/profils/hdh_oracle.md skills/snds-copilot/references/profils/hdh_oracle.md
