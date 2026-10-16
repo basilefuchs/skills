@@ -7,10 +7,16 @@ sur le **SNDS via le Health Data Hub** (Oracle), en SQL ou en R dbplyr. Elle
 répond directement, sans protocole : vous tenez le clavier, elle relit,
 renseigne ou complète.
 
+Elle est hors du parcours question → protocole → scripts, avec un point de
+contact : après une erreur d'exécution d'un dossier généré par
+[`snds-query`](https://github.com/basilefuchs/skills/tree/main/skills/snds-query),
+la relecture du fichier en cause est le chemin de correction, sans toucher au
+protocole.
+
 Pour partir d'une question en langage naturel (« combien de patients
-diabétiques hospitalisés en 2023 ? ») et obtenir un script complet après
-clarification du protocole, utiliser plutôt
-[`snds-query`](https://github.com/basilefuchs/skills/tree/main/skills/snds-query).
+diabétiques hospitalisés en 2023 ? »), utiliser plutôt
+[`question-recherche-pico`](https://github.com/basilefuchs/skills/tree/main/skills/question-recherche-pico) :
+la skill y renvoie d'elle-même (`/question-recherche-pico <question>`).
 
 ## Trois usages
 
@@ -32,29 +38,40 @@ clarification du protocole, utiliser plutôt
   prêt à insérer, en dbplyr par défaut ou en SQL Oracle sur demande, d'après
   les patterns validés.
 
-**Claude n'accède jamais aux données** : il ne voit que ce que vous collez.
-Ne collez pas de données individuelles ; la skill vous le rappelle si cela
-arrive.
+## Après une erreur d'exécution
+
+Un script généré par `snds-query` échoue sur la plateforme : collez le
+fichier en cause (un fichier de `scripts/`, ou le chunk de `analyse.Rmd`) et
+le message d'erreur. La skill le relit et rend le fichier corrigé entier ;
+`protocole.md` et les autres fichiers du dossier restent intacts. Une
+correction n'est pas mémorisée : relancer `/snds-query` régénère les scripts
+depuis le protocole et l'écrase. Un critère à changer passe par
+[`snds-schema`](https://github.com/basilefuchs/skills/tree/main/skills/snds-schema),
+puis `snds-query`.
 
 ## Ce que la skill sait
 
-Les mêmes références que `snds-query`, copiées à l'identique :
+Des copies, identiques à leur source, de références d'autres skills du
+dépôt :
 
-- le dictionnaire des tables, variables, millésimes, jointures et
-  nomenclatures du SNDS, généré depuis le dépôt open source
+- de `snds-schema` : le dictionnaire des tables, variables, millésimes,
+  jointures et nomenclatures du SNDS, généré depuis le dépôt open source
   [schema-snds](https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds)
   du Health Data Hub (licence MPL-2.0, voir
-  [NOTICE](https://github.com/basilefuchs/skills/blob/main/skills/snds-copilot/NOTICE)) ;
-  à chaque usage, la skill en tire une version fraîche si le réseau le
-  permet, la copie embarquée servant de secours ;
-- le profil de l'environnement Health Data Hub (connexion, mapping
-  concept → colonne, filtres qualité recommandés, pièges Oracle), qui fait
-  foi sur l'environnement ;
-- le modèle de données (DCIR, PMSI, causes de décès, chaînage patient) et
-  les patterns dbplyr validés ;
-- la [documentation officielle du Health Data Hub](https://documentation-snds.health-data-hub.fr/),
-  consultée en cas de doute quand l'accès web existe : elle fait foi sur les
-  filtres et la méthodologie.
+  [NOTICE](https://github.com/basilefuchs/skills/blob/main/skills/snds-copilot/NOTICE)),
+  son script de construction, et le modèle de données (DCIR, PMSI, causes de
+  décès, chaînage patient) ; à chaque usage, la skill tire une version
+  fraîche du dictionnaire si le réseau le permet, la copie embarquée servant
+  de secours ;
+- de `snds-query` : le profil de l'environnement Health Data Hub (connexion,
+  mapping concept → colonne, filtres qualité recommandés, pièges Oracle), qui
+  fait foi sur l'environnement, et le squelette de scripts avec les patterns
+  dbplyr validés.
+
+S'y ajoute la
+[documentation officielle du Health Data Hub](https://documentation-snds.health-data-hub.fr/),
+consultée en cas de doute quand l'accès web existe : elle fait foi sur les
+filtres et la méthodologie.
 
 ## Prérequis
 
@@ -79,6 +96,20 @@ Exemples :
 - « Relis cette requête : `SELECT ... FROM T_MCOaaB WHERE DPN_QLF != 71 ...` »
 - « Quelle table pour les actes CCAM en ville, et sur quelle clé la joindre ? »
 - « Écris-moi la boucle par millésime sur `T_MCO{aa}B` 2019-2023 en dbplyr »
+- « Ce script de `snds-query` échoue avec `ORA-00904` : voici le fichier et
+  l'erreur »
+
+## Confidentialité
+
+Claude ne voit jamais de données individuelles : il reçoit des agrégats sous
+seuil, sortis par la procédure d'export de la plateforme, seule juge de ce
+qui sort. Un téléversement sur claude.ai est un transfert à un tiers,
+acceptable pour ces agrégats seulement. Ici, Claude ne reçoit que la requête
+ou le script collé, son message d'erreur et vos questions. Des données
+individuelles collées (extrait de table, résultat à une ligne par séjour,
+prestation ou décès) arrêtent la skill : elle ne cite rien, demande de les
+retirer et rappelle que seule la procédure d'export de la plateforme fait
+sortir des données.
 
 ## Adapter à un autre environnement que le Health Data Hub
 
@@ -90,6 +121,11 @@ adapter pour un autre SGBD.
 
 ## Mise à jour des références
 
-Les références communes avec `snds-query` en sont des copies, jamais partagées :
-`snds-query` est la source, à modifier là-bas avant de recopier ici. Voir la
+Les références communes sont des copies, jamais partagées. Leur source est à
+modifier là-bas avant de recopier ici :
+[`snds-schema`](https://github.com/basilefuchs/skills/tree/main/skills/snds-schema)
+pour le dictionnaire, `scripts/build-dictionary.py` et
+`references/modele-donnees.md`,
+[`snds-query`](https://github.com/basilefuchs/skills/tree/main/skills/snds-query)
+pour le profil et le squelette de scripts. Voir la
 [règle de copie](https://github.com/basilefuchs/skills/blob/main/CONTRIBUTING.md#références-communes-à-une-famille).

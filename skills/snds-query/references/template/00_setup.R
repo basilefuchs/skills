@@ -22,8 +22,8 @@
 # Jointure DCIR -> référentiel : BEN_NIR_PSA + BEN_RNG_GEM (clé de IR_BEN_R, PAS un
 #   identifiant d'individu : un individu peut porter plusieurs BEN_NIR_PSA)
 # Individu (tous SNDS)         : IR_BEN_R.BEN_IDT_ANO ; causes de décès reliées par
-#   KI_CCI_R.BEN_IDT_ANO = IR_BEN_R.BEN_IDT_ANO — voir modele-donnees.md,
-#   section « Chaînage patient », avant tout rapprochement inter-sources.
+#   KI_CCI_R.BEN_IDT_ANO = IR_BEN_R.BEN_IDT_ANO — voir « Chaînage » de
+#   `## Données` (protocole.md) avant tout rapprochement inter-sources.
 # GHM (6 car) / CMD (2 car)    : GRG_GHM / substr(GRG_GHM, 1, 2)
 # Géo. résidence patient       : BDI_DEP (T_MCO{aa}B) ; BEN_RES_COM / BEN_RES_DPT (ER_PRS_F)
 # Géo. professionnel de santé  : ER_GEO_LOC_R (PAS ER_GEO_LOC_F), clé NUM_PS =
@@ -31,8 +31,8 @@
 #   c'est la localisation du PS, PAS celle du patient
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le dossier,
-#      vérifiés dans le dictionnaire (variables.tsv), millésimes compris.
-# Dictionnaire : schema-snds (Health Data Hub, MPL-2.0), commit <SOURCE.txt>
+#      vérifiés par snds-schema (`## Données` de protocole.md), millésimes compris.
+# Dictionnaire : schema-snds (Health Data Hub, MPL-2.0), commit <ligne Dictionnaire de `## Données`>
 
 # ==============================================================================
 # 00_setup.R — packages, paramètres, connexion, fonctions partagées
@@ -63,7 +63,7 @@ seuil              <- 11
 dossier_sorties  <- "../sorties"
 question         <- "<question en langage naturel de l'utilisateur>"
 sources          <- "<PMSI MCO / DCIR / CAUSE_DECES>"
-dictionnaire     <- "schema-snds, commit <SOURCE.txt>"
+dictionnaire     <- "schema-snds, commit <ligne Dictionnaire de ## Données>"
 protocole_valide <- "<AAAA-MM-JJ, date de validation du protocole>"
 
 # NIR_ANO_17 fictifs (documentation officielle HDH) : à exclure avant tout
@@ -74,7 +74,7 @@ NIR_FICTIFS <- c("xxxxxxxxxxxxxxxxx", "XXXXXXXXXXXXXXXXD", "BXXXXXXXXXXXXXXXX",
 # Clé de jointure composite DCIR (ER_PRS_F <-> ER_CAM_F/ER_PHA_F/ER_BIO_F/ER_ETE_F...) —
 # les 9 colonnes techniques identifiant une ligne de prestation.
 # Exception : ER_DCT_F (niveau décompte) n'a pas PRS_ORD_NUM et REM_TYP_AFF n'y
-# est documenté qu'en 2006 — voir modele-donnees.md.
+# est documenté qu'en 2006 — voir profils/hdh_oracle.md, « DCIR — ER_PRS_F ».
 DCIR_JOIN_KEY <- c(
   "FLX_DIS_DTD", "FLX_TRT_DTD", "FLX_EMT_TYP", "FLX_EMT_NUM", "FLX_EMT_ORD",
   "ORG_CLE_NUM", "DCT_ORD_NUM", "PRS_ORD_NUM", "REM_TYP_AFF"
@@ -227,9 +227,10 @@ exporter <- function(x, fichier, comptages = character(), derivees = character()
 # Patterns dbplyr/Oracle — rappels (valables pour tout le dossier)
 # - Tables : tbl(conn, I("NOM_TABLE")) — PMSI suffixé par année (2 chiffres),
 #   DCIR/référentiels non millésimés. Nom réel reconstruit depuis le nom
-#   générique du dictionnaire : paste0("T_MCO", aa, "B").
-# - Vérifier chaque colonne dans le dictionnaire POUR CHAQUE MILLÉSIME demandé,
-#   et sur la table où elle est filtrée (ex. SEJ_TYP est dans B, pas dans C).
+#   générique de `## Données` : paste0("T_MCO", aa, "B").
+# - Colonnes : celles de `## Données`, vérifiées par snds-schema POUR CHAQUE
+#   MILLÉSIME demandé et sur la table où elles sont filtrées (ex. SEJ_TYP est
+#   dans B, pas dans C).
 # - Une table par champ et par année : une requête lazy par millésime, mêmes
 #   colonnes + colonne annee, empilées par purrr::reduce(union_all) — l'UNION
 #   est exécuté par Oracle (01_inclusion.R).
@@ -251,9 +252,8 @@ exporter <- function(x, fichier, comptages = character(), derivees = character()
 # - DCIR volumineux et non millésimé : filtrer par date (EXE_SOI_DTD) ou par
 #   flux mensuel (FLX_DIS_DTD) ; au-delà de quelques mois sur ER_PRS_F, itérer
 #   par flux avec furrr::future_map_dfr (une connexion Oracle PAR WORKER) —
-#   Pattern C et modele-donnees.md piège n°11 ; marge de flux après la période
-#   clinique (points-de-vigilance.md).
+#   Pattern C (01_inclusion.R), marge de flux après la période clinique comprise.
 # - Chaînage inter-sources : NIR_ANO_17 (PMSI) = BEN_NIR_PSA (DCIR) ; individu
-#   et causes de décès via IR_BEN_R.BEN_IDT_ANO — modele-donnees.md.
+#   et causes de décès via IR_BEN_R.BEN_IDT_ANO — « Chaînage » de `## Données`.
 # - Contrôle du SQL généré : requete |> show_query().
 # ==============================================================================
