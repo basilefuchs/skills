@@ -9,6 +9,7 @@ ou dans tout agent compatible [Agent Skills](https://agentskills.io).
 | Skill | Ce qu'elle fait | Documentation |
 | --- | --- | --- |
 | `pdh-query` | Statisticien DIM virtuel : traduit une question PMSI (base nationale ATIH : MCO, SMR, HAD, PSY, RPU) en dossier de scripts R dbplyr/Teradata, un script par étape du protocole, après clarification du protocole. | [README](skills/pdh-query/README.md) |
+| `snds-schema` | Traduit en données SNDS (Health Data Hub) le `protocole.md` écrit par `question-recherche-pico` : tables, variables et millésimes vérifiés dans le dictionnaire, codes avec leur source, exclusions, points de vigilance, puis validation unique du protocole. | [README](skills/snds-schema/README.md) |
 | `snds-query` | Statisticien DIM virtuel : traduit une question SNDS (DCIR, PMSI, causes de décès) en dossier de scripts R dbplyr/Oracle pour le Health Data Hub, un script par étape du protocole, après clarification du protocole. | [README](skills/snds-query/README.md) |
 | `snds-copilot` | Copilote d'une requête SNDS que l'utilisateur écrit lui-même (SQL Oracle, R dbplyr) sur le Health Data Hub : relecture d'une requête collée, table ou variable à trouver, fragment à écrire. | [README](skills/snds-copilot/README.md) |
 | `situation-clinique-mco` | Classe un CRH ou une lettre de liaison MCO dans sa situation clinique PMSI (guide méthodologique ATIH 2026) et argumente le DP et le DR. Avec Claude, CR fictifs uniquement. | [README](skills/situation-clinique-mco/README.md) |
@@ -95,7 +96,9 @@ Voir [CONTRIBUTING.md](CONTRIBUTING.md).
 Le code et le contenu propres au dépôt sont sous licence MIT,
 © 2026 Basile Fuchs, CHU de Brest : voir [LICENSE](LICENSE).
 
-Exception : le dictionnaire SNDS embarqué dans `snds-query` et `snds-copilot`,
-dérivé du dépôt schema-snds du Health Data Hub, est distribué sous Mozilla
-Public License 2.0 : voir [skills/snds-query/NOTICE](skills/snds-query/NOTICE)
-et [skills/snds-copilot/NOTICE](skills/snds-copilot/NOTICE).
+Exception : le dictionnaire SNDS embarqué dans `snds-schema`, `snds-query` et
+`snds-copilot`, dérivé du dépôt schema-snds du Health Data Hub, est distribué
+sous Mozilla Public License 2.0 : voir
+[skills/snds-schema/NOTICE](skills/snds-schema/NOTICE),
+[skills/snds-query/NOTICE](skills/snds-query/NOTICE) et
+[skills/snds-copilot/NOTICE](skills/snds-copilot/NOTICE).

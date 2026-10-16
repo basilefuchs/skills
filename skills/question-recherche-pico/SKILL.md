@@ -6,7 +6,7 @@ description: >
   Pour cadrer une étude ou une thèse.
 license: MIT
 metadata:
-  suivante: squelette-imrad
+  suivante: snds-schema squelette-imrad
 ---
 
 # Question de recherche PICO
