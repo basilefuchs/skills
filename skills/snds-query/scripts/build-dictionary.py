@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Génère le dictionnaire plat de la skill snds-query depuis le dépôt schema-snds.
+"""Génère le dictionnaire plat de la skill depuis le dépôt schema-snds.
 
 Source : https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds
 (Health Data Hub, licence MPL-2.0). Les fichiers produits sont des dérivés de
 cette source et restent sous MPL-2.0 (voir NOTICE et
-skills/snds-query/references/dictionnaire/README.md).
+references/dictionnaire/README.md).
 
 Usage (depuis la racine de la skill) :
     git clone --depth 1 https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds.git
