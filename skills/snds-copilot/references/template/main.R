@@ -1,6 +1,6 @@
 # ==============================================================================
 # main.R — enchaîne les étapes du protocole dans l'ordre
-# Dossier : <nom du dossier, ex. patients_diabete_mco_2021_2024/>
+# Dossier : scripts/, à côté de protocole.md et de sorties/
 # ==============================================================================
 # Exécution complète : depuis ce dossier, source("main.R") recrée tout,
 # tables de session comprises.

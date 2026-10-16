@@ -369,7 +369,7 @@ attrition <- noter_attrition(attrition, pop_04_covariables, "04 Covariables")
 # Attendu : objet `attrition`, rempli par les chunks 01 à 04
 # Produit : objet `flowchart` (annee, etape, nb_sejours, nb_exclus), écrit dans
 #           sorties/flowchart.csv (chunk 06_sorties_export) et affiché dans la
-#           section Méthodologie. Ne redéfinit aucune étape.
+#           section Résultats. Ne redéfinit aucune étape.
 
 flowchart <- attrition |>
   arrange(annee, etape) |>                  # le préfixe "01", "02a"… donne l'ordre
@@ -469,41 +469,17 @@ dbDisconnect(conn)
 
 # Méthodologie
 
-## Question et périmètre
-
-<Reformuler la question en 2-3 phrases : population, phénomène mesuré, période,
-source(s) SNDS, unité de compte.>
-
-- **Sources SNDS** : <PMSI MCO / DCIR / CAUSE_DECES ; si plusieurs : intersection
-  ou union, et méthode de chaînage retenue (`NIR_ANO_17` = `BEN_NIR_PSA`,
-  individu `IR_BEN_R.BEN_IDT_ANO`)>.
-- **Population** : <champ(s), années, critères d'inclusion validés avec l'utilisateur>.
-- **Exclusions** : <dans l'ordre du chunk 02_exclusion>.
-- **Unité de compte** : <patients uniques / séjours / journées / délivrances>.
-- **Période** : <années>.
-- **Stratification** : <année, sexe, classe d'âge…>.
-- **Dictionnaire** : schema-snds, commit <SOURCE.txt> ; chaque table et variable
-  vérifiée pour chaque millésime demandé.
-
-## Définitions et source des codes
-
-<Codes CIM-10 / CCAM / ATC retenus, avec la source si issue d'une recherche de
-références (Santé publique France, cartographie CNAM, HAS, projet de
-l'écosystème SNDS, publication), et les amendements de l'utilisateur.>
-
-## Secret statistique
+Le protocole de l'étude est `protocole.md`, à côté de ce rapport : question,
+données (tables, variables, millésimes, codes et leur source), protocole validé
+et confidentialité. Il fait foi et n'est pas recopié ici.
 
 Les fichiers de `sorties/` masquent tout effectif de 1 à `r seuil - 1`, avec
-les pourcentages et taux de sa ligne ; `sorties/manifeste.md` compte les
-cellules masquées par fichier. Les tables de ce rapport sont
+les pourcentages et taux de sa ligne ; les tables de ce rapport sont
 `r if (secret_statistique) "celles des fichiers" else "brutes, non masquées"`.
-<Si regroupement : modalités de <dimension> reclassées sous "Autre" avant
-ré-agrégation.>
+
+# Résultats
 
 ## Flowchart d'attrition
-
-Effectifs à chaque étape du protocole, tels que notés par les chunks 01 à 04 :
-c'est ce qui rend l'analyse auditable.
 
 ```{r 05_flowchart_table}
 flowchart |>
@@ -511,30 +487,7 @@ flowchart |>
   dtttable()
 ```
 
-## Limites connues
-
-<2-3 limites ciblées sur ce protocole précis — cf. « Points de vigilance » du
-workflow de la skill (fiabilité du chaînage inter-source le cas échéant,
-année PMSI = année de sortie, évolutions de codage, alimentation effective des
-variables DCIR, dates PMSI absentes avant 2009, réforme SMR 2023, exhaustivité
-du statut vital, années Covid dans une tendance, petits effectifs…). Ne rien
-lister qui ne s'applique pas.>
-
-## Pistes de sensibilité
-
-<ex. élargir aux DAS (variante de `01_inclusion.R`), croiser avec le DCIR
-(pharmacie, actes en ville), inclure les séances, codes complets plutôt que
-troncature à 3 caractères, marge de flux DCIR plus large.>
-
-## Confidentialité
-
-Aucune donnée individuelle n'a quitté l'environnement du Health Data Hub :
-les tables intermédiaires sont des tables de session Oracle, et aucun fichier
-local ne contient d'identifiant, de date ou de localisation individuelle. Les
-seules sorties sont les agrégats de `sorties/`, écrits par `exporter()` : tout
-effectif de 1 à `r seuil - 1` y est masqué.
-
-# Résultats
+## Résultat principal
 
 Sur l'ensemble de la période, `r format(nb_patients_periode$nb_patients, big.mark = " ")`
 patients uniques.

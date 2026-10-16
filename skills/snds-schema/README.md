@@ -144,10 +144,9 @@ sont copiées, jamais partagées, et les copies restent identiques octet à
 octet (règle de copie du
 [CONTRIBUTING](https://github.com/basilefuchs/skills/blob/main/CONTRIBUTING.md#références-communes-à-une-famille)).
 
-- Sources ici, copies dans `snds-query` et `snds-copilot` : le dictionnaire
+- Sources ici, copies dans `snds-copilot` : le dictionnaire
   (`references/dictionnaire/`), `scripts/build-dictionary.py` et
-  `references/modele-donnees.md` ; copie dans `snds-query` :
-  `references/points-de-vigilance.md`.
+  `references/modele-donnees.md`.
 - Copie ici, source dans `snds-query` : `references/profils/hdh_oracle.md`.
 
 Les renvois de ces fichiers à `template/` ou à `clarifications.md` visent le

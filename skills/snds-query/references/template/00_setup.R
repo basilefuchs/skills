@@ -221,7 +221,7 @@ exporter <- function(x, fichier, comptages = character(), derivees = character()
 # BEN_IDT_ANO…), une date ou une localisation individuelle : les tables de
 # session restent dans Oracle, et seuls des AGRÉGATS sous seuil, écrits par
 # exporter() dans sorties/, sortent de l'environnement HDH. Le dossier de
-# scripts ne contient que du code et la note méthodologique.
+# scripts ne contient que du code.
 
 # ==============================================================================
 # Patterns dbplyr/Oracle — rappels (valables pour tout le dossier)

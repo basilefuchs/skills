@@ -34,7 +34,7 @@ le reste se relit à la main.
      `scripts/`, `assets/`), et la skill y fait référence par des chemins
      relatifs à ce dossier.
    - Un contenu tiers sous une autre licence est signalé par un `NOTICE` dans
-     le dossier de la skill (exemple : `skills/snds-query/NOTICE`).
+     le dossier de la skill (exemple : `skills/snds-schema/NOTICE`).
 
 2. **Écrire `skills/<nom>/README.md`** : à quoi sert la skill, ses prérequis,
    et son utilisation (`/<nom>` en skill copiée, déclenchement par la

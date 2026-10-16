@@ -5,8 +5,7 @@
 #                  fichier sorties/flowchart.csv
 # ==============================================================================
 # Assemble les effectifs notés par chaque étape juste après sa matérialisation ;
-# ne redéfinit aucune étape. À reporter dans note_methodologique.md : c'est ce
-# qui rend l'analyse auditable.
+# ne redéfinit aucune étape. C'est ce qui rend l'analyse auditable.
 
 flowchart <- attrition |>
   arrange(annee, etape) |>                  # le préfixe "01", "02a"… donne l'ordre
