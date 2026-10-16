@@ -83,8 +83,8 @@ répertoire de base de la skill, pas au répertoire courant de l'utilisateur.
    défaut), un fichier par étape du protocole, et patterns dbplyr/Oracle
    validés, chacun dans le fichier de l'étape qui l'utilise. **Source de vérité
    des patterns** : `00_setup.R` porte le bloc « Connexion » du profil, les
-   fonctions partagées (`compute_session()`, `noter_attrition()`) et les
-   rappels génériques.
+   fonctions partagées (`compute_session()`, `noter_attrition()`,
+   `exporter()`) et les rappels génériques.
 8. `references/template.Rmd` — squelette de rapport R Markdown : mêmes étapes,
    mêmes noms de tables et d'objets que le dossier (un chunk par étape, nommé
    comme le fichier correspondant), plus mise en forme narrative
@@ -251,8 +251,9 @@ Points d'attention, à garder en tête en étape 2 :
 
 **Poser en premier la finalité de l'analyse** (bloc 0 de la checklist) :
 l'usage des résultats (dénombrement interne, rapport, diffusion externe,
-publication…) conditionne le niveau de rigueur, le secret statistique des
-sorties (aucune cellule < 11 en diffusion externe) et le format de livraison.
+publication…) conditionne le niveau de rigueur, l'affichage à l'écran
+(`secret_statistique`) et le format de livraison ; les fichiers écrits sont
+toujours sous seuil (étape 5).
 
 **Codes CIM-10/CCAM/ATC : chercher d'abord une définition de référence.**
 Identifier le phénomène (étape 1) pour savoir quel axe documenter :
@@ -336,20 +337,21 @@ de scripts**, un fichier par étape du protocole validé, calqué sur
 `references/template/` ; un `.Rmd` suit `references/template.Rmd`, qui partage
 la même définition des étapes, mêmes noms de tables et d'objets que le dossier
 (un chunk par étape, dans le même ordre), avec en plus la section
-« Méthodologie » en prose et les tables interactives `dtttable()`.
+« Méthodologie » en prose et les tables interactives `dtttable()` ; il écrit
+le même `sorties/`, depuis son chunk `06_sorties_export`.
 
 Dossier `.R` — fichiers, dans l'ordre d'exécution (noms sans accent) :
 
 | Fichier | Rôle | Table attendue → produite |
 |---|---|---|
 | `main.R` | `source()` des étapes dans l'ordre ; commentaire : une étape seule se relance tant que la session R est ouverte, `main.R` recrée tout sinon | — |
-| `00_setup.R` | en-tête normalisé (bloc titre, bloc « PROFIL DE BASE » : sources SNDS, tables, variables, dictionnaire utilisé), packages, paramètres, bloc « Connexion » du profil, `ora_date()`, `compute_session()`, `noter_attrition()`, `attrition` vide, rappel de non-persistance | — |
+| `00_setup.R` | en-tête normalisé (bloc titre, bloc « PROFIL DE BASE » : sources SNDS, tables, variables, dictionnaire utilisé), packages, paramètres (dont ceux du manifeste : `question`, `sources`, `dictionnaire`, `protocole_valide`), bloc « Connexion » du profil, `ora_date()`, `compute_session()`, `noter_attrition()`, `attrition` vide, `exporter()`, rappel de non-persistance | — |
 | `01_inclusion.R` | population incluse, millésimes empilés par `union_all` (nom réel de table reconstruit : `paste0("T_MCO", aa, "B")`) ; croisement de sources (intersection ou union) ; Pattern C de batching `ER_PRS_F` | tables SNDS → `tmp_01_inclusion` |
 | `02_exclusion.R` | exclusions successives (chaînage, PIE, GHM 90, doublons 2005-2017…), chacune notée dans `attrition` | `tmp_01_inclusion` → `tmp_02_exclusion` |
 | `03_critere_jugement.R` | unité de compte et variables dérivées, niveau séjour | `tmp_02_exclusion` → `tmp_03_critere_jugement` |
 | `04_covariables.R` | stratification, flags, jointures annexes sur `(ETA_NUM, RSA_NUM, annee)` | `tmp_03_critere_jugement` → `tmp_04_covariables` |
-| `05_flowchart.R` | assemble `attrition`, % perdus, secret statistique (effectifs et exclus) si diffusion externe | `attrition` → `flowchart` |
-| `06_sorties.R` | agrégats collectés (Patterns A et B), secret statistique, figure, export d'agrégats | dernière `tmp_` → `resultat_annuel`… |
+| `05_flowchart.R` | assemble `attrition` (effectifs et exclus par étape), écrit `flowchart.csv` | `attrition` → `flowchart`, `sorties/flowchart.csv` |
+| `06_sorties.R` | agrégats collectés (Patterns A et B), une table par stratification, figure si demandée, écriture de `sorties/` | dernière `tmp_` → `resultat_annuel`…, `sorties/` |
 | `note_methodologique.md` | note livrée dans le dossier (modèle dans le squelette) | — |
 
 Conventions :
@@ -365,9 +367,9 @@ Conventions :
 - Chaque étape appelle `noter_attrition()` juste après sa matérialisation (et à
   chaque exclusion successive en 02) : `05_flowchart.R` ne redéfinit aucune
   étape.
-- Secret statistique (seuil 11) appliqué là où la table est produite :
-  `05_flowchart.R` pour les effectifs et nombres d'exclus, `06_sorties.R`
-  pour les résultats, selon la finalité (bloc 0). Pas de fichier dédié.
+- Écriture : seulement par `exporter()`, dans `sorties/` (contrat
+  ci-dessous). Ce qui s'affiche à l'écran peut être brut, ce qui s'écrit est
+  sous seuil ; `secret_statistique` ne régit que l'affichage.
 - **Chaque table et chaque variable** utilisées sont vérifiées dans le
   dictionnaire (`variables.tsv`), disponibilité par millésime confirmée pour
   toutes les années demandées (étape 2) ; si une variable manque pour
@@ -406,6 +408,26 @@ Conventions :
   une localisation individuelle** : règle SNDS rappelée dans `00_setup.R`,
   `06_sorties.R` et `note_methodologique.md`.
 
+**Contrat `sorties/`.** À l'exécution, les scripts écrivent un dossier
+`sorties/` à côté du dossier de scripts (ou du `.Rmd`), aux noms fixes :
+
+| Fichier | Écrit par | Contenu |
+|---|---|---|
+| `flowchart.csv` | `05_flowchart.R` | `annee`, `etape`, `nb_sejours`, `nb_exclus` ; aucun pourcentage |
+| `resultat_annuel.csv` | `06_sorties.R` | agrégats par année (Pattern A) |
+| `nb_patients_periode.csv` | `06_sorties.R` | patients uniques sur la période (Pattern B) |
+| `strate_<variable>.csv` | `06_sorties.R` | une table par variable de stratification, par année |
+| `figure_<nom>.png` | `06_sorties.R` | figure si demandée, construite depuis un agrégat déjà écrit |
+| `manifeste.md` | `exporter()` | question, répertoire, date d'exécution, années, sources, seuil, secret appliqué, cellules masquées et fichiers écrits, commit du dictionnaire, date de validation du protocole |
+
+`exporter(x, fichier, comptages, derivees)` est la seule voie d'écriture :
+elle masque (NA) tout comptage de 1 à `seuil - 1`, met à NA les colonnes
+dérivées (pourcentages, taux) des lignes masquées, écrit un CSV UTF-8 séparé
+par des virgules, met à jour `manifeste.md` et renvoie la table telle
+qu'écrite. Une figure se construit depuis cette table renvoyée. Pour une table
+stratifiée, le regroupement des petites modalités sous « Autre » reste proposé
+en commentaire, avant `exporter()`.
+
 **Fichier `.R` unique**, sur demande explicite de l'utilisateur seulement : un
 seul `.R` reprenant les étapes dans le même ordre, mêmes en-têtes de section,
 mêmes noms de tables et d'objets, mêmes `compute_session()` par étape, sans
@@ -417,14 +439,13 @@ mêmes noms de tables et d'objets, mêmes `compute_session()` par étape, sans
 `patients_diabete_mco_2021_2024/`) contenant les fichiers de l'étape 5 et
 `note_methodologique.md` : sources SNDS et chaînage retenu, définitions
 retenues (avec la source des codes si issue d'une recherche de références),
-flowchart d'attrition (effectifs et % perdus à chaque étape, sortie de
-`05_flowchart.R`), limites (fiabilité du chaînage inter-source le cas
-échéant, année PMSI = année de sortie, évolutions de codage, alimentation
-effective des variables DCIR, dates PMSI avant 2009, réforme SMR 2023,
-exhaustivité du statut vital), pistes de sensibilité, et la section
-« Confidentialité » rappelant la règle de non-persistance locale des
-extractions SNDS identifiantes — à répéter à l'utilisateur avant de clore
-l'échange.
+flowchart d'attrition (à reporter depuis `sorties/flowchart.csv`), limites
+(fiabilité du chaînage inter-source le cas échéant, année PMSI = année de
+sortie, évolutions de codage, alimentation effective des variables DCIR,
+dates PMSI avant 2009, réforme SMR 2023, exhaustivité du statut vital),
+pistes de sensibilité, et la section « Confidentialité » rappelant la règle
+de non-persistance locale des extractions SNDS identifiantes — à répéter à
+l'utilisateur avant de clore l'échange.
 
 **Format `.Rmd`** : rapport dans un fichier nommé de la même façon (ex.
 `patients_diabete_mco_2021_2024.Rmd`) ; la note méthodologique ci-dessus est

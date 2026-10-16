@@ -3,7 +3,7 @@
 **Question** : <question en langage naturel de l'utilisateur>
 **Dossier** : `<nom_du_dossier>/` (exécution : `main.R`)
 **Finalité** : <dénombrement interne / rapport / diffusion externe / publication>
-<secret statistique appliqué (seuil 11) si diffusion externe>
+**Sorties** : `sorties/`, agrégats sous seuil (11) et `manifeste.md`
 
 ## Protocole
 
@@ -29,14 +29,14 @@ l'écosystème SNDS, publication), et les amendements de l'utilisateur.>
 
 ## Flowchart d'attrition
 
-<Reporter la sortie de `05_flowchart.R`.>
+<Reporter `sorties/flowchart.csv` ; une cellule masquée (NA) s'écrit « < 11 ».>
 
-| Année | Étape | Nombre de séjours | Exclus | % perdu |
-|---|---|---|---|---|
-| | 01 Sejours DP cible | | | |
-| | 02a chainage exploitable | | | |
-| | 02b hors prestations inter-etab. | | | |
-| | 02c hors GHM en erreur (90) | | | |
+| Année | Étape | Nombre de séjours | Exclus |
+|---|---|---|---|
+| | 01 Sejours DP cible | | |
+| | 02a chainage exploitable | | |
+| | 02b hors prestations inter-etab. | | |
+| | 02c hors GHM en erreur (90) | | |
 
 ## Limites
 
@@ -58,5 +58,5 @@ troncature à 3 caractères, marge de flux DCIR plus large.>
 Aucune donnée individuelle n'a quitté l'environnement du Health Data Hub :
 les tables intermédiaires sont des tables de session Oracle, et aucun fichier
 local ne contient d'identifiant, de date ou de localisation individuelle. Les
-seules sorties sont des agrégats, <soumis au seuil de 11 / sans secret
-statistique (dénombrement interne)>.
+seules sorties sont les agrégats de `sorties/`, écrits par `exporter()` : tout
+effectif de 1 à 10 y est masqué.

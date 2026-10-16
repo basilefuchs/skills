@@ -1,18 +1,23 @@
 # ==============================================================================
-# 06_sorties.R — résultat, visualisation, export
+# 06_sorties.R — résultats, figure, écriture de sorties/
 # Table attendue : tmp_04_covariables (objet R : pop_04_covariables),
 #                  ou tmp_03_critere_jugement si le protocole n'a pas de covariable
-# Produit        : objets R `resultat_annuel`, `nb_patients_periode`
-#                  (+ figure, export CSV d'agrégats)
+# Produit        : objets R `resultat_annuel`, `nb_patients_periode`,
+#                  `strate_<variable>` (une table par stratification) ;
+#                  fichiers sorties/resultat_annuel.csv, nb_patients_periode.csv,
+#                  strate_<variable>.csv, figure_<nom>.png si figure demandée
 # ==============================================================================
 # Le calcul reste côté Oracle ; collect() uniquement sur les agrégats.
+# Règle SNDS (00_setup.R) : aucun fichier ne contient un identifiant (pseudonyme
+# patient, clé de séjour), une date de soin ou une localisation fine ; seuls
+# des agrégats sont écrits, par exporter(), sous seuil.
 
 pop_analyse <- pop_04_covariables      # pop_03_critere_jugement si 04 omis
 
 # ==== RÉSULTAT ====
-# -- Pattern A — agrégats par année (et par strate) ----------------------------
+# -- Pattern A — agrégats par année --------------------------------------------
 resultat_annuel <- pop_analyse |>
-  group_by(annee) |>                   # + sexe_lib, classe_age… selon la stratification
+  group_by(annee) |>
   summarise(
     nb_sejours  = n(),                 # 1 ligne = 1 séjour (ou n_distinct(sejour_id))
     nb_patients = n_distinct(NIR_ANO_17)   # patients uniques PAR ANNÉE — pseudonymes
@@ -27,29 +32,23 @@ nb_patients_periode <- pop_analyse |>
   summarise(nb_patients = n_distinct(NIR_ANO_17)) |>
   collect()
 
-# -- Secret statistique (seuil = 11) : diffusion externe seulement (00_setup.R)
-# verifier_seuil() signale toute cellule de 1 à seuil - 1 (0 diffusable) ; la
-# corriger en regroupant les modalités < seuil sous "Autre" puis en
-# ré-agrégeant (group_by + summarise une seconde fois), plutôt que masquer :
-# les totaux restent justes.
-verifier_seuil <- function(df, col_effectif) {
-  n_masque <- sum(df[[col_effectif]] > 0 & df[[col_effectif]] < seuil, na.rm = TRUE)
-  if (n_masque > 0) {
-    warning(sprintf(
-      "%d cellule(s) < %d (%s) - à regrouper sous 'Autre' avant toute diffusion externe.",
-      n_masque, seuil, col_effectif
-    ))
-  }
-  df
-}
-if (secret_statistique) {
-  resultat_annuel     <- resultat_annuel |> verifier_seuil("nb_patients") |> verifier_seuil("nb_sejours")
-  nb_patients_periode <- nb_patients_periode |> verifier_seuil("nb_patients")
-  # resultat_annuel <- resultat_annuel |>
-  #   mutate(classe_age = if_else(nb_patients < seuil, "Autre", classe_age)) |>
-  #   group_by(annee, classe_age) |>
-  #   summarise(across(c(nb_sejours, nb_patients), sum), .groups = "drop")
-}
+# -- Tables stratifiées : une par variable de stratification du protocole -------
+# (strate_sexe_lib, strate_classe_age…), par année, aucune sans stratification ;
+# le pourcentage est une colonne dérivée, masquée avec les effectifs de sa ligne.
+strate_classe_age <- pop_analyse |>
+  group_by(annee, classe_age) |>
+  summarise(nb_sejours = n(), nb_patients = n_distinct(NIR_ANO_17), .groups = "drop") |>
+  collect() |>
+  # Regroupement sous "Autre", à proposer si la table compte des cellules
+  # masquées : modalités < seuil regroupées puis ré-agrégées avant exporter(),
+  # moins de cellules masquées et des totaux justes.
+  # mutate(classe_age = if_else(nb_patients < seuil, "Autre", classe_age)) |>
+  # group_by(annee, classe_age) |>
+  # summarise(across(c(nb_sejours, nb_patients), sum), .groups = "drop") |>
+  group_by(annee) |>
+  mutate(pct_patients = round(100 * nb_patients / sum(nb_patients), 1)) |>
+  ungroup() |>
+  arrange(annee, classe_age)
 
 # -- Libellés (référentiels) : joints en R sur l'agrégat collecté --------------
 # aa_ref   <- sprintf("%02d", max(annees) %% 100)                 # dernier millésime
@@ -63,19 +62,29 @@ if (secret_statistique) {
 # Oracle sort la DISTRIBUTION agrégée (ex. annee x etab x profil x effectif),
 # le calcul final se fait en R sur ce petit tableau. Prévoir des seuils de
 # stabilité (effectif minimum par cellule/profil) en paramètres de 00_setup.R.
+# Un taux est une colonne dérivée : derivees = "taux" dans exporter().
 
-resultat_annuel |> print()
-print(nb_patients_periode)
+# ==== ÉCRITURE DE sorties/ ====
+annuel_ecrit     <- exporter(resultat_annuel, "resultat_annuel.csv",
+                             comptages = c("nb_sejours", "nb_patients"))
+periode_ecrit    <- exporter(nb_patients_periode, "nb_patients_periode.csv",
+                             comptages = "nb_patients")
+classe_age_ecrit <- exporter(strate_classe_age, "strate_classe_age.csv",
+                             comptages = c("nb_sejours", "nb_patients"),
+                             derivees = "pct_patients")
 
-# ==== VISUALISATION (si demandée) ====
-# ggplot(resultat_annuel, aes(x = annee, y = nb_patients)) +
-#   geom_point() + geom_smooth(se = FALSE, method = "loess") +
-#   scale_x_continuous(breaks = annees) +
-#   theme_minimal()
+# ==== ÉCRAN : brut, ou tel qu'écrit si secret_statistique (00_setup.R) ====
+if (secret_statistique) {
+  print(annuel_ecrit); print(periode_ecrit); print(classe_age_ecrit)
+} else {
+  print(resultat_annuel); print(nb_patients_periode); print(strate_classe_age)
+}
 
-# ==== EXPORT (décommenter si besoin) ====
-# Règle SNDS (00_setup.R) : ne jamais persister en local un fichier contenant
-# un identifiant (pseudonyme patient, clé de séjour), une date de soin ou une
-# localisation fine — seuls des AGRÉGATS vérifiés par verifier_seuil() sortent.
-# readr::write_csv(resultat_annuel, "resultat_annuel.csv")
-# readr::write_csv(flowchart, "flowchart.csv")
+# ==== FIGURE (si demandée) ====
+# Construite uniquement depuis un agrégat écrit (objet renvoyé par exporter()) :
+# une barre masquée n'apparaît pas.
+figure_annuelle <- ggplot(annuel_ecrit, aes(x = annee, y = nb_patients)) +
+  geom_col() +
+  scale_x_continuous(breaks = annees) +
+  theme_minimal()
+exporter(figure_annuelle, "figure_resultat_annuel.png")

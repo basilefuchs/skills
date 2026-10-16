@@ -35,12 +35,12 @@ clarification, protocole validé, puis scripts.
    (question, protocole, « PROFIL DE BASE » listant sources, tables et
    variables utilisées), chaque étape matérialisée dans une table de session
    Oracle que la suivante reprend, un **flowchart d'attrition** (effectifs et
-   % perdus à chaque étape d'exclusion), une vérification **secret
-   statistique** (seuil de diffusion) et une note méthodologique (limites,
-   pistes de sensibilité, rappel de non-persistance locale) livrée dans le
-   dossier. Un fichier `.R` unique est fourni sur demande, mêmes sections
-   dans le même ordre ; un rapport `.Rmd` suit les mêmes étapes, un chunk par
-   étape, avec la note méthodologique intégrée.
+   exclus à chaque étape), l'écriture des agrégats dans **`sorties/`** et une
+   note méthodologique (limites, pistes de sensibilité, rappel de
+   non-persistance locale) livrée dans le dossier. Un fichier `.R` unique est
+   fourni sur demande, mêmes sections dans le même ordre ; un rapport `.Rmd`
+   suit les mêmes étapes, un chunk par étape, avec la note méthodologique
+   intégrée, et écrit le même `sorties/`.
 
 Vous exécutez les scripts vous-même sur l'environnement du Health Data Hub :
 **Claude n'accède jamais aux données** — il ne voit que la question, le
@@ -48,6 +48,27 @@ protocole et le code généré. Le dictionnaire embarqué (généré depuis le
 dépôt open source [schema-snds](https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds)
 du Health Data Hub, licence MPL-2.0 — voir [NOTICE](NOTICE)) décrit la base
 (métadonnées), sans aucune donnée patient.
+
+## Ce que les scripts écrivent : `sorties/`
+
+À l'exécution, les scripts écrivent un dossier `sorties/` à côté du dossier
+de scripts (ou du `.Rmd`), aux noms fixes :
+
+| Fichier | Contenu |
+| --- | --- |
+| `flowchart.csv` | effectifs et exclus à chaque étape, par année (`annee`, `etape`, `nb_sejours`, `nb_exclus`) |
+| `resultat_annuel.csv` | résultat par année |
+| `nb_patients_periode.csv` | patients uniques sur toute la période |
+| `strate_<variable>.csv` | une table par stratification (sexe, classe d'âge…), par année |
+| `figure_<nom>.png` | figure, si demandée |
+| `manifeste.md` | question, répertoire, date d'exécution, années, sources, seuil, secret appliqué, cellules masquées par fichier, fichiers écrits, commit du dictionnaire, date de validation du protocole |
+
+Tout fichier est sous secret statistique, quelle que soit la finalité : un
+effectif de 1 à 10 est masqué (`NA`), avec les pourcentages et taux de sa
+ligne. L'écran reste brut, pour contrôler le travail ;
+`secret_statistique <- TRUE` dans `00_setup.R` l'aligne sur les fichiers. Ce
+masque est une aide : la procédure d'export de la plateforme reste seule juge
+de ce qui sort.
 
 ## Ce que la skill sait (et vérifie)
 
