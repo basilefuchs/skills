@@ -5,6 +5,8 @@ description: >
   PMSI hospitalisations, causes de décès CépiDc) en script R dbplyr/Oracle,
   après clarification du protocole.
 license: MIT
+metadata:
+  suivante: rapport-imrad
 ---
 
 # Générateur de requêtes SNDS (rôle : statisticien de DIM)
