@@ -70,9 +70,10 @@ cp skills/snds-query/references/profils/hdh_oracle.md skills/snds-copilot/refere
 ```
 
 `tests/test_sync_familles.py` lit le dépôt et échoue sur chaque divergence :
-il nomme les deux fichiers et donne la commande `cp` de la source, le fichier
-modifié en dernier, vers la copie. Aucune liste à tenir : un fichier copié
-sous le même chemin relatif entre dans le test de lui-même.
+il nomme les deux fichiers et donne la commande `cp` dans les deux sens, sans
+désigner la source ; appliquer celle qui va de la source vers la copie. Aucune
+liste à tenir : un fichier copié sous le même chemin relatif entre dans le test
+de lui-même.
 
 ## Chaîne de skills
 
