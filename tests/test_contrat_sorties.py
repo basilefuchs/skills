@@ -4,7 +4,8 @@ Les scripts générés n'écrivent de fichier que par `exporter()`, définie dan
 le script de mise en place (`00_setup.R`, chunk `setup` du `.Rmd`) et appelée
 par le flowchart, les sorties et le chunk d'export du `.Rmd`. Les noms de
 fichiers du contrat figurent dans les deux squelettes. Le test lit le texte,
-commentaires compris : il n'exige ni R ni réseau.
+commentaires compris, sauf pour l'appel d'`exporter()`, cherché hors
+commentaires : il n'exige ni R ni réseau.
 
 Lancement : python3 -m unittest discover -s tests
 """
@@ -18,6 +19,7 @@ SQUELETTES = ("snds-query",)
 
 DEFINITION = "exporter <- function("
 APPEL = re.compile(r"\bexporter\(")
+COMMENTAIRE = re.compile(r"#.*")
 ECRITURE = re.compile(
     r"\b(?:write\.csv2?|write\.table|write_(?:csv2?|delim|tsv|rds|xlsx)|write\.xlsx"
     r"|fwrite|writeLines|saveRDS|save|ggsave|sink|file\.copy|file\.create"
@@ -39,6 +41,11 @@ def sans_exporter(texte):
         if profondeur == 0:
             return texte[:debut] + texte[i + 1:]
     raise ValueError("définition d'exporter() sans accolade fermante")
+
+
+def sans_commentaires(texte):
+    """Le code R privé de ses commentaires, de `#` à la fin de la ligne."""
+    return COMMENTAIRE.sub("", texte)
 
 
 def chunks(rmd):
@@ -67,10 +74,12 @@ class ContratSortiesTest(unittest.TestCase):
 
     def test_exporter_appelee_par_flowchart_sorties_et_rmd(self):
         for skill, dossier, rmd in self.squelettes():
-            with self.subTest(skill):
-                self.assertRegex(dossier["05_flowchart.R"], APPEL)
-                self.assertRegex(dossier["06_sorties.R"], APPEL)
-                self.assertRegex(chunks(rmd)["06_sorties_export"], APPEL)
+            appelants = {"05_flowchart.R": dossier["05_flowchart.R"],
+                         "06_sorties.R": dossier["06_sorties.R"],
+                         "template.Rmd": chunks(rmd)["06_sorties_export"]}
+            for nom, texte in appelants.items():
+                with self.subTest(skill=skill, fichier=nom):
+                    self.assertRegex(sans_commentaires(texte), APPEL)
 
     def test_aucune_ecriture_hors_exporter(self):
         for skill, dossier, rmd in self.squelettes():
