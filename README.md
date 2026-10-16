@@ -14,6 +14,7 @@ ou dans tout agent compatible [Agent Skills](https://agentskills.io).
 | `snds-copilot` | Copilote d'une requête SNDS que l'utilisateur écrit lui-même (SQL Oracle, R dbplyr) sur le Health Data Hub : relecture d'une requête collée, table ou variable à trouver, fragment à écrire. | [README](skills/snds-copilot/README.md) |
 | `situation-clinique-mco` | Classe un CRH ou une lettre de liaison MCO dans sa situation clinique PMSI (guide méthodologique ATIH 2026) et argumente le DP et le DR. Avec Claude, CR fictifs uniquement. | [README](skills/situation-clinique-mco/README.md) |
 | `question-recherche-pico` | Transforme une idée de recherche ou d'étude en santé en question structurée (finalité, source de données, type d'étude, grille PICO, mesure, sous-groupes, critères FINER), au fil d'un entretien, et l'écrit dans `protocole.md`. | [README](skills/question-recherche-pico/README.md) |
+| `rapport-imrad` | Rédige le rapport IMRaD d'une étude SNDS ou PMSI depuis `protocole.md` et les agrégats de `sorties/` exportés de la plateforme : Méthodes et Résultats en prose, Introduction et Discussion en puces. | [README](skills/rapport-imrad/README.md) |
 | `squelette-imrad` | Produit le squelette IMRaD d'un protocole ou d'un article à partir d'une question de recherche structurée, avec la ligne directrice EQUATOR adaptée. | [README](skills/squelette-imrad/README.md) |
 
 ## Installation
