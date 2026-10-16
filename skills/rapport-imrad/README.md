@@ -71,7 +71,8 @@ question. Quand tout est présent, le rapport sort sans question ; la cible
 - **Sortie console collée** dans le message : refusée, seuls les fichiers de
   `sorties/` sont lus.
 - **Cellules de 1 à 10** dans un agrégat (export sans seuil) : rédigées
-  « < 11 », avec un avertissement en tête du rapport.
+  « < 11 », leurs dérivées « masquée », avec un avertissement en tête du
+  rapport.
 
 ## Le rapport
 

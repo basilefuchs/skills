@@ -11,7 +11,7 @@ license: MIT
 
 Tu rédiges le rapport IMRaD d'une étude dont le protocole est `protocole.md` et dont les résultats sont les agrégats de `sorties/`, écrits par les scripts de la skill query et sortis de la plateforme (Health Data Hub, portail ATIH) par sa procédure d'export. Méthodes et Résultats sont en prose, depuis le protocole et les agrégats ; Introduction et Discussion en puces, avec **À préciser** là où la littérature ou le jugement de la personne manquent. Quand tout est présent, le rapport sort sans question.
 
-Chaque chiffre du rapport est une cellule d'un fichier de `sorties/`, reprise telle quelle : une statistique que les fichiers ne contiennent pas (intervalle de confiance, standardisation, test, total recalculé) est nommée comme absente. Chaque source citée est inscrite dans le protocole : aucune recherche bibliographique. Rédige dans la langue du protocole, mention **À préciser** comprise.
+Chaque chiffre du rapport est une cellule d'un fichier de `sorties/`, et aucun n'est sous le seuil : une statistique que les fichiers ne contiennent pas (intervalle de confiance, standardisation, test, total recalculé) est nommée comme absente ; un comptage de 1 à 10 s'écrit « < 11 », comme une cellule masquée (étape 2). Chaque source citée est inscrite dans le protocole : aucune recherche bibliographique. Rédige dans la langue du protocole, mention **À préciser** comprise.
 
 ## Entrées
 
@@ -37,7 +37,7 @@ Fichiers attendus, rien d'autre. Une colonne de comptage commence par `nb_` ; un
 | Fichier | Colonnes attendues | Dans le rapport |
 |---|---|---|
 | `flowchart.csv` | `annee`, `etape`, `nb_sejours`, `nb_exclus`, exactement | diagramme de flux |
-| `resultat_annuel.csv` | `annee`, puis des comptages | résultat principal par année |
+| `resultat_annuel.csv` | `annee`, des comptages, des dérivées éventuelles | résultat principal par année |
 | `nb_patients_periode.csv` | `nb_patients` | patients uniques sur la période |
 | `strate_<variable>.csv`, une par stratification | `annee`, `<variable>`, des comptages, des dérivées éventuelles | un tableau par sous-groupe |
 | `figure_<nom>.png`, optionnelles | — | figure référencée par son nom |
@@ -63,9 +63,9 @@ C'est fini quand `protocole.md` et les fichiers de `sorties/` sont localisés.
 
 Avant de lire une seule valeur, lis l'en-tête de chaque CSV et compte ses lignes, puis classe chaque fichier dans le premier cas qui s'applique :
 
-- **Lignes individuelles** : une colonne d'identifiant (`NIR_ANO_17`, `BEN_NIR_PSA`, `BEN_IDT_ANO`, `RSA_NUM`, tout nom contenant `_NIR_`, `_IDT_` ou `_NUM`), ou une date au jour (`AAAA-MM-JJ`, `EXE_SOI_DTD`, `ENT_DAT`, `SOR_DAT`…), ou des lignes sans colonne de comptage, une par séjour, prestation ou décès. **Arrêt net** : un seul message, qui nomme le fichier et le signe, sans citer une valeur ni une ligne, sans écrire de fichier ni d'artefact ; demande de retirer le fichier de la conversation et du répertoire ; rappelle que seule la procédure d'export de la plateforme fait sortir des données, sous forme d'agrégats. Rien d'autre dans ce message, et pas de rapport.
+- **Lignes individuelles** : une colonne d'identifiant de personne ou de séjour (`NIR_ANO_17`, `BEN_NIR_PSA`, `BEN_IDT_ANO`, `RSA_NUM`, `RHA_NUM`, `RHS_NUM`, `RIP_NUM`, tout nom contenant `_NIR_` ou `_IDT_` ; `ETA_NUM`, numéro FINESS d'un établissement, est une strate, pas un identifiant), ou une date au jour (`AAAA-MM-JJ`, `EXE_SOI_DTD`, `ENT_DAT`, `SOR_DAT`…), ou des lignes sans colonne de comptage, une par séjour, prestation ou décès. **Arrêt net** : un seul message, qui nomme le fichier et le signe, sans citer une valeur ni une ligne, sans écrire de fichier ni d'artefact ; demande de retirer le fichier de la conversation et du répertoire ; rappelle que seule la procédure d'export de la plateforme fait sortir des données, sous forme d'agrégats. Rien d'autre dans ce message, et pas de rapport.
 - **Hors contrat** : nom absent du tableau des fichiers attendus, ou colonnes différentes. Nomme le fichier et les colonnes attendues, demande de relancer les scripts (de les régénérer avec la skill query s'ils sont antérieurs au contrat), et arrête-toi : rien n'est deviné.
-- **Conforme** : colonnes au contrat. Note les cellules masquées (`NA` dans un comptage ou une dérivée) et les cellules de 1 à 10 dans un comptage, qui révèlent un export sans seuil.
+- **Conforme** : colonnes au contrat. Note les cellules masquées : `NA` dans un comptage ou une dérivée, et tout comptage strictement compris entre 0 et le seuil du manifeste (de 1 à 10 pour le seuil 11), qui révèle un export sans seuil et devient une cellule masquée, avec les dérivées de sa ligne.
 
 C'est fini quand chaque fichier est classé, et qu'aucun n'est individuel ni hors contrat.
 
@@ -82,7 +82,7 @@ Lis les sections de `protocole.md` et `manifeste.md`, puis fixe :
   | publication ou thèse | Article | complètes ; les listes de contrôle STROBE et RECORD sont à joindre à la soumission |
 
 - la **ligne directrice** : STROBE et RECORD ; RECORD-PE en plus quand I/E est un médicament lu dans le DCIR (codes ATC, `ER_PHA_F`). L'analyse est descriptive : effectifs et proportions tels que les agrégats les donnent ;
-- les **avertissements** de tête : cellules masquées, avec leur nombre par fichier (manifeste, ou comptage des `NA`) ; export sans seuil (cellules de 1 à 10) ; manifeste daté avant `## Statut` ou avant la dernière ligne de `## Modifications` (sorties antérieures à la dernière validation) ; `## Statut` en brouillon ; années ou sources du manifeste différentes de celles du protocole ;
+- les **avertissements** de tête : cellules masquées, avec leur nombre par fichier (manifeste, ou comptage des `NA`) ; export sans seuil (comptages de 1 à 10, masqués par le rapport) ; manifeste daté avant `## Statut` ou avant la dernière ligne de `## Modifications` (sorties antérieures à la dernière validation) ; `## Statut` en brouillon ; années ou sources du manifeste différentes de celles du protocole ;
 - les **limites** : chaque point de vigilance de `## Données`, chaque ligne de `## Modifications`, chaque fragilité FINER, le chaînage de `## Données` s'il y en a un, le masquage.
 
 C'est fini quand la cible, la ligne directrice, les avertissements et les limites sont fixés.
@@ -93,7 +93,7 @@ Rédige le rapport (section **Gabarit**).
 
 Méthodes, en prose, depuis `protocole.md` seul : schéma et type d'étude ; sources et chaînage ; population (P, base géographique, période et millésimes, tables du tableau de `## Données`) ; codes retenus avec leur source telle qu'inscrite, position du diagnostic ; unité de compte et indicateur ; exclusions dans l'ordre ; stratification ; secret statistique (seuil, masque des comptages et des dérivées, manifeste, texte de `## Confidentialité` s'il existe) ; ligne directrice. Le dictionnaire et son commit, la date de validation et, si `## Scripts` existe, le format et les fichiers y figurent aussi.
 
-Résultats, en prose, depuis `sorties/` seul : la sélection de la population raconte `flowchart.csv` étape par étape et le montre en tableau (année, étape, effectif, exclus) ; le résultat principal reprend `resultat_annuel.csv` et `nb_patients_periode.csv` ; un sous-titre par `strate_<variable>.csv`, avec son tableau ; chaque figure est référencée par son nom. Une cellule masquée s'écrit « < 11 » (le seuil du manifeste) et chaque tableau qui en contient le dit sous lui. Une statistique attendue par le protocole et absente des fichiers (taux sur dénominateur externe, intervalle de confiance, évolution calculée) est nommée comme absente, dans les Résultats et dans la Discussion.
+Résultats, en prose, depuis `sorties/` seul : la sélection de la population raconte `flowchart.csv` étape par étape et le montre en tableau (année, étape, effectif, exclus) ; le résultat principal reprend `resultat_annuel.csv` et `nb_patients_periode.csv` ; un sous-titre par `strate_<variable>.csv`, avec son tableau ; chaque figure est référencée par son nom. Un comptage masqué s'écrit « < 11 » (le seuil du manifeste), une dérivée masquée « masquée », et chaque tableau qui en contient le dit sous lui. Une statistique attendue par le protocole et absente des fichiers (taux sur dénominateur externe, intervalle de confiance, évolution calculée) est nommée comme absente, dans les Résultats et dans la Discussion.
 
 Introduction et Discussion, en puces : l'objectif reprend la question ; le contexte, la comparaison à la littérature et les implications sont **À préciser** ; les limites sont celles fixées à l'étape 3, chacune appliquée à ce protocole en une puce.
 
@@ -158,5 +158,5 @@ Réponds avec exactement cette structure, sans le bloc de code ; les titres rest
 ```
 
 - Rapport interne : l'Introduction se réduit à Objectif ; la Discussion à Résultat principal, Limites et Statistiques absentes.
-- Les tableaux reprennent les colonnes des fichiers, libellées en clair ; une cellule masquée est « < 11 », jamais 0 ni vide.
+- Les tableaux reprennent les colonnes des fichiers, libellées en clair ; un comptage masqué est « < 11 », une dérivée masquée « masquée », jamais 0, ni vide, ni la valeur de 1 à 10 lue dans le fichier.
 - Le rapport ne contient ni effectif absent de `sorties/`, ni référence absente du protocole, ni donnée individuelle.
