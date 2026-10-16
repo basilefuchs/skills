@@ -15,7 +15,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SQUELETTES = ("snds-query",)
+SQUELETTES = ("snds-query", "pdh-query")
 
 DEFINITION = "exporter <- function("
 APPEL = re.compile(r"\bexporter\(")

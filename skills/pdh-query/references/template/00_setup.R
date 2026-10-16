@@ -25,24 +25,33 @@
 # ==============================================================================
 # 00_setup.R — packages, paramètres, connexion, fonctions partagées
 # Table attendue : aucune
-# Table produite : aucune (initialise l'objet `attrition`)
+# Table produite : aucune (initialise les objets `attrition` et `sorties_ecrites`)
 # ==============================================================================
 
 library(dplyr)
 library(dbplyr)
 library(purrr)
-# library(ggplot2)   # si graphique demandé (06_sorties.R)
+library(ggplot2)     # figure de 06_sorties.R : retirer avec elle si aucune n'est demandée
 
 # ==== PARAMÈTRES ====
 annees     <- 2020:2023                               # années PMSI (année de sortie)
 codes_cim3 <- c("E10", "E11", "E12", "E13", "E14")    # codes CIM-10 (3 caractères)
 
-# Secret statistique : selon la finalité validée (bloc 0 des clarifications).
-# FALSE pour un dénombrement interne ; TRUE dès que les sorties sont diffusées
-# à l'extérieur (aucune cellule < seuil). Appliqué en 05_flowchart.R (effectifs)
-# et 06_sorties.R (résultats).
+# Secret statistique. Règle : ce qui s'affiche à l'écran peut être brut, ce
+# qui s'écrit est sous seuil. Tout fichier passe par exporter() (ci-dessous),
+# qui masque toujours ; secret_statistique ne régit que l'affichage de
+# 05_flowchart.R et 06_sorties.R (TRUE : écran identique aux fichiers écrits).
 secret_statistique <- FALSE
 seuil              <- 11
+
+# Sorties : dossier sorties/ à côté du dossier de scripts (main.R est lancé
+# depuis le dossier de scripts) ; valeurs reprises dans sorties/manifeste.md,
+# dictionnaire = version du CSV de variables (variables-AAAA-MM-JJ.csv).
+dossier_sorties  <- "../sorties"
+question         <- "<question en langage naturel de l'utilisateur>"
+sources          <- "<champs PMSI : MCO / SMR / HAD / PSY / RPU>"
+dictionnaire     <- "<ligne Dictionnaire de ## Données, recopiée telle quelle>"
+protocole_valide <- "<AAAA-MM-JJ, date de validation du protocole>"
 
 # Connexion — selon le profil d'environnement (ici : portail ATIH)
 conn <- pRatihque::connection_database()
@@ -84,6 +93,8 @@ compute_volatile <- function(requete, nom) {
 # Libellé : préfixe du fichier + lettre si plusieurs étapes dans un fichier
 # ("02a", "02b"…) ; le tri alphabétique restitue l'ordre du protocole.
 # Relancer une étape remplace ses lignes au lieu de les dupliquer.
+# nb_sejours : nom fixé par le contrat de sorties/flowchart.csv, gardé quelle
+# que soit l'unité du protocole ; ne pas le renommer.
 attrition <- tibble::tibble(etape = character(), annee = integer(), nb_sejours = numeric())
 
 noter_attrition <- function(attrition, requete, etape) {
@@ -94,6 +105,64 @@ noter_attrition <- function(attrition, requete, etape) {
   attrition %>%
     filter(etape != !!etape) %>%
     bind_rows(effectifs)
+}
+
+# ==== SORTIES : exporter(), seule voie d'écriture de fichier ====
+# Appelée par 05_flowchart.R et 06_sorties.R, une fois par fichier de sorties/ :
+#   x         : agrégat collecté, ou figure ggplot construite depuis un agrégat
+#               déjà renvoyé par exporter() (rien à masquer) ;
+#   fichier   : nom fixe du contrat (flowchart.csv, resultat_annuel.csv…) ;
+#   comptages : colonnes d'effectifs, masquées (NA) de 1 à seuil - 1, 0 gardé ;
+#   derivees  : colonnes calculées sur ces effectifs (pourcentage, taux), mises
+#               à NA sur toute ligne dont un comptage est masqué.
+# Écrit un CSV UTF-8 séparé par des virgules (NA = cellule masquée), réécrit
+# sorties/manifeste.md et renvoie, invisible, la table telle qu'écrite.
+# Masque primaire seulement : une cellule masquée peut encore se déduire par
+# différence entre cellules voisines ou d'un total ; le regroupement sous
+# "Autre" (06_sorties.R) le limite, et la procédure d'export de la plateforme
+# reste seule juge de ce qui sort.
+sorties_ecrites <- tibble::tibble(fichier = character(), cellules_masquees = integer())
+
+exporter <- function(x, fichier, comptages = character(), derivees = character()) {
+  dir.create(dossier_sorties, showWarnings = FALSE, recursive = TRUE)
+  chemin <- file.path(dossier_sorties, fichier)
+  if (inherits(x, "ggplot")) {
+    ggplot2::ggsave(chemin, plot = x, width = 8, height = 5, dpi = 150)
+    masquees <- NA_integer_
+  } else {
+    effectifs  <- as.matrix(x[comptages])
+    sous_seuil <- !is.na(effectifs) & effectifs > 0 & effectifs < seuil
+    for (col in comptages) x[[col]][sous_seuil[, col]] <- NA
+    for (col in derivees)  x[[col]][rowSums(sous_seuil) > 0] <- NA
+    masquees <- as.integer(sum(sous_seuil))
+    utils::write.csv(x, chemin, row.names = FALSE, fileEncoding = "UTF-8")
+  }
+
+  sorties_ecrites <<- sorties_ecrites %>%
+    filter(fichier != !!fichier) %>%
+    bind_rows(tibble::tibble(fichier = fichier, cellules_masquees = masquees))
+  writeLines(enc2utf8(c(
+    "# Manifeste de sorties/",
+    "",
+    paste0("- Question : ", question),
+    paste0("- Répertoire : ", basename(normalizePath(file.path(dossier_sorties, "..")))),
+    paste0("- Date d'exécution : ", format(Sys.time(), "%Y-%m-%d %H:%M")),
+    paste0("- Années : ", paste(annees, collapse = ", ")),
+    paste0("- Sources : ", sources),
+    paste0("- Seuil : ", seuil),
+    paste0("- Secret appliqué : comptages de 1 à ", seuil - 1, " masqués (NA), ",
+           "colonnes dérivées de leur ligne aussi"),
+    paste0("- Dictionnaire : ", dictionnaire),
+    paste0("- Protocole validé le : ", protocole_valide),
+    "",
+    "| Fichier | Cellules masquées |",
+    "| --- | --- |",
+    paste0("| ", sorties_ecrites$fichier, " | ",
+           ifelse(is.na(sorties_ecrites$cellules_masquees), "sans objet (figure)",
+                  sorties_ecrites$cellules_masquees), " |")
+  )), file.path(dossier_sorties, "manifeste.md"), useBytes = TRUE)
+
+  invisible(x)
 }
 
 # ==============================================================================

@@ -52,7 +52,8 @@ poser les questions de clarification via l'outil de choix multiple si disponible
    défaut), un fichier par étape du protocole, et patterns dbplyr/Teradata
    validés, chacun dans le fichier de l'étape qui l'utilise. **Source de vérité
    des patterns** : `00_setup.R` porte les fonctions partagées
-   (`compute_volatile()`, `noter_attrition()`) et les rappels génériques.
+   (`compute_volatile()`, `noter_attrition()`, `exporter()`) et les rappels
+   génériques.
 7. `references/template.Rmd` — squelette de rapport R Markdown : mêmes étapes,
    mêmes noms de tables et d'objets que le dossier (un chunk par étape, nommé
    comme le fichier correspondant), plus mise en forme narrative
@@ -94,7 +95,8 @@ grep '^"mcoxxbd";"fixe";"anonyme"' variables-*.csv | cut -d';' -f3,5,6
 
 **Poser en premier la finalité de l'analyse** (bloc 0 de la checklist) : l'usage des
 résultats (dénombrement interne, rapport, diffusion externe, publication…) conditionne
-le niveau de rigueur, les seuils de robustesse et le secret statistique des sorties.
+le niveau de rigueur, les seuils de robustesse et l'affichage à l'écran
+(`secret_statistique`) ; les fichiers écrits sont toujours sous seuil (étape 5).
 
 **Codes CIM-10/CCAM : chercher d'abord une définition de référence.** Identifier le
 phénomène (étape 1) pour savoir quel axe documenter : pathologie → CIM-10
@@ -153,20 +155,21 @@ de scripts**, un fichier par étape du protocole validé, calqué sur
 `references/template/` ; un `.Rmd` suit `references/template.Rmd`, qui partage
 la même définition des étapes, mêmes noms de tables et d'objets que le dossier
 (un chunk par étape, dans le même ordre), avec en plus la section
-« Méthodologie » en prose et les tables interactives `dtttable()`.
+« Méthodologie » en prose et les tables interactives `dtttable()` ; il écrit
+le même `sorties/`, depuis son chunk `06_sorties_export`.
 
 Dossier `.R` — fichiers, dans l'ordre d'exécution (noms sans accent) :
 
 | Fichier | Rôle | Table attendue → produite |
 |---|---|---|
 | `main.R` | `source()` des étapes dans l'ordre ; commentaire : une étape seule se relance tant que la session R est ouverte, `main.R` recrée tout sinon | — |
-| `00_setup.R` | en-tête normalisé (bloc titre, bloc « PROFIL DE BASE »), packages, paramètres, connexion du profil, `compute_volatile()`, `noter_attrition()`, `attrition` vide | — |
+| `00_setup.R` | en-tête normalisé (bloc titre, bloc « PROFIL DE BASE »), packages, paramètres (dont ceux du manifeste : `question`, `sources`, `dictionnaire`, `protocole_valide`), connexion du profil, `compute_volatile()`, `noter_attrition()`, `attrition` vide, `exporter()` | — |
 | `01_inclusion.R` | population incluse, années empilées par `union_all` | vues PMSI → `tmp_01_inclusion` |
 | `02_exclusion.R` | exclusions successives, chacune notée dans `attrition` | `tmp_01_inclusion` → `tmp_02_exclusion` |
 | `03_critere_jugement.R` | unité de compte et variables dérivées, niveau séjour | `tmp_02_exclusion` → `tmp_03_critere_jugement` |
 | `04_covariables.R` | stratification, flags, jointures annexes sur `(ident, annee)` | `tmp_03_critere_jugement` → `tmp_04_covariables` |
-| `05_flowchart.R` | assemble `attrition`, % perdus, secret statistique si diffusion externe | `attrition` → `flowchart` |
-| `06_sorties.R` | agrégats collectés, secret statistique, figure, export | dernière `tmp_` → `resultat_annuel`… |
+| `05_flowchart.R` | assemble `attrition` (effectifs et exclus par étape), écrit `flowchart.csv` | `attrition` → `flowchart`, `sorties/flowchart.csv` |
+| `06_sorties.R` | agrégats collectés, une table par stratification, figure si demandée, écriture de `sorties/` | dernière `tmp_` → `resultat_annuel`…, `sorties/` |
 | `note_methodologique.md` | note livrée dans le dossier (modèle dans le squelette) | — |
 
 Conventions :
@@ -182,9 +185,9 @@ Conventions :
 - Chaque étape appelle `noter_attrition()` juste après sa matérialisation (et à
   chaque exclusion successive en 02) : `05_flowchart.R` ne redéfinit aucune
   étape.
-- Secret statistique appliqué là où la table est produite : `05_flowchart.R`
-  pour les effectifs, `06_sorties.R` pour les résultats, selon la finalité
-  (bloc 0). Pas de fichier dédié.
+- Écriture : seulement par `exporter()`, dans `sorties/` (contrat
+  ci-dessous). Ce qui s'affiche à l'écran peut être brut, ce qui s'écrit est
+  sous seuil ; `secret_statistique` ne régit que l'affichage.
 - **Chaque variable et chaque table** utilisée est vérifiée dans le dictionnaire,
   avec `andeb ≤ année ≤ anfin` pour toutes les années demandées. Si une variable
   manque pour certaines années, adapter (variable alternative, restriction de
@@ -196,6 +199,27 @@ Conventions :
   CIM-10/CCAM, FINESS, seuil…), reproductibles ; calcul côté Teradata,
   `collect()` uniquement sur les agrégats.
 
+**Contrat `sorties/`.** À l'exécution, les scripts écrivent un dossier
+`sorties/` à côté du dossier de scripts (ou du `.Rmd`), aux noms fixes :
+
+| Fichier | Écrit par | Contenu |
+|---|---|---|
+| `flowchart.csv` | `05_flowchart.R` | `annee`, `etape`, `nb_sejours`, `nb_exclus` ; aucun pourcentage |
+| `resultat_annuel.csv` | `06_sorties.R` | agrégats par année |
+| `nb_patients_periode.csv` | `06_sorties.R` | patients uniques sur la période |
+| `strate_<variable>.csv` | `06_sorties.R` | une table par variable de stratification, par année ; deuxième colonne : la variable |
+| `figure_<nom>.png` | `06_sorties.R` | figure si demandée, construite depuis un agrégat déjà écrit |
+| `manifeste.md` | `exporter()` | question, répertoire, date d'exécution, années, sources (champs PMSI), seuil, secret appliqué, cellules masquées et fichiers écrits, version du dictionnaire (`variables-*.csv` utilisé), date de validation du protocole |
+
+`exporter(x, fichier, comptages, derivees)` est la seule voie d'écriture :
+elle masque (NA) tout comptage de 1 à `seuil - 1`, met à NA les colonnes
+dérivées (pourcentages, taux) des lignes masquées, écrit un CSV UTF-8 séparé
+par des virgules, met à jour `manifeste.md` et renvoie la table telle
+qu'écrite. Une figure se construit depuis cette table renvoyée. Pour une table
+stratifiée, le regroupement des petites modalités sous « Autre » reste proposé
+en commentaire, avant `exporter()`. `dossier_sorties` vaut `"../sorties"` dans
+le dossier de scripts, `"sorties"` dans le `.Rmd` et le `.R` unique.
+
 **Fichier `.R` unique**, sur demande explicite de l'utilisateur seulement : un
 seul `.R` reprenant les étapes dans le même ordre, mêmes en-têtes de section,
 mêmes noms de tables et d'objets, mêmes `compute_volatile()` par étape, sans
@@ -206,10 +230,10 @@ mêmes noms de tables et d'objets, mêmes `compute_volatile()` par étape, sans
 **Format `.R`** : dossier nommé d'après la question (ex.
 `patients_diabete_mco_2020_2023/`) contenant les fichiers de l'étape 5 et
 `note_methodologique.md` : définitions retenues (avec la source des codes si
-issue d'une recherche de références), flowchart d'attrition (effectifs et %
-perdus à chaque étape, sortie de `05_flowchart.R`), limites (exhaustivité du
-chaînage, année PMSI = année de sortie, séjours à cheval, évolutions de codage),
-pistes de sensibilité (élargir aux DAS, autres champs).
+issue d'une recherche de références), flowchart d'attrition (à reporter depuis
+`sorties/flowchart.csv`), limites (exhaustivité du chaînage, année PMSI = année
+de sortie, séjours à cheval, évolutions de codage), pistes de sensibilité
+(élargir aux DAS, autres champs).
 
 **Format `.Rmd`** : rapport dans un fichier nommé de la même façon (ex.
 `patients_diabete_mco_2020_2023.Rmd`) ; la note méthodologique ci-dessus est

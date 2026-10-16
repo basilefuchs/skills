@@ -34,5 +34,5 @@ robustesse du profil, proposer un lissage ou un regroupement.
 
 ## Diffusion
 
-Si la finalité implique une sortie externe, secret statistique (aucune cellule < 11)
-à prévoir dans les sorties.
+Tout fichier écrit par les scripts est sous secret statistique, quelle que soit
+la finalité (aucune cellule de 1 à 10 ; 0 reste diffusable) — seuil `seuil <- 11`.

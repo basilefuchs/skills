@@ -3,7 +3,7 @@
 **Question** : <question en langage naturel de l'utilisateur>
 **Dossier** : `<nom_du_dossier>/` (exécution : `main.R`)
 **Finalité** : <dénombrement interne / rapport / diffusion externe / publication>
-<secret statistique appliqué (seuil 11) si diffusion externe>
+**Sorties** : `sorties/`, agrégats sous seuil (11) et `manifeste.md`
 
 ## Protocole
 
@@ -24,9 +24,9 @@ et les amendements de l'utilisateur.>
 
 ## Flowchart d'attrition
 
-<Reporter la sortie de `05_flowchart.R`.>
+<Reporter `sorties/flowchart.csv` ; une cellule masquée (NA) s'écrit « < 11 ».>
 
-| Année | Étape | Nombre de séjours | % perdu |
+| Année | Étape | Nombre de séjours | Exclus |
 |---|---|---|---|
 | | 01 Sejours DP cible | | |
 | | 02a hors seances (CMD 28) | | |

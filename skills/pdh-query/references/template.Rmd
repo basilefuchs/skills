@@ -83,12 +83,21 @@ library(scales)
 annees     <- 2020:2023                               # années PMSI (année de sortie)
 codes_cim3 <- c("E10", "E11", "E12", "E13", "E14")    # codes CIM-10 (3 caractères)
 
-# Secret statistique : selon la finalité validée (bloc 0 des clarifications).
-# FALSE pour un dénombrement interne ; TRUE dès que les sorties sont diffusées
-# à l'extérieur (aucune cellule < seuil). Appliqué en 05_flowchart (effectifs)
-# et 06_sorties (résultats).
+# Secret statistique. Règle : ce qui s'affiche peut être brut, ce qui s'écrit
+# est sous seuil. Tout fichier de sorties/ passe par exporter() (ci-dessous),
+# qui masque toujours ; secret_statistique ne régit que l'affichage du rapport
+# HTML (TRUE : tables et texte identiques aux fichiers écrits).
 secret_statistique <- FALSE
 seuil              <- 11
+
+# Sorties : dossier sorties/ à côté du .Rmd (le .Rmd est rendu depuis son
+# dossier) ; valeurs reprises dans sorties/manifeste.md, dictionnaire =
+# version du CSV de variables (variables-AAAA-MM-JJ.csv).
+dossier_sorties  <- "sorties"
+question         <- "<question en langage naturel de l'utilisateur>"
+sources          <- "<champs PMSI : MCO / SMR / HAD / PSY / RPU>"
+dictionnaire     <- "<ligne Dictionnaire de ## Données, recopiée telle quelle>"
+protocole_valide <- "<AAAA-MM-JJ, date de validation du protocole>"
 
 # Connexion — selon le profil d'environnement (ici : portail ATIH)
 conn <- pRatihque::connection_database()
@@ -114,6 +123,8 @@ compute_volatile <- function(requete, nom) {
 # chaque exclusion successive en 02) ; 05_flowchart assemble, sans rien
 # redéfinir. Libellé : préfixe du chunk + lettre si plusieurs étapes dans un
 # chunk ("02a", "02b"…) ; le tri alphabétique restitue l'ordre du protocole.
+# nb_sejours : nom fixé par le contrat de sorties/flowchart.csv, gardé quelle
+# que soit l'unité du protocole ; ne pas le renommer.
 attrition <- tibble::tibble(etape = character(), annee = integer(), nb_sejours = numeric())
 
 noter_attrition <- function(attrition, requete, etape) {
@@ -124,6 +135,54 @@ noter_attrition <- function(attrition, requete, etape) {
   attrition %>%
     filter(etape != !!etape) %>%
     bind_rows(effectifs)
+}
+
+# ==== SORTIES : exporter(), seule voie d'écriture de fichier ====
+# Même fonction que 00_setup.R du dossier de scripts, qui documente ses
+# arguments ; appelée par le chunk 06_sorties_export, une fois par fichier.
+# Renvoie, invisible, la table telle qu'écrite (NA = cellule masquée).
+sorties_ecrites <- tibble::tibble(fichier = character(), cellules_masquees = integer())
+
+exporter <- function(x, fichier, comptages = character(), derivees = character()) {
+  dir.create(dossier_sorties, showWarnings = FALSE, recursive = TRUE)
+  chemin <- file.path(dossier_sorties, fichier)
+  if (inherits(x, "ggplot")) {
+    ggplot2::ggsave(chemin, plot = x, width = 8, height = 5, dpi = 150)
+    masquees <- NA_integer_
+  } else {
+    effectifs  <- as.matrix(x[comptages])
+    sous_seuil <- !is.na(effectifs) & effectifs > 0 & effectifs < seuil
+    for (col in comptages) x[[col]][sous_seuil[, col]] <- NA
+    for (col in derivees)  x[[col]][rowSums(sous_seuil) > 0] <- NA
+    masquees <- as.integer(sum(sous_seuil))
+    utils::write.csv(x, chemin, row.names = FALSE, fileEncoding = "UTF-8")
+  }
+
+  sorties_ecrites <<- sorties_ecrites %>%
+    filter(fichier != !!fichier) %>%
+    bind_rows(tibble::tibble(fichier = fichier, cellules_masquees = masquees))
+  writeLines(enc2utf8(c(
+    "# Manifeste de sorties/",
+    "",
+    paste0("- Question : ", question),
+    paste0("- Répertoire : ", basename(normalizePath(file.path(dossier_sorties, "..")))),
+    paste0("- Date d'exécution : ", format(Sys.time(), "%Y-%m-%d %H:%M")),
+    paste0("- Années : ", paste(annees, collapse = ", ")),
+    paste0("- Sources : ", sources),
+    paste0("- Seuil : ", seuil),
+    paste0("- Secret appliqué : comptages de 1 à ", seuil - 1, " masqués (NA), ",
+           "colonnes dérivées de leur ligne aussi"),
+    paste0("- Dictionnaire : ", dictionnaire),
+    paste0("- Protocole validé le : ", protocole_valide),
+    "",
+    "| Fichier | Cellules masquées |",
+    "| --- | --- |",
+    paste0("| ", sorties_ecrites$fichier, " | ",
+           ifelse(is.na(sorties_ecrites$cellules_masquees), "sans objet (figure)",
+                  sorties_ecrites$cellules_masquees), " |")
+  )), file.path(dossier_sorties, "manifeste.md"), useBytes = TRUE)
+
+  invisible(x)
 }
 ```
 
@@ -251,21 +310,16 @@ attrition <- noter_attrition(attrition, pop_04_covariables, "04 Covariables")
 ```{r 05_flowchart}
 # ==== 05 — FLOWCHART D'ATTRITION ====
 # Attendu : objet `attrition`, rempli par les chunks 01 à 04
-# Produit : objet `flowchart` (annee, etape, nb_sejours, pct_perdu), affiché
-#           dans la section Méthodologie. Ne redéfinit aucune étape.
+# Produit : objet `flowchart` (annee, etape, nb_sejours, nb_exclus), écrit dans
+#           sorties/flowchart.csv (chunk 06_sorties_export) et affiché dans la
+#           section Méthodologie. Ne redéfinit aucune étape.
 
 flowchart <- attrition %>%
   arrange(annee, etape) %>%                  # le préfixe "01", "02a"… donne l'ordre
   group_by(annee) %>%
-  mutate(pct_perdu = round(100 * (lag(nb_sejours) - nb_sejours) / lag(nb_sejours), 1)) %>%
+  mutate(nb_exclus = coalesce(lag(nb_sejours) - nb_sejours, 0)) %>%  # 0 à l'inclusion, NA = masque
   ungroup() %>%
-  select(annee, etape, nb_sejours, pct_perdu)
-
-# Secret statistique : diffusion externe seulement (paramètre du chunk setup).
-if (secret_statistique) {
-  flowchart <- flowchart %>%
-    mutate(nb_sejours = if_else(nb_sejours < seuil, NA_real_, nb_sejours))
-}
+  select(annee, etape, nb_sejours, nb_exclus)
 ```
 
 ```{r 05_flowchart_graphviz, eval = FALSE}
@@ -278,13 +332,13 @@ if (secret_statistique) {
 #
 # noeud_id <- function(source, i) paste0(gsub("[^a-zA-Z0-9]", "", source), i)
 # etiquette_etape <- function(etape, n) paste0(sub("^\\d+[a-z]?\\s*", "", etape), "\\nn = ", format(n, big.mark = " "))
-# etiquette_arete <- function(pct) case_when(is.na(pct) ~ "", pct >= 0 ~ paste0("-", pct, "%"), TRUE ~ paste0("+", abs(pct), "%"))
+# etiquette_arete <- function(n) case_when(is.na(n) ~ "", n >= 0 ~ paste0("-", n), TRUE ~ paste0("+", abs(n)))
 #
 # construire_chaine <- function(flowchart_source) {
 #   ids <- noeud_id(flowchart_source$source[1], seq_len(nrow(flowchart_source)))
 #   noeuds <- paste0(ids, ' [label="', etiquette_etape(flowchart_source$etape, flowchart_source$nb_sejours), '"];')
 #   aretes <- if (nrow(flowchart_source) > 1) {
-#     lab <- etiquette_arete(flowchart_source$pct_perdu[-1])
+#     lab <- etiquette_arete(flowchart_source$nb_exclus[-1])
 #     paste0(ids[-length(ids)], " -> ", ids[-1], if_else(lab == "", "", paste0(' [label="', lab, '"]')), ";")
 #   } else character(0)
 #   list(noeuds = noeuds, aretes = aretes, dernier = ids[length(ids)])
@@ -299,15 +353,16 @@ if (secret_statistique) {
 # ==== 06 — RÉSULTAT ====
 # Table attendue : tmp_04_covariables (pop_04_covariables), ou
 #                  tmp_03_critere_jugement si le protocole n'a pas de covariable
-# Produit        : objets `resultat_annuel`, `nb_patients_periode`
+# Produit        : objets `resultat_annuel`, `nb_patients_periode`,
+#                  `strate_<variable>` (une table par stratification)
 # Le calcul reste côté Teradata ; collect() uniquement sur les agrégats.
 # Libellés (référentiels), indicateurs méthodologiques : references/template/06_sorties.R
 
 pop_analyse <- pop_04_covariables      # pop_03_critere_jugement si 04 omis
 
-# -- Agrégats par année (et par strate) ----------------------------------------
+# -- Agrégats par année ---------------------------------------------------------
 resultat_annuel <- pop_analyse %>%
-  group_by(annee) %>%                  # + sexe_lib, classe_age… selon la stratification
+  group_by(annee) %>%
   summarise(
     nb_sejours  = n(),                 # 1 ligne = 1 séjour (ident est annuel)
     nb_patients = n_distinct(anonyme)  # patients uniques PAR ANNÉE
@@ -321,15 +376,59 @@ nb_patients_periode <- pop_analyse %>%
   summarise(nb_patients = n_distinct(anonyme)) %>%
   collect()
 
-# -- Secret statistique : diffusion externe seulement (chunk setup) ------------
-# Regrouper les modalités < seuil sous "Autre" puis ré-agréger (group_by +
-# summarise une seconde fois), plutôt que masquer : les totaux restent justes.
-# if (secret_statistique) {
-#   resultat_annuel <- resultat_annuel %>%
-#     mutate(classe_age = if_else(nb_patients < seuil, "Autre", classe_age)) %>%
-#     group_by(annee, classe_age) %>%
-#     summarise(across(c(nb_sejours, nb_patients), sum), .groups = "drop")
-# }
+# -- Tables stratifiées : une par variable de stratification du protocole -------
+# (strate_sexe_lib, strate_classe_age…), par année, aucune sans stratification ;
+# le pourcentage est une colonne dérivée, masquée avec les effectifs de sa ligne.
+strate_classe_age <- pop_analyse %>%
+  group_by(annee, classe_age) %>%
+  summarise(nb_sejours = n(), nb_patients = n_distinct(anonyme), .groups = "drop") %>%
+  collect() %>%
+  # Regroupement sous "Autre", à proposer si la table compte des cellules
+  # masquées : modalités < seuil regroupées puis ré-agrégées avant exporter(),
+  # moins de cellules masquées et des totaux justes.
+  # mutate(classe_age = if_else(nb_patients < seuil, "Autre", classe_age)) %>%
+  # group_by(annee, classe_age) %>%
+  # summarise(across(c(nb_sejours, nb_patients), sum), .groups = "drop") %>%
+  group_by(annee) %>%
+  mutate(pct_patients = round(100 * nb_patients / sum(nb_patients), 1)) %>%
+  ungroup() %>%
+  arrange(annee, classe_age)
+```
+
+```{r 06_sorties_export}
+# ==== ÉCRITURE DE sorties/ : mêmes fichiers que le dossier de scripts ====
+# Seuls des agrégats sont écrits, par exporter(), sous seuil.
+flowchart_ecrit  <- exporter(flowchart, "flowchart.csv",
+                             comptages = c("nb_sejours", "nb_exclus"))
+annuel_ecrit     <- exporter(resultat_annuel, "resultat_annuel.csv",
+                             comptages = c("nb_sejours", "nb_patients"))
+periode_ecrit    <- exporter(nb_patients_periode, "nb_patients_periode.csv",
+                             comptages = "nb_patients")
+classe_age_ecrit <- exporter(strate_classe_age, "strate_classe_age.csv",
+                             comptages = c("nb_sejours", "nb_patients"),
+                             derivees = "pct_patients")
+
+# Figure (si demandée) : construite uniquement depuis un agrégat écrit, une
+# barre masquée n'apparaît pas ; affichée dans la section Résultats.
+figure_annuelle <- ggplot(annuel_ecrit, aes(x = annee, y = nb_patients)) +
+  geom_col(fill = "#4E79A7") +
+  scale_x_continuous(breaks = annees) +
+  labs(
+    x = NULL, y = "Effectif",
+    title    = "<titre du graphique>",
+    subtitle = "<périmètre>",
+    caption  = "Source : ATIH"
+  ) +
+  theme_minimal(base_size = 11)
+exporter(figure_annuelle, "figure_resultat_annuel.png")
+
+# Affichage du rapport : brut, ou tel qu'écrit si secret_statistique (chunk setup).
+if (secret_statistique) {
+  flowchart           <- flowchart_ecrit
+  resultat_annuel     <- annuel_ecrit
+  nb_patients_periode <- periode_ecrit
+  strate_classe_age   <- classe_age_ecrit
+}
 ```
 
 # Méthodologie
@@ -363,14 +462,14 @@ chaque source dans un tableau, sur le modèle ci-dessous ; sinon, supprimer.
 | <source B> | <table(s)> | <ce que ça capture> |
 -->
 
-<!-- Si la finalité implique une diffusion externe (bloc 0 des clarifications) :
-
 ## Secret statistique
 
-Les répartitions par <dimension> appliquent un secret statistique : toute
-combinaison regroupant moins de `r seuil` <séjours/patients> est reclassée sous
-la modalité "Autre" avant ré-agrégation.
--->
+Les fichiers de `sorties/` masquent tout effectif de 1 à `r seuil - 1`, avec
+les pourcentages et taux de sa ligne ; `sorties/manifeste.md` compte les
+cellules masquées par fichier. Les tables de ce rapport sont
+`r if (secret_statistique) "celles des fichiers" else "brutes, non masquées"`.
+<Si regroupement : modalités de <dimension> reclassées sous "Autre" avant
+ré-agrégation.>
 
 ## Flowchart d'attrition
 
@@ -379,7 +478,7 @@ c'est ce qui rend l'analyse auditable.
 
 ```{r 05_flowchart_table}
 flowchart %>%
-  setNames(c("Année", "Étape", "Nombre de séjours", "% perdu")) %>%
+  setNames(c("Année", "Étape", "Nombre de séjours", "Exclus")) %>%
   dtttable()
 ```
 
@@ -400,27 +499,13 @@ Sur l'ensemble de la période, `r format(nb_patients_periode$nb_patients, big.ma
 patients uniques.
 
 ```{r 06_sorties_figure}
-# ==== FIGURE (adapter au critère de jugement) ====
-ggplot(resultat_annuel, aes(x = annee, y = nb_patients)) +
-  geom_col(fill = "#4E79A7") +
-  scale_x_continuous(breaks = annees) +
-  labs(
-    x = NULL, y = "Effectif",
-    title    = "<titre du graphique>",
-    subtitle = "<périmètre>",
-    caption  = "Source : ATIH"
-  ) +
-  theme_minimal(base_size = 11)
+# Figure construite et écrite dans le chunk 06_sorties_export (adapter au
+# critère de jugement).
+figure_annuelle
 ```
 
 ```{r 06_sorties_table}
 resultat_annuel %>%
   setNames(c("Année", "Nombre de séjours", "Nombre de patients")) %>%
   dtttable()
-```
-
-```{r 06_sorties_export}
-# ==== EXPORT (décommenter si besoin) ====
-# readr::write_csv(resultat_annuel, "resultat_annuel.csv")
-# readr::write_csv(flowchart, "flowchart.csv")
 ```

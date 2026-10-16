@@ -14,7 +14,8 @@ statisticien** : clarification, protocole validé, puis scripts.
 1. **Vous posez la question** en langage naturel, comme un clinicien la poserait.
 2. **La skill fait préciser** ce qu'un DIM ferait préciser, en commençant par la
    **finalité** (dénombrement interne, rapport, diffusion externe, publication —
-   qui conditionne rigueur, seuils et secret statistique), puis : codes CIM-10
+   qui conditionne rigueur et format ; les fichiers écrits sont toujours sous
+   secret statistique), puis : codes CIM-10
    exacts (proposés d'après les définitions publiées trouvées par recherche web —
    Santé publique France, cartographie CNAM… — sources citées, liste amendable),
    position du diagnostic (DP seul / DP-DR / avec DAS), champ(s) PMSI, période,
@@ -34,12 +35,12 @@ statisticien** : clarification, protocole validé, puis scripts.
    `main.R` : paramétrés dans `00_setup.R`, commentés, avec en-tête normalisé
    (question, protocole, « PROFIL DE BASE » listant schémas et variables
    utilisés), chaque étape matérialisée dans une table de session Teradata
-   que la suivante reprend, un **flowchart d'attrition** (effectifs et %
-   perdus à chaque étape d'exclusion) et une note méthodologique (limites,
-   pistes de sensibilité) livrée dans le dossier. Un fichier `.R` unique est
-   fourni sur demande, mêmes sections dans le même ordre ; un rapport `.Rmd`
-   suit les mêmes étapes, un chunk par étape, avec la note méthodologique
-   intégrée.
+   que la suivante reprend, un **flowchart d'attrition** (effectifs et
+   exclus à chaque étape), l'écriture des agrégats dans **`sorties/`** et une
+   note méthodologique (limites, pistes de sensibilité) livrée dans le
+   dossier. Un fichier `.R` unique est fourni sur demande, mêmes sections dans
+   le même ordre ; un rapport `.Rmd` suit les mêmes étapes, un chunk par
+   étape, avec la note méthodologique intégrée, et écrit le même `sorties/`.
 
 Vous exécutez les scripts vous-même sur le portail. **Claude ne voit jamais de
 données individuelles** : il reçoit des agrégats sous seuil, sortis par la
@@ -48,6 +49,27 @@ téléversement sur claude.ai est un transfert à un tiers, acceptable pour ces
 agrégats seulement. Pour générer les scripts, il ne voit que la question, le
 protocole et le code généré. Le dictionnaire des variables embarqué est le
 document de description de la base (métadonnées), sans aucune donnée patient.
+
+## Ce que les scripts écrivent : `sorties/`
+
+À l'exécution, les scripts écrivent un dossier `sorties/` à côté du dossier
+de scripts (ou du `.Rmd`), aux noms fixes :
+
+| Fichier | Contenu |
+| --- | --- |
+| `flowchart.csv` | effectifs et exclus à chaque étape, par année (`annee`, `etape`, `nb_sejours`, `nb_exclus`) |
+| `resultat_annuel.csv` | résultat par année |
+| `nb_patients_periode.csv` | patients uniques sur toute la période |
+| `strate_<variable>.csv` | une table par stratification (sexe, classe d'âge…), par année |
+| `figure_<nom>.png` | figure, si demandée |
+| `manifeste.md` | question, répertoire, date d'exécution, années, champs PMSI, seuil, secret appliqué, cellules masquées par fichier, fichiers écrits, version du dictionnaire, date de validation du protocole |
+
+Tout fichier est sous secret statistique, quelle que soit la finalité : un
+effectif de 1 à 10 est masqué (`NA`), avec les pourcentages et taux de sa
+ligne. L'écran reste brut, pour contrôler le travail ;
+`secret_statistique <- TRUE` dans `00_setup.R` l'aligne sur les fichiers. Ce
+masque est une aide : la procédure d'export de la plateforme reste seule juge
+de ce qui sort.
 
 ## Ce que la skill sait (et vérifie)
 

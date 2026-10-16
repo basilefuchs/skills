@@ -12,8 +12,9 @@ Une réponse peut contraindre ou éclairer une question à venir (ou l'inverse) 
 dire au moment de poser la question, plutôt que de laisser l'utilisateur le
 découvrir après coup :
 
-- **Q0 → Q15** : diffusion externe/publication impose le secret statistique
-  (aucune cellule < seuil) dans le format de sortie.
+- **Q0 → Q15** : diffusion externe ou publication fait recommander le
+  rapport `.Rmd`. Le secret statistique ne dépend pas de Q0 : tout fichier
+  écrit par les scripts est sous seuil.
 - **Q1a → Q11/Q12** : troncature CIM-10 à 3 caractères (sur-inclusion) vs codes
   complets (sous-inclusion) modifie la sensibilité du critère de jugement.
 - **Q1b → Q11/Q12** : même logique côté CCAM — motif partiel (ex. lettre de
@@ -38,8 +39,9 @@ découvrir après coup :
 0. **Usage des résultats** : dénombrement interne rapide, rapport ou dialogue de
    gestion, diffusion externe (ARS, tutelle), publication scientifique, projet
    capacitaire ? Conditionne le niveau de rigueur (standardisation, analyses de
-   sensibilité), les seuils de robustesse du profil, le secret statistique des
-   sorties (aucune cellule < 11 en diffusion externe) et le format de livraison.
+   sensibilité), les seuils de robustesse du profil, l'affichage à l'écran
+   (`secret_statistique`) et le format de livraison ; les fichiers écrits sont
+   toujours sous seuil.
 
 ## A. Population — critères d'inclusion
 
