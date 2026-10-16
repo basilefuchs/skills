@@ -166,7 +166,8 @@ attrition <- noter_attrition(attrition, pop_01_inclusion, "01 Sejours DP cible")
 #     filter(is.na(ETE_IND_TAA) | ETE_IND_TAA != 1) |>      # hors ES ex-DG en facturation directe
 #     inner_join(pha, by = DCIR_JOIN_KEY) |>
 #     semi_join(cip_cible, by = c("PHA_PRS_C13" = "PHA_CIP_C13")) |>
-#     transmute(anonyme = BEN_NIR_PSA, rang = BEN_RNG_GEM, dte_exe = EXE_SOI_DTD, cip = PHA_PRS_C13) |>
+#     transmute(anonyme = BEN_NIR_PSA, rang = BEN_RNG_GEM, dte_exe = EXE_SOI_DTD, cip = PHA_PRS_C13,
+#               annee = sql("EXTRACT(YEAR FROM EXE_SOI_DTD)")) |>   # annee du flowchart : année de soin en DCIR
 #     collect()                                              # collect PAR BATCH : seule exception documentée à la
 #                                                             # règle "jamais de collect() avant agrégation
 #                                                             # finale" (rappels de 00_setup.R) -- itération sur

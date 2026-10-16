@@ -71,8 +71,10 @@ question. Quand tout est présent, le rapport sort sans question ; la cible
   par séjour sans colonne de comptage) : arrêt net, rien cité, aucun fichier
   écrit ; la skill demande de retirer le fichier et rappelle que seule la
   procédure d'export de la plateforme fait sortir des données.
-- **Fichier hors contrat** (nom ou en-tête inattendu) : la skill demande de
-  relancer les scripts, sans deviner.
+- **Fichier hors contrat** (nom ou en-tête inattendu, ou fichier absent du
+  manifeste, sortie d'une exécution antérieure) : la skill demande de
+  relancer les scripts, après avoir retiré une sortie antérieure, sans
+  deviner.
 - **Sortie console collée** dans le message : refusée, seuls les fichiers de
   `sorties/` sont lus.
 - **Cellules de 1 à 10** dans un agrégat (export sans seuil) : rédigées
@@ -85,7 +87,7 @@ question. Quand tout est présent, le rapport sort sans question ; la cible
   population, codes et leur source, unité de compte, exclusions,
   stratification, secret statistique, ligne directrice STROBE et RECORD
   (RECORD-PE quand l'exposition est un médicament du DCIR).
-- Résultats, en prose depuis les agrégats : diagramme de flux depuis
+- Résultats, en prose depuis les agrégats : tableau de flux depuis
   `flowchart.csv`, tableaux depuis les autres fichiers, « < 11 » pour toute
   cellule masquée, signalée sous le tableau et en tête du rapport.
 - Introduction et Discussion en puces, avec **À préciser** là où la

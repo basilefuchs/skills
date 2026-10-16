@@ -5,7 +5,7 @@
 # Produit        : objets R `resultat_annuel`, `nb_patients_periode`,
 #                  `strate_<variable>` (une table par stratification) ;
 #                  fichiers sorties/resultat_annuel.csv, nb_patients_periode.csv,
-#                  strate_<variable>.csv, figure_<nom>.png si figure demandée
+#                  strate_<variable>.csv, figure_resultat_annuel.png
 # ==============================================================================
 # Le calcul reste côté Teradata ; collect() uniquement sur les agrégats. Seuls
 # des agrégats sont écrits, par exporter(), sous seuil.
@@ -22,6 +22,7 @@ resultat_annuel <- pop_analyse %>%
     nb_patients = n_distinct(anonyme)  # patients uniques PAR ANNÉE
   ) %>%
   collect() %>%
+  mutate(annee = as.integer(annee)) %>%     # annee : caractère dans fixe (dictionnaire)
   arrange(annee)
 
 # -- Patients uniques SUR TOUTE LA PÉRIODE : n_distinct sur l'empilement des
@@ -33,10 +34,15 @@ nb_patients_periode <- pop_analyse %>%
 # -- Tables stratifiées : une par variable de stratification du protocole -------
 # (strate_sexe_lib, strate_classe_age…), par année, aucune sans stratification ;
 # le pourcentage est une colonne dérivée, masquée avec les effectifs de sa ligne.
+# Masque primaire : une modalité masquée seule se déduit du total de l'année
+# (nb_sejours de resultat_annuel.csv), et le pourcentage d'une ligne visible
+# redonne lui aussi le total des nb_patients ; le regroupement sous "Autre"
+# ci-dessous en est la parade.
 strate_classe_age <- pop_analyse %>%
   group_by(annee, classe_age) %>%
   summarise(nb_sejours = n(), nb_patients = n_distinct(anonyme), .groups = "drop") %>%
   collect() %>%
+  mutate(annee = as.integer(annee)) %>%
   # Regroupement sous "Autre", à proposer si la table compte des cellules
   # masquées : modalités < seuil regroupées puis ré-agrégées avant exporter(),
   # moins de cellules masquées et des totaux justes.
@@ -78,7 +84,7 @@ if (secret_statistique) {
   print(resultat_annuel); print(nb_patients_periode); print(strate_classe_age)
 }
 
-# ==== FIGURE (si demandée) ====
+# ==== FIGURE : resultat_annuel, toujours (critère de jugement en y) ====
 # Construite uniquement depuis un agrégat écrit (objet renvoyé par exporter()) :
 # une barre masquée n'apparaît pas.
 figure_annuelle <- ggplot(annuel_ecrit, aes(x = annee, y = nb_patients)) +

@@ -32,12 +32,8 @@ Rendu : rmarkdown, rmdformats, DT (packages à signaler à l'utilisateur). -->
 
 ```{r setup, include = FALSE}
 # ==============================================================================
-# Indicateur : <titre court de l'indicateur / de la question>
 # Question   : <question en langage naturel de l'utilisateur>
 # Protocole  : <résumé 1 ligne : sources SNDS, population, exclusions, critère de jugement>
-# Source     : <si indicateur documenté : référence biblio, DOI>          [optionnel]
-# Catégorie  : <ex. 02_casemix_patientele, 04_efficience_capacitaire>     [optionnel]
-# Fiche      : <chemin de la fiche indicateur si elle existe>             [optionnel]
 # ==============================================================================
 
 # ==== PROFIL DE BASE (mapping utilisé — profils/hdh_oracle.md) =====
@@ -62,7 +58,7 @@ Rendu : rmarkdown, rmdformats, DT (packages à signaler à l'utilisateur). -->
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le rapport,
 #      vérifiés par snds-schema (`## Données` de protocole.md), millésimes compris.
-# Dictionnaire : schema-snds (Health Data Hub, MPL-2.0), commit <ligne Dictionnaire de `## Données`>
+# Dictionnaire : <ligne Dictionnaire de `## Données`, recopiée telle quelle> (schema-snds, Health Data Hub, MPL-2.0)
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, eval = TRUE, message = FALSE)
 options(knitr.kable.NA = '')
@@ -98,9 +94,11 @@ codes_cim3 <- c("E10", "E11", "E12", "E13", "E14")      # codes CIM-10 (3 caract
 
 # Secret statistique. Règle : ce qui s'affiche peut être brut, ce qui s'écrit
 # est sous seuil. Tout fichier de sorties/ passe par exporter() (ci-dessous),
-# qui masque toujours ; secret_statistique ne régit que l'affichage du rapport
-# HTML (TRUE : tables et texte identiques aux fichiers écrits).
-secret_statistique <- FALSE
+# qui masque toujours ; secret_statistique régit le rapport HTML, lui aussi un
+# fichier écrit : TRUE (défaut) donne des tables et un texte identiques aux
+# fichiers de sorties/ ; FALSE, un HTML brut, à lire sur la plateforme et à ne
+# jamais exporter.
+secret_statistique <- TRUE
 seuil              <- 11
 
 # Sorties : dossier sorties/ à côté du .Rmd et de protocole.md (le .Rmd est
@@ -192,6 +190,7 @@ exporter <- function(x, fichier, comptages = character(), derivees = character()
     ggplot2::ggsave(chemin, plot = x, width = 8, height = 5, dpi = 150)
     masquees <- NA_integer_
   } else {
+    for (col in comptages) x[[col]] <- as.numeric(x[[col]])   # integer64, texte
     effectifs  <- as.matrix(x[comptages])
     sous_seuil <- !is.na(effectifs) & effectifs > 0 & effectifs < seuil
     for (col in comptages) x[[col]][sous_seuil[, col]] <- NA
@@ -232,7 +231,7 @@ exporter <- function(x, fichier, comptages = character(), derivees = character()
 # BEN_IDT_ANO…), une date ou une localisation individuelle : les tables de
 # session restent dans Oracle, et seuls des AGRÉGATS sous seuil, écrits par
 # exporter() dans sorties/, sortent de l'environnement HDH. Le rapport HTML
-# suit secret_statistique ; seul sorties/ est sous seuil quoi qu'il arrive.
+# suit secret_statistique : brut (FALSE), il ne quitte pas la plateforme.
 ```
 
 ```{r 01_inclusion}
@@ -352,10 +351,11 @@ attrition <- noter_attrition(attrition, pop_03_critere_jugement, "03 Critere de 
 pop_04_covariables <- pop_03_critere_jugement |>
   mutate(
     classe_age = case_when(
-      AGE_ANN < 18 ~ "0-17",
-      AGE_ANN < 65 ~ "18-64",
-      AGE_ANN < 80 ~ "65-79",
-      TRUE         ~ "80+"
+      AGE_ANN < 18  ~ "0-17",
+      AGE_ANN < 65  ~ "18-64",
+      AGE_ANN < 80  ~ "65-79",
+      AGE_ANN >= 80 ~ "80+",
+      TRUE          ~ "Inconnu"                     # AGE_ANN manquant
     ),
     sexe_lib = case_when(COD_SEX == "1" ~ "Homme", COD_SEX == "2" ~ "Femme", TRUE ~ "Inconnu")
   ) |>
@@ -374,9 +374,14 @@ attrition <- noter_attrition(attrition, pop_04_covariables, "04 Covariables")
 flowchart <- attrition |>
   arrange(annee, etape) |>                  # le préfixe "01", "02a"… donne l'ordre
   group_by(annee) |>
-  mutate(nb_exclus = coalesce(lag(nb_sejours) - nb_sejours, 0)) |>  # 0 à l'inclusion, NA = masque
+  mutate(nb_exclus = coalesce(lag(nb_sejours) - nb_sejours, 0)) |>  # 0 à l'inclusion
   ungroup() |>
   select(annee, etape, nb_sejours, nb_exclus)
+
+# nb_exclus est requis par le contrat ; masque primaire seulement : une
+# cellule masquée se déduit par différence des nb_sejours voisins (voir
+# exporter()), et la procédure d'export de la plateforme reste seule juge de
+# ce qui sort.
 ```
 
 ```{r 06_sorties}
@@ -410,6 +415,10 @@ nb_patients_periode <- pop_analyse |>
 # -- Tables stratifiées : une par variable de stratification du protocole -------
 # (strate_sexe_lib, strate_classe_age…), par année, aucune sans stratification ;
 # le pourcentage est une colonne dérivée, masquée avec les effectifs de sa ligne.
+# Masque primaire : une modalité masquée seule se déduit du total de l'année
+# (nb_sejours de resultat_annuel.csv), et le pourcentage d'une ligne visible
+# redonne lui aussi le total des nb_patients ; le regroupement sous "Autre"
+# ci-dessous en est la parade.
 strate_classe_age <- pop_analyse |>
   group_by(annee, classe_age) |>
   summarise(nb_sejours = n(), nb_patients = n_distinct(NIR_ANO_17), .groups = "drop") |>
@@ -441,8 +450,9 @@ classe_age_ecrit <- exporter(strate_classe_age, "strate_classe_age.csv",
                              comptages = c("nb_sejours", "nb_patients"),
                              derivees = "pct_patients")
 
-# Figure (si demandée) : construite uniquement depuis un agrégat écrit, une
-# barre masquée n'apparaît pas ; affichée dans la section Résultats.
+# Figure de resultat_annuel, toujours (critère de jugement en y) : construite
+# uniquement depuis un agrégat écrit, une barre masquée n'apparaît pas ;
+# affichée dans la section Résultats.
 figure_annuelle <- ggplot(annuel_ecrit, aes(x = annee, y = nb_patients)) +
   geom_col(fill = "#4E79A7") +
   scale_x_continuous(breaks = annees) +

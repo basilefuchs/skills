@@ -175,8 +175,8 @@ Une correction n'est pas mémorisée : une régénération l'écrase.
 
 Gravité par défaut : points 1 à 3 **bloquant** (la requête échoue ou compte
 faux), 4 à 6 **à vérifier** (résultat plausible mais biaisé ou lent), 7
-**suggestion** (bloquant si l'utilisateur annonce une diffusion). Chaque
-point renvoie à sa source de détail.
+**bloquant** quelle que soit la finalité (l'année PMSI : **à vérifier**).
+Chaque point renvoie à sa source de détail.
 
 1. **Existence et noms réels.** Chaque table et colonne existe dans
    `variables.tsv`, sur la bonne table (`SEJ_TYP` est dans `T_MCO{aa}B`, pas
@@ -223,10 +223,12 @@ point renvoie à sa source de détail.
    `DBMS_STATS.GATHER_TABLE_STATS`) ; patients uniques pluriannuels sommés
    par année au lieu d'une union avant `n_distinct`. Pattern de référence :
    `template/06_sorties.R` (Pattern B) et `template/01_inclusion.R` (Pattern C).
-7. **Sorties.** Cellules de 1 à 10 dans un résultat destiné à sortir de
-   l'environnement (seuil 11) ; écriture locale d'un identifiant, d'une date
-   ou d'une localisation individuelle ; année PMSI = année de sortie, à dire
-   si la requête parle d'incidence ou d'entrée.
+7. **Sorties.** Cellules de 1 à 10 (seuil 11) dans un fichier écrit ou un
+   résultat destiné à sortir de l'environnement, quelle que soit la
+   finalité ; l'écran peut rester brut ; dans un script généré par
+   `snds-query`, fichier écrit hors `exporter()` ; écriture locale d'un
+   identifiant, d'une date ou d'une localisation individuelle ; année PMSI
+   = année de sortie, à dire si la requête parle d'incidence ou d'entrée.
 
 ## Mode complétion
 
@@ -259,7 +261,8 @@ requête à relire, ou posez votre question (table, variable, fragment à
   R dbplyr). SAS se lit (un script existant collé) et se traduit en R dbplyr
   sur demande ; la skill n'écrit jamais de SAS. Le style historique
   `glue()` + chaîne SQL brute se lit et se relit tel quel.
-- **Confidentialité des sorties** : secret statistique (aucune cellule de 1
-  à 10, seuil 11) dès que l'utilisateur annonce une diffusion ; jamais
-  d'écriture locale d'identifiants, de dates ou de localisations
-  individuelles.
+- **Confidentialité des sorties** : tout fichier écrit sur la plateforme
+  est sous seuil (aucune cellule de 1 à 10, seuil 11), quelle que soit la
+  finalité ; l'écran peut rester brut. Dans un script de la chaîne
+  (`snds-query`), toute écriture passe par `exporter()`. Jamais d'écriture
+  locale d'identifiants, de dates ou de localisations individuelles.

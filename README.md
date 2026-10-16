@@ -54,7 +54,13 @@ critères FINER.
 sur la plateforme (Health Data Hub ou portail ATIH) et y exécute les
 scripts ; Claude n'y est jamais. Les scripts n'écrivent que des agrégats sous
 seuil, dans `sorties/`, que l'utilisateur sort par la procédure d'export de
-la plateforme et place à côté de `protocole.md`.
+la plateforme et place à côté de `protocole.md`. Le masque est primaire :
+une cellule masquée peut se déduire par différence, toujours dans
+`flowchart.csv`, où les exclus d'une étape sont l'écart de deux effectifs
+écrits ; la procédure d'export de la plateforme reste seule juge. Avec le
+format `.Rmd`, le rapport HTML rendu est lui aussi un fichier, sous seuil par
+défaut (`secret_statistique <- TRUE`) ; à `FALSE`, il est brut et ne quitte
+jamais la plateforme.
 
 **Confidentialité.** Claude ne voit jamais de données individuelles ; il
 reçoit des agrégats sous seuil sortis par la procédure d'export de la
@@ -98,6 +104,26 @@ vos projets ; sans `-g`, dans le projet courant) :
 
 ```
 npx skills add basilefuchs/skills --skill pdh-query -a claude-code -g
+```
+
+**Installer une branche du parcours.** Les quatre skills d'une branche, ici
+le SNDS ; pour le PMSI national, `pdh-schema` et `pdh-query` à la place de
+`snds-schema` et `snds-query`. Depuis un clone du dépôt :
+
+```
+mkdir -p ~/.claude/skills
+for s in question-recherche-pico snds-schema snds-query rapport-imrad; do
+  cp -r skills/$s ~/.claude/skills/
+done
+```
+
+Ou avec la CLI `skills`, une ligne par skill :
+
+```
+npx skills add basilefuchs/skills --skill question-recherche-pico -a claude-code -g
+npx skills add basilefuchs/skills --skill snds-schema -a claude-code -g
+npx skills add basilefuchs/skills --skill snds-query -a claude-code -g
+npx skills add basilefuchs/skills --skill rapport-imrad -a claude-code -g
 ```
 
 La skill s'invoque alors avec `/<nom>`, par exemple `/pdh-query` depuis le

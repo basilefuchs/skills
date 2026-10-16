@@ -73,11 +73,18 @@ est fourni sur demande.
 
 À l'exécution, les scripts écrivent `sorties/` à côté de `protocole.md` :
 `flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`, un
-`strate_<variable>.csv` par stratification, les figures demandées et
-`manifeste.md`. Tout fichier est sous secret statistique, quelle que soit la
-finalité : un effectif de 1 à 10 est masqué (`NA`), avec les pourcentages et
-taux de sa ligne. L'écran reste brut, pour contrôler le travail ;
-`secret_statistique <- TRUE` dans `00_setup.R` l'aligne sur les fichiers.
+`strate_<variable>.csv` par stratification, `figure_resultat_annuel.png`
+et `manifeste.md`. Tout fichier est sous secret statistique, quelle que
+soit la finalité : un effectif de 1 à 10 est masqué (`NA`), avec les
+pourcentages et taux de sa ligne. Ce masque est primaire : une cellule
+masquée peut se déduire par différence, toujours dans `flowchart.csv`, où
+les exclus d'une étape sont l'écart de deux effectifs écrits ; la procédure
+d'export de la plateforme reste seule juge de ce qui sort. L'écran reste
+brut, pour contrôler le travail ; `secret_statistique <- TRUE` dans
+`00_setup.R` l'aligne sur les fichiers. Le rapport HTML rendu depuis
+`analyse.Rmd` est un fichier : `secret_statistique` y vaut `TRUE` par
+défaut, tables identiques à `sorties/` ; à `FALSE`, il est brut, à lire sur
+la plateforme et à ne jamais exporter.
 
 ## Après la génération
 

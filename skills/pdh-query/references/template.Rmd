@@ -29,12 +29,8 @@ fichier de l'étape du dossier : ne garder ici que le code du protocole validé.
 
 ```{r setup, include = FALSE}
 # ==============================================================================
-# Indicateur : <titre court de l'indicateur / de la question>
 # Question   : <question en langage naturel de l'utilisateur>
 # Protocole  : <résumé 1 ligne : population, exclusions, critère de jugement>
-# Source     : <si indicateur documenté : référence biblio, DOI>          [optionnel]
-# Catégorie  : <ex. 02_casemix_patientele, 04_efficience_capacitaire>     [optionnel]
-# Fiche      : <chemin de la fiche indicateur si elle existe>             [optionnel]
 # ==============================================================================
 
 # ==== PROFIL DE BASE (mapping utilisé — profils/portail_atih_<champ>.md) ====
@@ -79,7 +75,6 @@ library(purrr)
 library(stringr)
 library(ggplot2)
 library(scales)
-# library(DiagrammeR)   # si diagramme d'attrition graphique (chunk 05_flowchart_graphviz)
 
 # ==== PARAMÈTRES ====
 annees     <- 2020:2023                               # années PMSI (année de sortie)
@@ -87,9 +82,11 @@ codes_cim3 <- c("E10", "E11", "E12", "E13", "E14")    # codes CIM-10 (3 caractè
 
 # Secret statistique. Règle : ce qui s'affiche peut être brut, ce qui s'écrit
 # est sous seuil. Tout fichier de sorties/ passe par exporter() (ci-dessous),
-# qui masque toujours ; secret_statistique ne régit que l'affichage du rapport
-# HTML (TRUE : tables et texte identiques aux fichiers écrits).
-secret_statistique <- FALSE
+# qui masque toujours ; secret_statistique régit le rapport HTML, lui aussi un
+# fichier écrit : TRUE (défaut) donne des tables et un texte identiques aux
+# fichiers de sorties/ ; FALSE, un HTML brut, à lire sur la plateforme et à ne
+# jamais exporter.
+secret_statistique <- TRUE
 seuil              <- 11
 
 # Sorties : dossier sorties/ à côté du .Rmd et de protocole.md (le .Rmd est
@@ -151,6 +148,7 @@ exporter <- function(x, fichier, comptages = character(), derivees = character()
     ggplot2::ggsave(chemin, plot = x, width = 8, height = 5, dpi = 150)
     masquees <- NA_integer_
   } else {
+    for (col in comptages) x[[col]] <- as.numeric(x[[col]])   # integer64, texte
     effectifs  <- as.matrix(x[comptages])
     sous_seuil <- !is.na(effectifs) & effectifs > 0 & effectifs < seuil
     for (col in comptages) x[[col]][sous_seuil[, col]] <- NA
@@ -296,10 +294,11 @@ attrition <- noter_attrition(attrition, pop_03_critere_jugement, "03 Critere de 
 pop_04_covariables <- pop_03_critere_jugement %>%
   mutate(
     classe_age = case_when(
-      age < 18 ~ "0-17",
-      age < 65 ~ "18-64",
-      age < 80 ~ "65-79",
-      TRUE     ~ "80+"
+      age < 18  ~ "0-17",
+      age < 65  ~ "18-64",
+      age < 80  ~ "65-79",
+      age >= 80 ~ "80+",
+      TRUE      ~ "Inconnu"                         # age manquant
     ),
     sexe_lib = case_when(sexe == "1" ~ "Homme", sexe == "2" ~ "Femme", TRUE ~ "Inconnu")
   ) %>%
@@ -318,36 +317,14 @@ attrition <- noter_attrition(attrition, pop_04_covariables, "04 Covariables")
 flowchart <- attrition %>%
   arrange(annee, etape) %>%                  # le préfixe "01", "02a"… donne l'ordre
   group_by(annee) %>%
-  mutate(nb_exclus = coalesce(lag(nb_sejours) - nb_sejours, 0)) %>%  # 0 à l'inclusion, NA = masque
+  mutate(nb_exclus = coalesce(lag(nb_sejours) - nb_sejours, 0)) %>%  # 0 à l'inclusion
   ungroup() %>%
   select(annee, etape, nb_sejours, nb_exclus)
-```
 
-```{r 05_flowchart_graphviz, eval = FALSE}
-# ==== VARIANTE : diagramme d'attrition graphique (plusieurs sources) ====
-# À réserver aux parcours multi-sources (variante du chunk 01_inclusion) : une
-# chaîne de boîtes par source, convergeant vers la base d'analyse finale.
-# Inutile pour une extraction mono-source (la table `flowchart` suffit).
-# Nécessite `flowchart` avec une colonne `source` (une ligne d'étapes par
-# source) et le volume final de la base d'analyse après fusion/dédoublonnement.
-#
-# noeud_id <- function(source, i) paste0(gsub("[^a-zA-Z0-9]", "", source), i)
-# etiquette_etape <- function(etape, n) paste0(sub("^\\d+[a-z]?\\s*", "", etape), "\\nn = ", format(n, big.mark = " "))
-# etiquette_arete <- function(n) case_when(is.na(n) ~ "", n >= 0 ~ paste0("-", n), TRUE ~ paste0("+", abs(n)))
-#
-# construire_chaine <- function(flowchart_source) {
-#   ids <- noeud_id(flowchart_source$source[1], seq_len(nrow(flowchart_source)))
-#   noeuds <- paste0(ids, ' [label="', etiquette_etape(flowchart_source$etape, flowchart_source$nb_sejours), '"];')
-#   aretes <- if (nrow(flowchart_source) > 1) {
-#     lab <- etiquette_arete(flowchart_source$nb_exclus[-1])
-#     paste0(ids[-length(ids)], " -> ", ids[-1], if_else(lab == "", "", paste0(' [label="', lab, '"]')), ";")
-#   } else character(0)
-#   list(noeuds = noeuds, aretes = aretes, dernier = ids[length(ids)])
-# }
-#
-# annees %>%
-#   purrr::map(function(an) DiagrammeR::grViz(paste(construire_diagramme(an), collapse = "\n"))) %>%
-#   htmltools::tagList()
+# nb_exclus est requis par le contrat ; masque primaire seulement : une
+# cellule masquée se déduit par différence des nb_sejours voisins (voir
+# exporter()), et la procédure d'export de la plateforme reste seule juge de
+# ce qui sort.
 ```
 
 ```{r 06_sorties}
@@ -369,6 +346,7 @@ resultat_annuel <- pop_analyse %>%
     nb_patients = n_distinct(anonyme)  # patients uniques PAR ANNÉE
   ) %>%
   collect() %>%
+  mutate(annee = as.integer(annee)) %>%     # annee : caractère dans fixe (dictionnaire)
   arrange(annee)
 
 # -- Patients uniques SUR TOUTE LA PÉRIODE : n_distinct sur l'empilement des
@@ -380,10 +358,15 @@ nb_patients_periode <- pop_analyse %>%
 # -- Tables stratifiées : une par variable de stratification du protocole -------
 # (strate_sexe_lib, strate_classe_age…), par année, aucune sans stratification ;
 # le pourcentage est une colonne dérivée, masquée avec les effectifs de sa ligne.
+# Masque primaire : une modalité masquée seule se déduit du total de l'année
+# (nb_sejours de resultat_annuel.csv), et le pourcentage d'une ligne visible
+# redonne lui aussi le total des nb_patients ; le regroupement sous "Autre"
+# ci-dessous en est la parade.
 strate_classe_age <- pop_analyse %>%
   group_by(annee, classe_age) %>%
   summarise(nb_sejours = n(), nb_patients = n_distinct(anonyme), .groups = "drop") %>%
   collect() %>%
+  mutate(annee = as.integer(annee)) %>%
   # Regroupement sous "Autre", à proposer si la table compte des cellules
   # masquées : modalités < seuil regroupées puis ré-agrégées avant exporter(),
   # moins de cellules masquées et des totaux justes.
@@ -409,8 +392,9 @@ classe_age_ecrit <- exporter(strate_classe_age, "strate_classe_age.csv",
                              comptages = c("nb_sejours", "nb_patients"),
                              derivees = "pct_patients")
 
-# Figure (si demandée) : construite uniquement depuis un agrégat écrit, une
-# barre masquée n'apparaît pas ; affichée dans la section Résultats.
+# Figure de resultat_annuel, toujours (critère de jugement en y) : construite
+# uniquement depuis un agrégat écrit, une barre masquée n'apparaît pas ;
+# affichée dans la section Résultats.
 figure_annuelle <- ggplot(annuel_ecrit, aes(x = annee, y = nb_patients)) +
   geom_col(fill = "#4E79A7") +
   scale_x_continuous(breaks = annees) +

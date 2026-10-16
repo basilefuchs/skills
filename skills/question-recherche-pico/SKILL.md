@@ -21,7 +21,7 @@ Le livrable validé est écrit dans `protocole.md`, à la racine du répertoire 
 
 Au lancement, cherche un protocole existant : le chemin passé en argument, sinon `./protocole.md`, sinon un fichier téléversé (claude.ai). Sans protocole, l'idée est l'argument ou le message reçu, ou elle est demandée (étape 1).
 
-Un protocole trouvé : écris en une phrase ce qu'il contient (question, finalité, source de données), puis demande « Reprendre » ou « Nouvelle étude ». Reprendre : ce que le protocole renseigne se remplit sans question, l'entretien ne pose que ce qui manque, et la validation remplace les trois sections en laissant le reste du fichier intact. Nouvelle étude : l'entretien repart de l'idée, et la validation réécrit le fichier avec les trois sections seules.
+Un protocole trouvé : écris en une phrase ce qu'il contient (question, finalité, source de données), puis demande « Reprendre » ou « Nouvelle étude ». Reprendre : ce que le protocole renseigne se remplit sans question, l'entretien ne pose que ce qui manque, et la validation remplace les trois sections en laissant le reste du fichier intact. Nouvelle étude : le protocole trouvé n'est jamais réécrit ; demande, par une question ouverte, le répertoire de la nouvelle étude, autre que le sien (un répertoire par étude), puis l'entretien repart de l'idée.
 
 ## Démarche
 
@@ -99,11 +99,11 @@ C'est fini quand chaque case utile de la grille, le schéma, les sous-groupes et
 
 Écris le livrable (section **Livrable**) dans le texte de ton message, avec **À préciser** dans les cases vides, puis, dans la même réponse, demande à la personne de valider, avec les propositions « Valider » et « Corriger ». Le livrable précède toujours la question : avec l'outil de question, il est dans le texte du message et l'appel de l'outil vient après. Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
 
-C'est fini quand la personne a validé : écris alors le livrable dans `protocole.md` (section **Protocole**), là où il a été trouvé, sinon `./protocole.md`, et réponds avec le livrable validé, le chemin du fichier écrit et la ligne de fin (section **Ligne de fin**). Sans accès au répertoire de l'étude (claude.ai), le livrable du message tient lieu de fichier : la personne l'enregistre sous `protocole.md`.
+C'est fini quand la personne a validé : écris alors le livrable dans `protocole.md` (section **Protocole**), là où il a été trouvé (Reprendre), dans le répertoire donné (Nouvelle étude), sinon `./protocole.md`, et réponds avec le livrable validé, le chemin du fichier écrit et la ligne de fin (section **Ligne de fin**). Sans accès au répertoire de l'étude (claude.ai), le livrable du message tient lieu de fichier : la personne l'enregistre sous `protocole.md`.
 
 ## Format des questions
 
-Hors les questions ouvertes (l'idée, la correction à apporter), pose une seule question par message, après la restitution « Ok : … » de la réponse précédente, ou après le livrable à la validation :
+Hors les questions ouvertes (l'idée, la correction à apporter, le répertoire d'une nouvelle étude), pose une seule question par message, après la restitution « Ok : … » de la réponse précédente, ou après le livrable à la validation :
 
 - quand un outil de question à choix cliquables est disponible, pose-la avec lui, après le texte que ton message doit contenir : un seul choix, `<élément>` en en-tête, une option par proposition ; l'outil ajoute de lui-même la réponse libre ;
 - sinon, écris-la dans ton message :

@@ -76,7 +76,7 @@ Chaque étape vient d'une partie du protocole :
 | `03_critere_jugement` | Critère de jugement, Unité de compte |
 | `04_covariables` | Stratification ; omise si aucune |
 | `05_flowchart` | `attrition` |
-| `06_sorties` | `resultat_annuel` et `nb_patients_periode` du squelette, Dénominateur, puis un `strate_<variable>` par variable de Stratification |
+| `06_sorties` | `resultat_annuel` et `nb_patients_periode` du squelette, Dénominateur, puis un `strate_<variable>` par variable de Stratification, et la figure de `resultat_annuel`, toujours |
 
 Recopie depuis le protocole :
 
@@ -89,7 +89,7 @@ Règles :
 - Une étape absente du protocole est omise des scripts et de `main.R`, sans renuméroter les autres.
 - Une table de `## Données` absente du profil et du squelette est écrite telle quelle, millésime reconstruit (`prd_vue_mcobl_{AAAA}.fixe` → `paste0("prd_vue_mcobl_", an, ".fixe")`), avec le commentaire « vérifiée par pdh-schema (`## Données`) ».
 - Une colonne nécessaire que ni `## Données` ni le squelette ne nomment prend le nom que donne le profil, sinon `<À VÉRIFIER : concept>` ; sa ligne porte le commentaire `# À VÉRIFIER`, et la colonne entre dans le message final. Tu ne la demandes pas et tu ne la devines pas. Une valeur du profil marquée « [à confirmer] » (schéma RPU…) est traitée de même.
-- Tout fichier s'écrit par `exporter()`, dans `sorties/`, selon le contrat ci-dessous ; chaque appel nomme ses colonnes de comptage et ses colonnes dérivées. L'écran peut être brut : `secret_statistique` ne régit que l'affichage.
+- Tout fichier s'écrit par `exporter()`, dans `sorties/`, selon le contrat ci-dessous ; chaque appel nomme ses colonnes de comptage et ses colonnes dérivées. L'écran peut être brut : `secret_statistique` ne régit que l'affichage. Dans le `.Rmd`, il régit aussi le HTML rendu, qui est un fichier : il y vaut `TRUE` ; à `FALSE`, le HTML est brut, à ne jamais exporter.
 
 **Contrat `sorties/`**, lu par `rapport-imrad` :
 
@@ -99,7 +99,7 @@ Règles :
 | `resultat_annuel.csv` | `annee`, des comptages, des dérivées éventuelles | `06_sorties` |
 | `nb_patients_periode.csv` | `nb_patients` | `06_sorties` |
 | `strate_<variable>.csv` | `annee`, `<variable>`, des comptages, des dérivées éventuelles | `06_sorties` |
-| `figure_<nom>.png` | figure construite depuis une table renvoyée par `exporter()` | `06_sorties` |
+| `figure_resultat_annuel.png` | figure de `resultat_annuel`, toujours générée, construite depuis la table renvoyée par `exporter()` | `06_sorties` |
 | `manifeste.md` | question, répertoire, date d'exécution, années, sources, seuil, secret appliqué, cellules masquées par fichier, dictionnaire, date de validation du protocole | `exporter()` |
 
 Un comptage se nomme `nb_…`, une dérivée `pct_…` ou `taux…` ; `nb_sejours` garde son nom quelle que soit l'unité de compte. `exporter()` masque (NA) tout comptage de 1 à `seuil - 1` et les dérivées de sa ligne, et écrit un CSV UTF-8 séparé par des virgules.
@@ -110,7 +110,7 @@ C'est fini quand chaque étape du protocole a son fichier ou son chunk, que chaq
 
 Écris les scripts à côté de `protocole.md`, puis `## Scripts` et `## Confidentialité` dans `protocole.md` (section **Livrable**), remplacées si elles existent. Sans accès au répertoire de l'étude (claude.ai), les fichiers livrés et les sections du message en tiennent lieu : la personne les place à côté de son `protocole.md` et y ajoute les sections.
 
-Réponds avec les fichiers écrits (réécrits et retirés à une régénération), les colonnes « À VÉRIFIER » avec leur fichier, les packages du rendu pour un `.Rmd` (`rmarkdown`, `rmdformats`, `DT`, et `DiagrammeR` si le diagramme d'attrition graphique est gardé), les deux sections écrites et la ligne de fin (section **Ligne de fin**).
+Réponds avec les fichiers écrits (réécrits et retirés à une régénération), les colonnes « À VÉRIFIER » avec leur fichier, les packages du rendu pour un `.Rmd` (`rmarkdown`, `rmdformats`, `DT`), les deux sections écrites et la ligne de fin (section **Ligne de fin**).
 
 ## Livrable
 
@@ -121,7 +121,7 @@ Les deux sections, dans cet ordre, sans le bloc de code ; `## Confidentialité` 
 
 - Format : <dossier .R | rapport .Rmd | fichier .R unique>
 - Fichiers : <`scripts/main.R`, `scripts/00_setup.R`, … | `analyse.Rmd` | `analyse.R`>
-- Sorties : `sorties/`, à côté de `protocole.md` : `flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`, <`strate_<variable>.csv`, …>, <`figure_<nom>.png`, …>, `manifeste.md` ; écrits par `exporter()` seulement, comptages de 1 à <seuil - 1> masqués avec les dérivées de leur ligne
+- Sorties : `sorties/`, à côté de `protocole.md` : `flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`, <`strate_<variable>.csv`, …>, `figure_resultat_annuel.png`, `manifeste.md` ; écrits par `exporter()` seulement, comptages de 1 à <seuil - 1> masqués avec les dérivées de leur ligne
 - Généré le : <AAAA-MM-JJ>, depuis le protocole validé le <AAAA-MM-JJ>
 
 ## Confidentialité

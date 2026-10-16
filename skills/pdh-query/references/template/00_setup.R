@@ -1,10 +1,6 @@
 # ==============================================================================
-# Indicateur : <titre court de l'indicateur / de la question>
 # Question   : <question en langage naturel de l'utilisateur>
 # Protocole  : <résumé 1 ligne : population, exclusions, critère de jugement>
-# Source     : <si indicateur documenté : référence biblio, DOI>          [optionnel]
-# Catégorie  : <ex. 02_casemix_patientele, 04_efficience_capacitaire>     [optionnel]
-# Fiche      : <chemin de la fiche indicateur si elle existe>             [optionnel]
 # ==============================================================================
 
 # ==== PROFIL DE BASE (mapping utilisé — profils/portail_atih_<champ>.md) ====
@@ -33,7 +29,7 @@
 library(dplyr)
 library(dbplyr)
 library(purrr)
-library(ggplot2)     # figure de 06_sorties.R : retirer avec elle si aucune n'est demandée
+library(ggplot2)     # figure de resultat_annuel (06_sorties.R)
 
 # ==== PARAMÈTRES ====
 annees     <- 2020:2023                               # années PMSI (année de sortie)
@@ -114,15 +110,18 @@ noter_attrition <- function(attrition, requete, etape) {
 #   x         : agrégat collecté, ou figure ggplot construite depuis un agrégat
 #               déjà renvoyé par exporter() (rien à masquer) ;
 #   fichier   : nom fixe du contrat (flowchart.csv, resultat_annuel.csv…) ;
-#   comptages : colonnes d'effectifs, masquées (NA) de 1 à seuil - 1, 0 gardé ;
+#   comptages : colonnes d'effectifs, converties en nombres (integer64 ou
+#               texte renvoyés par collect()), masquées (NA) de 1 à seuil - 1,
+#               0 gardé ;
 #   derivees  : colonnes calculées sur ces effectifs (pourcentage, taux), mises
 #               à NA sur toute ligne dont un comptage est masqué.
 # Écrit un CSV UTF-8 séparé par des virgules (NA = cellule masquée), réécrit
 # sorties/manifeste.md et renvoie, invisible, la table telle qu'écrite.
 # Masque primaire seulement : une cellule masquée peut encore se déduire par
-# différence entre cellules voisines ou d'un total ; le regroupement sous
-# "Autre" (06_sorties.R) le limite, et la procédure d'export de la plateforme
-# reste seule juge de ce qui sort.
+# différence entre cellules voisines ou d'un total, toujours dans
+# flowchart.csv (nb_exclus est l'écart de deux nb_sejours) ; le regroupement
+# sous "Autre" (06_sorties.R) le limite dans les strates, et la procédure
+# d'export de la plateforme reste seule juge de ce qui sort.
 sorties_ecrites <- tibble::tibble(fichier = character(), cellules_masquees = integer())
 
 exporter <- function(x, fichier, comptages = character(), derivees = character()) {
@@ -132,6 +131,7 @@ exporter <- function(x, fichier, comptages = character(), derivees = character()
     ggplot2::ggsave(chemin, plot = x, width = 8, height = 5, dpi = 150)
     masquees <- NA_integer_
   } else {
+    for (col in comptages) x[[col]] <- as.numeric(x[[col]])   # integer64, texte
     effectifs  <- as.matrix(x[comptages])
     sous_seuil <- !is.na(effectifs) & effectifs > 0 & effectifs < seuil
     for (col in comptages) x[[col]][sous_seuil[, col]] <- NA

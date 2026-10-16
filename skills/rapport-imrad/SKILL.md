@@ -36,7 +36,7 @@ Fichiers attendus, rien d'autre. Une colonne de comptage commence par `nb_` ; un
 
 | Fichier | Colonnes attendues | Dans le rapport |
 |---|---|---|
-| `flowchart.csv` | `annee`, `etape`, `nb_sejours`, `nb_exclus`, exactement | diagramme de flux |
+| `flowchart.csv` | `annee`, `etape`, `nb_sejours`, `nb_exclus`, exactement | tableau de flux |
 | `resultat_annuel.csv` | `annee`, des comptages, des dérivées éventuelles | résultat principal par année |
 | `nb_patients_periode.csv` | `nb_patients` | patients uniques sur la période |
 | `strate_<variable>.csv`, une par stratification | `annee`, `<variable>`, des comptages, des dérivées éventuelles | un tableau par sous-groupe |
@@ -64,7 +64,7 @@ C'est fini quand `protocole.md` et les fichiers de `sorties/` sont localisés.
 Avant de lire une seule valeur, lis l'en-tête de chaque CSV et compte ses lignes, puis classe chaque fichier dans le premier cas qui s'applique :
 
 - **Lignes individuelles** : une colonne d'identifiant de personne ou de séjour (`NIR_ANO_17`, `BEN_NIR_PSA`, `BEN_IDT_ANO`, `RSA_NUM`, `RHA_NUM`, `RHS_NUM`, `RIP_NUM`, `anonyme`, `ident`, `ident_sej`, tout nom contenant `_NIR_` ou `_IDT_` ; `ETA_NUM`, `finess` ou `finessgeo`, numéro FINESS d'un établissement, est une strate, pas un identifiant), ou une date au jour (`AAAA-MM-JJ`, `EXE_SOI_DTD`, `ENT_DAT`, `SOR_DAT`, `date_entree`, `date_sortie`…), ou des lignes sans colonne de comptage, une par séjour, prestation ou décès. **Arrêt net** : un seul message, qui nomme le fichier et le signe, sans citer une valeur ni une ligne, sans écrire de fichier ni d'artefact ; demande de retirer le fichier de la conversation et du répertoire ; rappelle que seule la procédure d'export de la plateforme fait sortir des données, sous forme d'agrégats. Rien d'autre dans ce message, et pas de rapport.
-- **Hors contrat** : nom absent du tableau des fichiers attendus, ou colonnes différentes. Nomme le fichier et les colonnes attendues, demande de relancer les scripts (de les régénérer avec la skill query s'ils sont antérieurs au contrat), et arrête-toi : rien n'est deviné.
+- **Hors contrat** : nom absent du tableau des fichiers attendus, ou colonnes différentes. Nomme le fichier et les colonnes attendues, demande de relancer les scripts (de les régénérer avec la skill query s'ils sont antérieurs au contrat), et arrête-toi : rien n'est deviné. Est aussi hors contrat un fichier, `manifeste.md` excepté, absent du tableau « Fichier | Cellules masquées » du manifeste : « sortie d'une exécution antérieure, retirez-la de `sorties/` et relancez les scripts ».
 - **Conforme** : colonnes au contrat. Note les cellules masquées : `NA` dans un comptage ou une dérivée, et tout comptage strictement compris entre 0 et le seuil du manifeste (de 1 à 10 pour le seuil 11), qui révèle un export sans seuil et devient une cellule masquée, avec les dérivées de sa ligne.
 
 C'est fini quand chaque fichier est classé, et qu'aucun n'est individuel ni hors contrat.

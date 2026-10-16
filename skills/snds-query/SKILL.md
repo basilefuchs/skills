@@ -76,7 +76,7 @@ Chaque étape vient d'une partie du protocole :
 | `03_critere_jugement` | Critère de jugement, Unité de compte |
 | `04_covariables` | Stratification ; omise si aucune |
 | `05_flowchart` | `attrition` |
-| `06_sorties` | Pattern A et B du squelette, puis un `strate_<variable>` par variable de Stratification |
+| `06_sorties` | Pattern A et B du squelette, puis un `strate_<variable>` par variable de Stratification, et la figure de `resultat_annuel`, toujours |
 
 Recopie depuis le protocole :
 
@@ -90,7 +90,7 @@ Règles :
 - Une table de `## Données` absente du profil et du squelette est écrite telle quelle, nom réel reconstruit pour une table PMSI (`T_MCO{aa}B` → `paste0("T_MCO", aa, "B")`), avec le commentaire « vérifiée par snds-schema (`## Données`) ».
 - Une colonne nécessaire que ni `## Données` ni le squelette ne nomment prend le nom que donne le profil, sinon `<À VÉRIFIER : concept>` ; sa ligne porte le commentaire `# À VÉRIFIER`, et la colonne entre dans le message final. Tu ne la demandes pas et tu ne la devines pas.
 - Une valeur que le squelette renvoie à la documentation officielle (liste des FINESS APHP/APHM/HCL des séjours 2005-2017) vient de `## Données`, sinon de la fiche nommée dans le profil, lue via WebFetch ; sans accès web, `<À VÉRIFIER : liste FINESS>`.
-- Tout fichier s'écrit par `exporter()`, dans `sorties/`, selon le contrat ci-dessous ; chaque appel nomme ses colonnes de comptage et ses colonnes dérivées. L'écran peut être brut : `secret_statistique` ne régit que l'affichage.
+- Tout fichier s'écrit par `exporter()`, dans `sorties/`, selon le contrat ci-dessous ; chaque appel nomme ses colonnes de comptage et ses colonnes dérivées. L'écran peut être brut : `secret_statistique` ne régit que l'affichage. Dans le `.Rmd`, il régit aussi le HTML rendu, qui est un fichier : il y vaut `TRUE` ; à `FALSE`, le HTML est brut, à ne jamais exporter.
 
 **Contrat `sorties/`**, lu par `rapport-imrad` :
 
@@ -100,7 +100,7 @@ Règles :
 | `resultat_annuel.csv` | `annee`, des comptages, des dérivées éventuelles | `06_sorties` |
 | `nb_patients_periode.csv` | `nb_patients` | `06_sorties` |
 | `strate_<variable>.csv` | `annee`, `<variable>`, des comptages, des dérivées éventuelles | `06_sorties` |
-| `figure_<nom>.png` | figure construite depuis une table renvoyée par `exporter()` | `06_sorties` |
+| `figure_resultat_annuel.png` | figure de `resultat_annuel`, toujours générée, construite depuis la table renvoyée par `exporter()` | `06_sorties` |
 | `manifeste.md` | question, répertoire, date d'exécution, années, sources, seuil, secret appliqué, cellules masquées par fichier, dictionnaire, date de validation du protocole | `exporter()` |
 
 Un comptage se nomme `nb_…`, une dérivée `pct_…` ou `taux…` ; `nb_sejours` garde son nom quelle que soit l'unité de compte. `exporter()` masque (NA) tout comptage de 1 à `seuil - 1` et les dérivées de sa ligne, et écrit un CSV UTF-8 séparé par des virgules.
@@ -122,7 +122,7 @@ Les deux sections, dans cet ordre, sans le bloc de code ; `## Confidentialité` 
 
 - Format : <dossier .R | rapport .Rmd | fichier .R unique>
 - Fichiers : <`scripts/main.R`, `scripts/00_setup.R`, … | `analyse.Rmd` | `analyse.R`>
-- Sorties : `sorties/`, à côté de `protocole.md` : `flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`, <`strate_<variable>.csv`, …>, <`figure_<nom>.png`, …>, `manifeste.md` ; écrits par `exporter()` seulement, comptages de 1 à <seuil - 1> masqués avec les dérivées de leur ligne
+- Sorties : `sorties/`, à côté de `protocole.md` : `flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`, <`strate_<variable>.csv`, …>, `figure_resultat_annuel.png`, `manifeste.md` ; écrits par `exporter()` seulement, comptages de 1 à <seuil - 1> masqués avec les dérivées de leur ligne
 - Généré le : <AAAA-MM-JJ>, depuis le protocole validé le <AAAA-MM-JJ>
 
 ## Confidentialité
