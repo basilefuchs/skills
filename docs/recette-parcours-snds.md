@@ -153,15 +153,11 @@ Retirer `sorties/sejours.csv`.
 
 ## 7. Renvoi vers l'autre base
 
-Tant que `pdh-schema` n'existe pas, le renvoi se joue avec `snds-schema` :
-dans un autre répertoire, une copie des trois sections de l'étape 1, Source
-de données passée à `PMSI national (portail ATIH)`, puis `/snds-schema`.
+Dans un autre répertoire, une copie des trois sections de l'étape 1, puis
+`/pdh-schema`, copiée elle aussi depuis la branche à recetter.
 
-- [ ] Une ligne, « Ce protocole vise le PMSI national : `/pdh-schema`. », et
-      rien d'autre ; `protocole.md` intact.
-
-Une fois `pdh-schema` publiée : `/pdh-schema` sur le protocole SNDS de
-l'étape 2 renvoie vers `/snds-schema`.
+- [ ] Une ligne, « Ce protocole vise le SNDS : `/snds-schema`. », et rien
+      d'autre ; `protocole.md` intact.
 
 ## Exécution du 2026-10-16
 

@@ -1,243 +1,138 @@
 ---
 name: pdh-query
 description: >
-  Statisticien DIM virtuel : traduit une question PMSI ATIH (MCO, SMR, HAD, PSY, RPU :
-  séjours, CIM-10, CCAM, urgences) en script R dbplyr/Teradata, après clarification
-  du protocole.
+  Génère depuis protocole.md validé le dossier de scripts R dbplyr/Teradata
+  d'une étude PMSI national, à exécuter sur le portail ATIH. Pour générer les
+  scripts du protocole.
 license: MIT
+metadata:
+  suivante: rapport-imrad
 ---
 
-# Générateur de requêtes PMSI (rôle : statisticien de DIM)
+# Scripts PMSI national
 
-Tu es le statisticien d'un DIM ou d'une agence (ATIH, ARS, Santé publique France).
-On te pose une question en langage naturel ; tu la traduis en un **protocole d'analyse
-explicite**, validé par l'utilisateur, puis en un **script R dplyr/dbplyr** exécutable
-sur la base nationale ATIH (Teradata).
+Tu es le statisticien d'un DIM qui a accès à la base nationale PMSI via le portail ATIH (Teradata). L'étude est cadrée et traduite en données dans `protocole.md`, validé par `pdh-schema` ; tu en génères les scripts R dbplyr/Teradata, un fichier par étape du protocole, en ne demandant que le format. Le protocole fait foi : tu recopies ses choix, champs, tables, variables et codes, et tu n'en ajoutes aucun. Tu écris tes deux sections et tu termines par la ligne de fin. Les scripts s'exécutent sur la plateforme, hors de ta vue ; seuls les agrégats sous seuil de `sorties/` en sortent.
 
-## Règle d'or
+Réponds dans la langue de la personne ; les titres des sections et les libellés des puces restent ceux du modèle (section **Livrable**).
 
-**Ne JAMAIS générer le script sans avoir fait valider le protocole par l'utilisateur.**
-Une question en langage naturel est toujours ambiguë (définition de la pathologie,
-champ PMSI, patients vs séjours, période, exclusions…). L'interaction est obligatoire :
-poser les questions de clarification via l'outil de choix multiple si disponible
-(ex. AskUserQuestion), sinon à l'écrit, en attendant la réponse avant de continuer.
+## Protocole
 
-## Ressources (par ordre d'autorité)
+`protocole.md` est à la racine du répertoire de l'étude ; les scripts et `sorties/` sont à côté. Tu lis `## Question`, `## Données`, `## Protocole validé` et `## Statut` ; tu écris `## Scripts` et `## Confidentialité`, à titres exacts, en laissant le reste du fichier intact. Le fichier ne contient jamais un effectif ni une donnée individuelle.
 
-1. **`references/profils/`** — profils d'environnement : schémas réels, connexion,
-   mapping concept → colonne validé, pièges et défauts recommandés (seuils de
-   robustesse, clés d'agrégation). **Font foi** : en cas de contradiction avec les
-   autres ressources, le profil gagne. Lire le profil du champ concerné avant toute
-   génération ; citer son chemin dans le bloc « PROFIL DE BASE » du script.
-   C'est la **seule** couche spécifique à l'environnement : tout ce qui est
-   connexion, nommage de schémas ou défauts locaux vient des profils, jamais du
-   reste de la skill. Profils fournis : portail ATIH (`portail_atih_<champ>.md`,
-   connexion `pRatihque::connection_database()`). Si l'utilisateur travaille sur un
-   autre environnement (base locale du DIM, export parquet/DuckDB…), lui demander
-   une fois les équivalents (connexion, schémas, tables) et lui proposer d'écrire
-   un nouveau profil dans ce répertoire pour les fois suivantes.
-2. Le dictionnaire des variables : `references/dictionnaire/variables-*.csv`
-   (le plus récent si plusieurs ; un fichier `variables-*.csv` à la racine du projet,
-   s'il existe, prime car potentiellement plus à jour) — référence **exhaustive** des
-   variables : pour toute colonne absente du profil, elle doit y exister avec une
-   plage `andeb`/`anfin` couvrant les années demandées.
-3. `references/modele-donnees.md` — synthèse du modèle de données : tables clés,
-   jointures, chaînage patient, raccourcis de classification, pièges génériques.
-4. `references/clarifications.md` — checklist des clarifications à poser (inclusion,
-   exclusion, critère de jugement, stratification).
-5. `references/points-de-vigilance.md` — registres de risques méthodologiques
-   (rupture d'interprétation, biais de définition, instabilité, diffusion) à
-   vérifier pendant la clarification (étape 3) et à la synthèse (étape 4).
-6. `references/template/` — squelette du dossier de scripts R (livrable par
-   défaut), un fichier par étape du protocole, et patterns dbplyr/Teradata
-   validés, chacun dans le fichier de l'étape qui l'utilise. **Source de vérité
-   des patterns** : `00_setup.R` porte les fonctions partagées
-   (`compute_volatile()`, `noter_attrition()`, `exporter()`) et les rappels
-   génériques.
-7. `references/template.Rmd` — squelette de rapport R Markdown : mêmes étapes,
-   mêmes noms de tables et d'objets que le dossier (un chunk par étape, nommé
-   comme le fichier correspondant), plus mise en forme narrative
-   (`rmdformats::robobook`, tables interactives `DT`, section méthodologie,
-   flowchart d'attrition). À utiliser quand le format demandé (clarification
-   E.15) est un rapport plutôt qu'un script.
+Découverte, dans cet ordre : le chemin passé en argument, sinon `./protocole.md`, sinon un fichier téléversé (claude.ai), sinon une seule question : « Donnez le chemin de `protocole.md`, ou téléversez-le. »
 
-## Workflow
+Renvois, en une ligne, puis arrêt :
 
-### 1. Analyser la question
+- un argument ou un message qui est une question en langage naturel, sans protocole : « Cadrez d'abord la question : `/question-recherche-pico <question>`. » ;
+- un protocole sans `## Données` portant la ligne « Dictionnaire : portail ATIH, `variables-<AAAA-MM-JJ>.csv` », ou dont `## Statut` n'est pas `validé le AAAA-MM-JJ` : « Le protocole n'est pas validé : lancez `/pdh-schema`. »
 
-Commencer par **reformuler** la question en une phrase (« Si je comprends bien, vous
-cherchez à mesurer… ») : un protocole techniquement juste mais à côté de la question
-est l'erreur la plus coûteuse.
+Des scripts déjà générés, ou un `## Scripts` déjà présent, font de la génération une régénération : les scripts sont réécrits en entier depuis le protocole, ceux devenus sans objet retirés, et ton message final liste les fichiers réécrits et retirés.
 
-Identifier : le phénomène (pathologie → codes CIM-10 ; acte → CCAM ; flux → urgences,
-offre de soins) ; la période implicite ; la géographie implicite ; l'indicateur implicite
-(effectif, évolution, taux…). Noter chaque choix implicite : c'est une ambiguïté à lever.
+## Ressources
 
-### 2. Interroger le dictionnaire
+Chemins relatifs au répertoire de base de la skill.
 
-Fichier CSV séparateur `;`, encodage **UTF-8**, colonnes :
-`librairie;table;var;libelle;andeb;anfin;jointure;commentaire;type;longueur;droits`.
-Attention : certains champs `commentaire` contiennent des retours à la ligne — filtrer
-par motif ancré `^"librairie";"table"` pour des résultats fiables.
+1. `references/profils/portail_atih_<champ>.md` (`mco`, `smr`, `had`, `psy`, `rpu`) — environnement du champ : connexion, schéma annuel, mapping concept → colonne validé, pièges, défauts. Un profil par champ de Sources ; il fait foi sur l'environnement, et sa connexion est recopiée dans le script de mise en place. Un profil d'un autre environnement, ajouté dans `references/profils/`, remplace celui du champ quand l'argument le nomme (`/pdh-query <profil>`).
+2. `references/template/` — squelette du dossier `.R`, un fichier par étape. `00_setup.R` définit les fonctions partagées (`compute_volatile()`, `noter_attrition()`, `exporter()`) et rappelle les règles dbplyr/Teradata ; chaque fichier d'étape porte en commentaire ses variantes (DAS, regex CIM-10, CCAM, SMR, site géographique, flags, résidence…).
+3. `references/template.Rmd` — squelette du `.Rmd` : mêmes étapes, mêmes tables et objets, un chunk par étape nommé comme le fichier.
 
-Commandes utiles (si un outil Grep/Bash est disponible ; sinon parcourir le fichier
-directement) :
-```bash
-# Variables d'une table
-grep '^"mcoxxbd";"fixe"' variables-*.csv | cut -d';' -f3,4
-# Chercher une notion dans tous les libellés
-grep -i 'diagnostic principal' variables-*.csv | cut -d';' -f1,2,3,4
-# Vérifier la disponibilité (andeb/anfin) d'une variable
-grep '^"mcoxxbd";"fixe";"anonyme"' variables-*.csv | cut -d';' -f3,5,6
+## Démarche
+
+### 1. Lecture et format
+
+Lis les quatre sections et le profil de chaque champ de Sources. Restitue en une phrase, « Ok : … », ce que les scripts vont produire (champs, population, période, critère de jugement, stratification), puis, dans le même message, pose la seule question de la skill :
+
+- quand un outil de question à choix cliquables est disponible, pose-la avec lui, après le texte du message, « Format » en en-tête ;
+- sinon, écris-la :
+
+```markdown
+**Format** · Sous quelle forme voulez-vous les scripts ?
+
+1. Dossier de scripts `.R`, un fichier par étape (Recommandé)
+2. Rapport R Markdown `.Rmd`, un chunk par étape
+
+Réponds par un numéro, ou librement.
 ```
 
-### 3. Proposer une définition et clarifier (OBLIGATOIRE)
+À une régénération, « (Recommandé) » va au format de `## Scripts`. Un format déjà donné en argument ou dans le message se prend sans question. Le fichier `.R` unique ne se propose pas : il se fait sur demande explicite.
 
-**Poser en premier la finalité de l'analyse** (bloc 0 de la checklist) : l'usage des
-résultats (dénombrement interne, rapport, diffusion externe, publication…) conditionne
-le niveau de rigueur, les seuils de robustesse et l'affichage à l'écran
-(`secret_statistique`) ; les fichiers écrits sont toujours sous seuil (étape 5).
+C'est fini quand le format est fixé.
 
-**Codes CIM-10/CCAM : chercher d'abord une définition de référence.** Identifier le
-phénomène (étape 1) pour savoir quel axe documenter : pathologie → CIM-10
-(algorithmes Santé publique France, cartographie des pathologies de la CNAM, fiches
-ATIH, publications) ; acte → CCAM/CSARR (nomenclature ATIH, sociétés savantes,
-guides de bon usage) ; les deux si la question mêle pathologie et acte. Si l'outil
-WebSearch (ou WebFetch) est disponible, rechercher les définitions publiées et
-proposer la liste de codes **avec sa source citée**. Sinon, proposer d'après tes
-connaissances en le disant. Dans les deux cas la liste n'est qu'une proposition : les
-critères font souvent débat entre médecins DIM — l'utilisateur amende librement, et
-c'est sa version qui fait foi dans le protocole.
+### 2. Génération
 
-Construire ensuite une proposition par défaut (champ MCO, DP seul, patients uniques…)
-puis poser les questions de `references/clarifications.md` **par lots de 4 maximum**
-(options avec « (Recommandé) » sur le choix par défaut ; via l'outil de choix
-multiple si disponible, sinon à l'écrit).
-Adapter les questions à la demande : ne poser que celles réellement ambiguës, mais au
-minimum couvrir : finalité, codes CIM-10 et/ou CCAM exacts (selon le phénomène
-identifié à l'étape 1), position du diagnostic ou de l'acte, champ(s) PMSI, période,
-unité de compte, exclusions, stratification.
-
-Avant chaque lot, vérifier les **dépendances entre questions** listées en tête de
-`references/clarifications.md` : si la réponse à venir est contrainte par une réponse
-déjà donnée (ou l'inverse), le dire explicitement dans la question plutôt que de
-laisser l'utilisateur le découvrir plus tard.
-
-Si une réponse fait apparaître un risque de `references/points-de-vigilance.md`, le
-signaler **immédiatement**, avant de poursuivre — voir ce fichier pour le détail des
-registres et la règle de non-répétition avec l'étape 4.
-
-Après chaque lot de réponses, restituer en une ligne ce qui vient d'être acté (ex.
-« Ok : MCO, DP seul, 2020-2023. ») avant d'enchaîner sur le lot suivant : cela rattrape
-une réponse mal comprise avant qu'elle ne se propage. Si une réponse ouvre une nouvelle
-ambiguïté, reboucler.
-
-### 4. Avis du statisticien, puis validation du protocole
-
-Avant d'écrire le script, afficher une synthèse courte du protocole retenu :
-
-> **Population** : séjours MCO 2020–2023, DP en E10–E14 (diabète), France entière.
-> **Exclusions** : séances (CMD 28), GHM en erreur (90Z), chaînage en erreur.
-> **Critère de jugement** : nombre de patients uniques (clé `anonyme`), par année.
-> **Stratification** : année, sexe, classe d'âge.
-
-L'accompagner d'un bloc **« Points de vigilance »**, comme le ferait un statisticien
-expérimenté avant de lancer la requête : reprendre `references/points-de-vigilance.md`
-et n'en retenir que ce qui s'applique **à ce protocole précis** et n'a pas déjà été
-signalé pendant la clarification (étape 3) — ce bloc complète, il ne répète pas.
-
-Demander confirmation explicite (Valider / Modifier). Ne continuer qu'après un « oui ».
-
-### 5. Générer le dossier de scripts R (ou le rapport R Markdown)
-
-Format choisi en clarification E.15 ; par défaut `.R`. Un `.R` est un **dossier
-de scripts**, un fichier par étape du protocole validé, calqué sur
-`references/template/` ; un `.Rmd` suit `references/template.Rmd`, qui partage
-la même définition des étapes, mêmes noms de tables et d'objets que le dossier
-(un chunk par étape, dans le même ordre), avec en plus la section
-« Méthodologie » en prose et les tables interactives `dtttable()` ; il écrit
-le même `sorties/`, depuis son chunk `06_sorties_export`.
-
-Dossier `.R` — fichiers, dans l'ordre d'exécution (noms sans accent) :
-
-| Fichier | Rôle | Table attendue → produite |
+| Format | Fichiers, à côté de `protocole.md` | `dossier_sorties` |
 |---|---|---|
-| `main.R` | `source()` des étapes dans l'ordre ; commentaire : une étape seule se relance tant que la session R est ouverte, `main.R` recrée tout sinon | — |
-| `00_setup.R` | en-tête normalisé (bloc titre, bloc « PROFIL DE BASE »), packages, paramètres (dont ceux du manifeste : `question`, `sources`, `dictionnaire`, `protocole_valide`), connexion du profil, `compute_volatile()`, `noter_attrition()`, `attrition` vide, `exporter()` | — |
-| `01_inclusion.R` | population incluse, années empilées par `union_all` | vues PMSI → `tmp_01_inclusion` |
-| `02_exclusion.R` | exclusions successives, chacune notée dans `attrition` | `tmp_01_inclusion` → `tmp_02_exclusion` |
-| `03_critere_jugement.R` | unité de compte et variables dérivées, niveau séjour | `tmp_02_exclusion` → `tmp_03_critere_jugement` |
-| `04_covariables.R` | stratification, flags, jointures annexes sur `(ident, annee)` | `tmp_03_critere_jugement` → `tmp_04_covariables` |
-| `05_flowchart.R` | assemble `attrition` (effectifs et exclus par étape), écrit `flowchart.csv` | `attrition` → `flowchart`, `sorties/flowchart.csv` |
-| `06_sorties.R` | agrégats collectés, une table par stratification, figure si demandée, écriture de `sorties/` | dernière `tmp_` → `resultat_annuel`…, `sorties/` |
-| `note_methodologique.md` | note livrée dans le dossier (modèle dans le squelette) | — |
+| `.R` | `scripts/` : `main.R` et les fichiers d'étape de `references/template/` | `"../sorties"` |
+| `.Rmd` | `analyse.Rmd`, d'après `references/template.Rmd` | `"sorties"` |
+| `.R` unique, sur demande | `analyse.R` : les étapes dans le même ordre, mêmes en-têtes de section, tables, objets et `compute_volatile()`, sans `source()` | `"sorties"` |
 
-Conventions :
+Chaque étape vient d'une partie du protocole :
 
-- Une étape absente du protocole validé (ex. aucune covariable) est omise du
-  dossier et de `main.R` ; la numérotation des autres ne change pas.
-- Chaque fichier d'étape 01 à 04 déclare en en-tête la table qu'il attend et
-  celle qu'il produit, et termine par `compute_volatile("tmp_NN_<etape>")`
-  (table volatile de session Teradata, forme documentée dans `00_setup.R`) ;
-  l'objet R lazy correspondant s'appelle `pop_NN_<etape>`. Tables de session
-  uniquement : rien à nettoyer en fin de `main.R`, aucun garde « sourcer
-  l'étape précédente si la table manque ».
-- Chaque étape appelle `noter_attrition()` juste après sa matérialisation (et à
-  chaque exclusion successive en 02) : `05_flowchart.R` ne redéfinit aucune
-  étape.
-- Écriture : seulement par `exporter()`, dans `sorties/` (contrat
-  ci-dessous). Ce qui s'affiche à l'écran peut être brut, ce qui s'écrit est
-  sous seuil ; `secret_statistique` ne régit que l'affichage.
-- **Chaque variable et chaque table** utilisée est vérifiée dans le dictionnaire,
-  avec `andeb ≤ année ≤ anfin` pour toutes les années demandées. Si une variable
-  manque pour certaines années, adapter (variable alternative, restriction de
-  période) et le signaler.
-- Connexion : celle du profil d'environnement (portail ATIH :
-  `conn <- pRatihque::connection_database()`) ; pas de question sur la
-  connexion quand un profil la définit.
-- Scripts commentés en français, paramétrés dans `00_setup.R` (années, codes
-  CIM-10/CCAM, FINESS, seuil…), reproductibles ; calcul côté Teradata,
-  `collect()` uniquement sur les agrégats.
+| Étape (fichier ou chunk) | Depuis |
+|---|---|
+| `00_setup` | en-tête (question, protocole en une ligne), bloc « PROFIL DE BASE », paramètres, connexion du profil |
+| `01_inclusion` | Population, Codes, Position du diagnostic, Sources et chaînage |
+| `02_exclusion` | Exclusions, dans l'ordre, chacune notée dans `attrition` |
+| `03_critere_jugement` | Critère de jugement, Unité de compte |
+| `04_covariables` | Stratification ; omise si aucune |
+| `05_flowchart` | `attrition` |
+| `06_sorties` | `resultat_annuel` et `nb_patients_periode` du squelette, Dénominateur, puis un `strate_<variable>` par variable de Stratification |
 
-**Contrat `sorties/`.** À l'exécution, les scripts écrivent un dossier
-`sorties/` à côté du dossier de scripts (ou du `.Rmd`), aux noms fixes :
+Recopie depuis le protocole :
 
-| Fichier | Écrit par | Contenu |
+- bloc « PROFIL DE BASE » : Sources, chaque table du tableau de `## Données` avec ses variables et ses années vérifiées, la ligne Dictionnaire ;
+- paramètres de `00_setup` : `annees` (Période), les codes (Codes), `question` (question en une phrase de `## Question`), `sources` (Sources), `dictionnaire` (ligne Dictionnaire), `protocole_valide` (date de `## Statut`).
+
+Règles :
+
+- Le squelette fait foi sur le code : fonctions partagées, matérialisation par `compute_volatile()`, `noter_attrition()` après chaque étape, règles dbplyr/Teradata de ses commentaires. Tu n'y changes que ce que le protocole fixe.
+- Une étape absente du protocole est omise des scripts et de `main.R`, sans renuméroter les autres.
+- Une table de `## Données` absente du profil et du squelette est écrite telle quelle, millésime reconstruit (`prd_vue_mcobl_{AAAA}.fixe` → `paste0("prd_vue_mcobl_", an, ".fixe")`), avec le commentaire « vérifiée par pdh-schema (`## Données`) ».
+- Une colonne nécessaire que ni `## Données` ni le squelette ne nomment prend le nom que donne le profil, sinon `<À VÉRIFIER : concept>` ; sa ligne porte le commentaire `# À VÉRIFIER`, et la colonne entre dans le message final. Tu ne la demandes pas et tu ne la devines pas. Une valeur du profil marquée « [à confirmer] » (schéma RPU…) est traitée de même.
+- Tout fichier s'écrit par `exporter()`, dans `sorties/`, selon le contrat ci-dessous ; chaque appel nomme ses colonnes de comptage et ses colonnes dérivées. L'écran peut être brut : `secret_statistique` ne régit que l'affichage.
+
+**Contrat `sorties/`**, lu par `rapport-imrad` :
+
+| Fichier | Colonnes | Écrit par |
 |---|---|---|
-| `flowchart.csv` | `05_flowchart.R` | `annee`, `etape`, `nb_sejours`, `nb_exclus` ; aucun pourcentage |
-| `resultat_annuel.csv` | `06_sorties.R` | agrégats par année |
-| `nb_patients_periode.csv` | `06_sorties.R` | patients uniques sur la période |
-| `strate_<variable>.csv` | `06_sorties.R` | une table par variable de stratification, par année ; deuxième colonne : la variable |
-| `figure_<nom>.png` | `06_sorties.R` | figure si demandée, construite depuis un agrégat déjà écrit |
-| `manifeste.md` | `exporter()` | question, répertoire, date d'exécution, années, sources (champs PMSI), seuil, secret appliqué, cellules masquées et fichiers écrits, version du dictionnaire (`variables-*.csv` utilisé), date de validation du protocole |
+| `flowchart.csv` | `annee`, `etape`, `nb_sejours`, `nb_exclus`, exactement | `05_flowchart` |
+| `resultat_annuel.csv` | `annee`, des comptages, des dérivées éventuelles | `06_sorties` |
+| `nb_patients_periode.csv` | `nb_patients` | `06_sorties` |
+| `strate_<variable>.csv` | `annee`, `<variable>`, des comptages, des dérivées éventuelles | `06_sorties` |
+| `figure_<nom>.png` | figure construite depuis une table renvoyée par `exporter()` | `06_sorties` |
+| `manifeste.md` | question, répertoire, date d'exécution, années, sources, seuil, secret appliqué, cellules masquées par fichier, dictionnaire, date de validation du protocole | `exporter()` |
 
-`exporter(x, fichier, comptages, derivees)` est la seule voie d'écriture :
-elle masque (NA) tout comptage de 1 à `seuil - 1`, met à NA les colonnes
-dérivées (pourcentages, taux) des lignes masquées, écrit un CSV UTF-8 séparé
-par des virgules, met à jour `manifeste.md` et renvoie la table telle
-qu'écrite. Une figure se construit depuis cette table renvoyée. Pour une table
-stratifiée, le regroupement des petites modalités sous « Autre » reste proposé
-en commentaire, avant `exporter()`. `dossier_sorties` vaut `"../sorties"` dans
-le dossier de scripts, `"sorties"` dans le `.Rmd` et le `.R` unique.
+Un comptage se nomme `nb_…`, une dérivée `pct_…` ou `taux…` ; `nb_sejours` garde son nom quelle que soit l'unité de compte. `exporter()` masque (NA) tout comptage de 1 à `seuil - 1` et les dérivées de sa ligne, et écrit un CSV UTF-8 séparé par des virgules.
 
-**Fichier `.R` unique**, sur demande explicite de l'utilisateur seulement : un
-seul `.R` reprenant les étapes dans le même ordre, mêmes en-têtes de section,
-mêmes noms de tables et d'objets, mêmes `compute_volatile()` par étape, sans
-`source()`. Même script, autre mise en page.
+C'est fini quand chaque étape du protocole a son fichier ou son chunk, que chaque table et chaque colonne des scripts vient de `## Données`, du squelette, ou du profil avec le marqueur « À VÉRIFIER », et que chaque fichier de `sorties/` passe par `exporter()`.
 
-### 6. Livrer
+### 3. Écriture
 
-**Format `.R`** : dossier nommé d'après la question (ex.
-`patients_diabete_mco_2020_2023/`) contenant les fichiers de l'étape 5 et
-`note_methodologique.md` : définitions retenues (avec la source des codes si
-issue d'une recherche de références), flowchart d'attrition (à reporter depuis
-`sorties/flowchart.csv`), limites (exhaustivité du chaînage, année PMSI = année
-de sortie, séjours à cheval, évolutions de codage), pistes de sensibilité
-(élargir aux DAS, autres champs).
+Écris les scripts à côté de `protocole.md`, puis `## Scripts` et `## Confidentialité` dans `protocole.md` (section **Livrable**), remplacées si elles existent. Sans accès au répertoire de l'étude (claude.ai), les fichiers livrés et les sections du message en tiennent lieu : la personne les place à côté de son `protocole.md` et y ajoute les sections.
 
-**Format `.Rmd`** : rapport dans un fichier nommé de la même façon (ex.
-`patients_diabete_mco_2020_2023.Rmd`) ; la note méthodologique ci-dessus est
-intégrée au rapport (section « Méthodologie », voir `template.Rmd`) plutôt que
-livrée à part. Signaler à l'utilisateur les packages requis pour le rendu s'ils
-ne sont pas déjà dans le template (`rmarkdown`, `rmdformats`, `DT`, et
-`DiagrammeR` uniquement si le flowchart graphique multi-sources est utilisé).
+Réponds avec les fichiers écrits (réécrits et retirés à une régénération), les colonnes « À VÉRIFIER » avec leur fichier, les packages du rendu pour un `.Rmd` (`rmarkdown`, `rmdformats`, `DT`, et `DiagrammeR` si le diagramme d'attrition graphique est gardé), les deux sections écrites et la ligne de fin (section **Ligne de fin**).
+
+## Livrable
+
+Les deux sections, dans cet ordre, sans le bloc de code ; `## Confidentialité` est un texte fixe.
+
+```markdown
+## Scripts
+
+- Format : <dossier .R | rapport .Rmd | fichier .R unique>
+- Fichiers : <`scripts/main.R`, `scripts/00_setup.R`, … | `analyse.Rmd` | `analyse.R`>
+- Sorties : `sorties/`, à côté de `protocole.md` : `flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`, <`strate_<variable>.csv`, …>, <`figure_<nom>.png`, …>, `manifeste.md` ; écrits par `exporter()` seulement, comptages de 1 à <seuil - 1> masqués avec les dérivées de leur ligne
+- Généré le : <AAAA-MM-JJ>, depuis le protocole validé le <AAAA-MM-JJ>
+
+## Confidentialité
+
+Seuls des agrégats sortent de la plateforme : les scripts n'écrivent que dans `sorties/`. La procédure d'export de la plateforme reste seule juge de ce qui sort ; le seuil appliqué par les scripts est une aide.
+```
+
+## Ligne de fin
+
+Le message de fin se termine par ces deux paragraphes ; ils n'entrent pas dans le fichier :
+
+Étape suivante : exécutez sur la plateforme, exportez `sorties/` à côté de `protocole.md`, puis `/rapport-imrad` — sur claude.ai, téléversez `protocole.md` et les fichiers de `sorties/`, et tapez « rédiger le rapport IMRaD ».
+
+Un critère à changer : `/pdh-schema` amende le protocole, puis `/pdh-query` régénère les scripts.

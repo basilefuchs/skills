@@ -41,6 +41,7 @@ fichier de l'étape du dossier : ne garder ici que le code du protocole validé.
 # Base       : Portail ATIH (Teradata via dbplyr)
 # Connexion  : pRatihque::connection_database()
 # Schémas    : prd_vue_mcobl_AAAA / prd_vue_smrbl_AAAA / prd_vue_nomgen / prd_vue_nompmsi
+# Sources    : <champs PMSI : MCO / SMR / HAD / PSY / RPU — et chaînage si plusieurs>
 #
 # Séjour MCO (1 ligne)        : fixe.ident (identifiant ANNUEL : joindre sur ident + annee)
 # Clé de chaînage patient     : fixe.anonyme (qualité : ano_retour == '000000000')
@@ -48,7 +49,8 @@ fichier de l'étape du dossier : ne garder ici que le code du protocole validé.
 # Référentiel établisst.      : prd_vue_nomgen.finessgeo (rs, millésimé par annee)
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le rapport,
-#      vérifiés dans le dictionnaire (andeb/anfin couvrant toutes les années).
+#      vérifiés par pdh-schema (`## Données` de protocole.md), années comprises.
+# Dictionnaire : <ligne Dictionnaire de `## Données`>
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, eval = TRUE, message = FALSE)
 options(knitr.kable.NA = '')
@@ -90,9 +92,8 @@ codes_cim3 <- c("E10", "E11", "E12", "E13", "E14")    # codes CIM-10 (3 caractè
 secret_statistique <- FALSE
 seuil              <- 11
 
-# Sorties : dossier sorties/ à côté du .Rmd (le .Rmd est rendu depuis son
-# dossier) ; valeurs reprises dans sorties/manifeste.md, dictionnaire =
-# version du CSV de variables (variables-AAAA-MM-JJ.csv).
+# Sorties : dossier sorties/ à côté du .Rmd et de protocole.md (le .Rmd est
+# rendu depuis son dossier) ; valeurs reprises dans sorties/manifeste.md.
 dossier_sorties  <- "sorties"
 question         <- "<question en langage naturel de l'utilisateur>"
 sources          <- "<champs PMSI : MCO / SMR / HAD / PSY / RPU>"
@@ -312,7 +313,7 @@ attrition <- noter_attrition(attrition, pop_04_covariables, "04 Covariables")
 # Attendu : objet `attrition`, rempli par les chunks 01 à 04
 # Produit : objet `flowchart` (annee, etape, nb_sejours, nb_exclus), écrit dans
 #           sorties/flowchart.csv (chunk 06_sorties_export) et affiché dans la
-#           section Méthodologie. Ne redéfinit aucune étape.
+#           section Résultats. Ne redéfinit aucune étape.
 
 flowchart <- attrition %>%
   arrange(annee, etape) %>%                  # le préfixe "01", "02a"… donne l'ordre
@@ -433,48 +434,17 @@ if (secret_statistique) {
 
 # Méthodologie
 
-## Question et périmètre
-
-<Reformuler la question en 2-3 phrases : population, phénomène mesuré, période,
-champ(s) PMSI, unité de compte.>
-
-- **Source** : Portail ATIH (Teradata), <champ(s) PMSI, millésime(s)>.
-- **Population** : <critères d'inclusion validés avec l'utilisateur>.
-- **Exclusions** : <dans l'ordre du chunk 02_exclusion>.
-- **Unité de compte** : <patients uniques / séjours / journées / événements>.
-- **Période** : <années>.
-- **Stratification** : <année, sexe, classe d'âge…>.
-
-## Définitions et source des codes
-
-<Codes CIM-10 / CCAM retenus, avec la source si issue d'une recherche de
-références (Santé publique France, cartographie CNAM, fiche ATIH, publication),
-et les amendements de l'utilisateur.>
-
-<!-- Si extraction multi-sources (variante du chunk 01_inclusion) : décrire
-chaque source dans un tableau, sur le modèle ci-dessous ; sinon, supprimer.
-
-## Constitution de la base
-
-| Source | Table(s) | Ce qu'elle capture |
-|---|---|---|
-| <source A> | <table(s)> | <ce que ça capture> |
-| <source B> | <table(s)> | <ce que ça capture> |
--->
-
-## Secret statistique
+Le protocole de l'étude est `protocole.md`, à côté de ce rapport : question,
+données (champs, tables, variables, années, codes et leur source), protocole
+validé et confidentialité. Il fait foi et n'est pas recopié ici.
 
 Les fichiers de `sorties/` masquent tout effectif de 1 à `r seuil - 1`, avec
-les pourcentages et taux de sa ligne ; `sorties/manifeste.md` compte les
-cellules masquées par fichier. Les tables de ce rapport sont
+les pourcentages et taux de sa ligne ; les tables de ce rapport sont
 `r if (secret_statistique) "celles des fichiers" else "brutes, non masquées"`.
-<Si regroupement : modalités de <dimension> reclassées sous "Autre" avant
-ré-agrégation.>
+
+# Résultats
 
 ## Flowchart d'attrition
-
-Effectifs à chaque étape du protocole, tels que notés par les chunks 01 à 04 :
-c'est ce qui rend l'analyse auditable.
 
 ```{r 05_flowchart_table}
 flowchart %>%
@@ -482,18 +452,7 @@ flowchart %>%
   dtttable()
 ```
 
-## Limites connues
-
-<2-3 alertes ciblées sur ce protocole précis — cf. « Points de vigilance » du
-workflow de la skill (ruptures d'interprétation, biais de définition,
-instabilité des petits effectifs…). Ne rien lister qui ne s'applique pas.>
-
-## Pistes de sensibilité
-
-<ex. élargir aux DAS, ajouter les champs SMR/HAD, inclure les séances, codes
-complets plutôt que troncature à 3 caractères.>
-
-# Résultats
+## Résultat principal
 
 Sur l'ensemble de la période, `r format(nb_patients_periode$nb_patients, big.mark = " ")`
 patients uniques.

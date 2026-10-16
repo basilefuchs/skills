@@ -11,6 +11,7 @@
 # Base       : Portail ATIH (Teradata via dbplyr)
 # Connexion  : pRatihque::connection_database()
 # Schémas    : prd_vue_mcobl_AAAA / prd_vue_smrbl_AAAA / prd_vue_nomgen / prd_vue_nompmsi
+# Sources    : <champs PMSI : MCO / SMR / HAD / PSY / RPU — et chaînage si plusieurs>
 #
 # Séjour MCO (1 ligne)        : fixe.ident (identifiant ANNUEL : joindre sur ident + annee)
 # Séjour SMR (1 ligne)        : fixe_sej.ident_sej
@@ -20,7 +21,8 @@
 # Référentiel établisst.      : prd_vue_nomgen.finessgeo (rs, millésimé par annee)
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le dossier,
-#      vérifiés dans le dictionnaire (andeb/anfin couvrant toutes les années).
+#      vérifiés par pdh-schema (`## Données` de protocole.md), années comprises.
+# Dictionnaire : <ligne Dictionnaire de `## Données`>
 
 # ==============================================================================
 # 00_setup.R — packages, paramètres, connexion, fonctions partagées
@@ -44,9 +46,9 @@ codes_cim3 <- c("E10", "E11", "E12", "E13", "E14")    # codes CIM-10 (3 caractè
 secret_statistique <- FALSE
 seuil              <- 11
 
-# Sorties : dossier sorties/ à côté du dossier de scripts (main.R est lancé
-# depuis le dossier de scripts) ; valeurs reprises dans sorties/manifeste.md,
-# dictionnaire = version du CSV de variables (variables-AAAA-MM-JJ.csv).
+# Sorties : dossier sorties/ à côté du dossier de scripts et de protocole.md
+# (main.R est lancé depuis le dossier de scripts) ; valeurs reprises dans
+# sorties/manifeste.md.
 dossier_sorties  <- "../sorties"
 question         <- "<question en langage naturel de l'utilisateur>"
 sources          <- "<champs PMSI : MCO / SMR / HAD / PSY / RPU>"

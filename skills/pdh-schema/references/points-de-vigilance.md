@@ -3,7 +3,7 @@
 Checklist des risques méthodologiques classiques à évaluer pour un protocole PMSI.
 Utilisée par `SKILL.md` à deux moments :
 
-- **étape 3 (clarification)** : dès qu'une réponse fait apparaître un des risques
+- **étape 3 (traduction)** : dès qu'une réponse fait apparaître un des risques
   ci-dessous, le signaler immédiatement — c'est le moment le moins coûteux pour
   corriger, pas la peine d'attendre la synthèse finale ;
 - **étape 4 (synthèse)** : pour les risques qui n'apparaissent qu'une fois l'ensemble

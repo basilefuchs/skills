@@ -14,10 +14,7 @@ IMRaD : Méthodes et Résultats en prose, Introduction et Discussion en puces.
 ```
 
 Parcours complet : voir le
-[README du dépôt](https://github.com/basilefuchs/skills#parcours). Sur la
-branche PMSI national (portail ATIH), `pdh-query` ne lit pas encore
-`protocole.md` : ses scripts partent d'une question, `/pdh-query <question>`,
-et écrivent le même `sorties/`.
+[README du dépôt](https://github.com/basilefuchs/skills#parcours).
 
 ## Contenu
 
@@ -34,7 +31,8 @@ et écrivent le même `sorties/`.
   ou [`pdh-schema`](https://github.com/basilefuchs/skills/tree/main/skills/pdh-schema))
   et `sorties/` écrit par les scripts de la skill query
   ([`snds-query`](https://github.com/basilefuchs/skills/tree/main/skills/snds-query)
-  ou `pdh-query`), exporté de la plateforme à côté de `protocole.md`.
+  ou [`pdh-query`](https://github.com/basilefuchs/skills/tree/main/skills/pdh-query)),
+  exporté de la plateforme à côté de `protocole.md`.
 - Aucun accès à la plateforme : la skill ne lit que le protocole et les
   agrégats.
 

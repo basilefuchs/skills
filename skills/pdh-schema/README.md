@@ -107,12 +107,10 @@ Mettre à jour la copie embarquée :
 1. Exporter le dictionnaire des variables depuis le portail ATIH (format :
    `librairie;table;var;libelle;andeb;anfin;jointure;commentaire;type;longueur;droits`).
 2. Le convertir en UTF-8 (l'export natif est en Windows-1252), depuis le
-   dossier de la skill, puis supprimer l'ancien fichier :
+   dossier de la skill, puis supprimer l'ancien fichier et committer :
    ```
    iconv -f WINDOWS-1252 -t UTF-8 nouvel-export.csv > references/dictionnaire/variables-AAAA-MM-JJ.csv
    ```
-3. Recopier le dictionnaire dans les skills qui en portent une copie (voir
-   ci-dessous), puis committer.
 
 ## Références communes
 
@@ -121,7 +119,7 @@ sont copiées, jamais partagées, et les copies restent identiques octet à
 octet (règle de copie du
 [CONTRIBUTING](https://github.com/basilefuchs/skills/blob/main/CONTRIBUTING.md#références-communes-à-une-famille)).
 
-- Sources ici, copies dans `pdh-query` : le dictionnaire
-  (`references/dictionnaire/`), `references/modele-donnees.md` et
-  `references/points-de-vigilance.md`.
 - Copies ici, source dans `pdh-query` : `references/profils/`.
+- Le dictionnaire, le modèle de données, les blocs de traduction et les
+  points de vigilance ne sont qu'ici : `pdh-query` lit leur résultat dans
+  `## Données`.

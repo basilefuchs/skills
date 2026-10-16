@@ -39,8 +39,6 @@ Chemins relatifs au répertoire de base de la skill. Le profil du champ fait foi
 4. `references/traduction.md` — les blocs de questions de l'étape 3, avec leurs dépendances.
 5. `references/points-de-vigilance.md` — registres de risques méthodologiques, à signaler dès qu'ils apparaissent (étape 3) ou à la synthèse (étape 4).
 
-Les renvois des références à la note méthodologique visent les scripts de `pdh-query`.
-
 ## Démarche
 
 ### 1. Lecture

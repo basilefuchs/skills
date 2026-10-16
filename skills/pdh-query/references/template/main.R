@@ -1,6 +1,6 @@
 # ==============================================================================
 # main.R — enchaîne les étapes du protocole dans l'ordre
-# Dossier : <nom du dossier, ex. patients_diabete_mco_2020_2023/>
+# Dossier : scripts/, à côté de protocole.md et de sorties/
 # ==============================================================================
 # Exécution complète : depuis ce dossier, source("main.R") recrée tout,
 # tables de session comprises.
@@ -13,7 +13,7 @@
 #
 # Rien à nettoyer en fin d'exécution : les tables volatiles disparaissent à la
 # déconnexion. Seuls fichiers écrits : les agrégats sous seuil de sorties/, à
-# côté de ce dossier, par exporter() (00_setup.R).
+# côté de protocole.md, par exporter() (00_setup.R).
 #
 # Une étape absente du protocole validé (ex. aucune covariable) est omise du
 # dossier et de cette liste ; la numérotation des autres ne change pas.
