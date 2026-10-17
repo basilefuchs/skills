@@ -3,7 +3,7 @@
 Checklist des risques méthodologiques classiques à évaluer pour un protocole
 SNDS. Utilisée par `SKILL.md` à deux moments :
 
-- **étape 3 (clarification)** : dès qu'une réponse fait apparaître un des
+- **étape 3 (traduction)** : dès qu'une réponse fait apparaître un des
   risques ci-dessous, le signaler immédiatement — c'est le moment le moins
   coûteux pour corriger ;
 - **étape 4 (synthèse)** : pour les risques qui n'apparaissent qu'une fois
@@ -48,9 +48,10 @@ seuils de robustesse, proposer un lissage ou un regroupement de périodes/zones.
 
 ## Diffusion
 
-Si la finalité implique une sortie externe, secret statistique (aucune
-cellule de 1 à 10 ; 0 reste diffusable sauf règle contraire du projet) à prévoir dans les sorties — seuil `SEUIL <- 11`, convention
-usuelle sur les extractions SNDS.
+Tout fichier écrit par les scripts est sous secret statistique, quelle que
+soit la finalité (aucune cellule de 1 à 10 ; 0 reste diffusable sauf règle
+contraire du projet) — seuil `seuil <- 11`, convention usuelle sur les
+extractions SNDS.
 
 ## Chaînage inter-source
 
@@ -86,6 +87,6 @@ mois. Le signaler dans le protocole, avec la marge retenue.
 
 **Ne jamais enregistrer localement un extrait SNDS contenant un identifiant,
 une date ou une localisation individuelle potentiellement ré-identifiante.**
-Le rappeler explicitement à la livraison (étape 6 du workflow) : tout export
-destiné à quitter l'environnement HDH doit être agrégé et respecter le seuil
-de diffusion.
+Tout export destiné à quitter l'environnement HDH doit être agrégé et
+respecter le seuil de diffusion ; à la livraison des scripts, `snds-query` le
+rappelle dans `## Confidentialité`.

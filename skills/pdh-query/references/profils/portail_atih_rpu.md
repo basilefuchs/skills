@@ -1,8 +1,7 @@
 # Profil — Portail ATIH / RPU (urgences)
 
 > **Profil partiel** : le schéma réel n'a pas encore été vérifié sur le portail.
-> Avant toute génération, confirmer le nom du schéma avec l'utilisateur (ou via le
-> dictionnaire) et compléter ce profil.
+> Le confirmer sur le portail, puis compléter ce profil.
 
 | Méta              | Valeur                                      |
 |-------------------|---------------------------------------------|
@@ -29,7 +28,7 @@
 | Piège                                   | Traitement                                  |
 |-----------------------------------------|---------------------------------------------|
 | Pas de clé de chaînage patient          | Comptage en **passages** uniquement         |
-| Couverture non exhaustive selon années  | Le signaler dans la note méthodologique     |
+| Couverture non exhaustive selon années  | Le signaler dans les points de vigilance de `## Données` |
 
 ## Défauts recommandés
 

@@ -15,10 +15,26 @@ question sur le dictionnaire ou une étape à écrire. Répondre directement,
 sans protocole ni question de cadrage préalable ; une ambiguïté se signale en
 une ligne dans la réponse, avec le choix retenu.
 
-Une question de recherche en langage naturel (« combien de patients
-diabétiques hospitalisés en 2023 ? ») relève de la skill `snds-query`, qui
-clarifie le protocole avant d'écrire le script : le dire en une ligne et
-s'arrêter là.
+Hors du parcours question → protocole → scripts, la skill y intervient en un
+point : après une erreur d'exécution d'un dossier de scripts généré par
+`snds-query`, la relecture du fichier en cause est le chemin de correction
+(mode relecture).
+
+## Deux arrêts
+
+Avant tout mode, deux cas se règlent en un seul message, puis arrêt :
+
+- **Question de recherche en langage naturel** (« combien de patients
+  diabétiques hospitalisés en 2023 ? ») : « Cadrez d'abord la question :
+  `/question-recherche-pico <question>`. » Rien d'autre.
+- **Données individuelles collées** : extrait de table, résultat ou message
+  d'erreur à une ligne par personne, séjour, prestation ou décès (valeurs
+  d'un identifiant comme `NIR_ANO_17`, `BEN_NIR_PSA`, `BEN_IDT_ANO`,
+  `RSA_NUM`, dates au jour). Arrêt net : le message nomme le signe sans
+  citer une valeur ni une ligne, demande de retirer ces données de la
+  conversation et rappelle que seule la procédure d'export de la plateforme
+  fait sortir des données, sous forme d'agrégats. Rien d'autre : la requête
+  ou la question collée avec elles se reprend une fois les données retirées.
 
 ## Ressources
 
@@ -53,9 +69,12 @@ répertoire de base de la skill.
    millésime, patients uniques pluriannuels, jointure DCIR à 9 colonnes,
    batch sur `FLX_DIS_DTD`), chacun dans le fichier de l'étape qui l'utilise.
 
-Les fichiers 1, 3, 4 et 5 sont copiés tels quels depuis `snds-query` : leurs
-renvois à `clarifications.md`, `points-de-vigilance.md`, `template.Rmd` ou
-aux étapes de `SKILL.md` visent cette autre skill et sont sans objet ici.
+Les fichiers 1, 3, 4 et 5 sont des copies, identiques à leur source : le
+dictionnaire (3), `scripts/build-dictionary.py` et le modèle de données (4)
+viennent de `snds-schema` ; le profil (1) et le squelette de scripts (5)
+viennent de `snds-query`. Leurs renvois à `protocole.md` ou à
+`points-de-vigilance.md` visent le parcours et ces autres skills : sans objet
+ici.
 
 ## Dictionnaire
 
@@ -142,12 +161,22 @@ Une requête sans constat se dit en une ligne, avec ce qui a été vérifié
 (tables, colonnes, millésimes). La relecture est complète quand les sept
 points ont été passés sur chaque table et chaque année de la requête.
 
+**Après une erreur d'exécution** d'un dossier généré par `snds-query` :
+l'utilisateur colle le fichier en cause (un fichier de `scripts/` ou un chunk
+de `analyse.Rmd`) et le message d'erreur. Rattacher l'erreur à sa ligne et au
+point de la grille qui l'explique (`ORA-00904` : points 1 et 2 ; `ORA-01795` :
+point 5 ; `ORA-00942` : schéma du profil), puis rendre ce fichier corrigé
+entier. Le protocole reste intact, comme les autres fichiers du dossier. Si
+l'erreur vient d'un critère du protocole, le dire en une ligne :
+`/snds-schema` amende le protocole, puis `/snds-query` régénère le dossier.
+Une correction n'est pas mémorisée : une régénération l'écrase.
+
 ### Grille
 
 Gravité par défaut : points 1 à 3 **bloquant** (la requête échoue ou compte
 faux), 4 à 6 **à vérifier** (résultat plausible mais biaisé ou lent), 7
-**suggestion** (bloquant si l'utilisateur annonce une diffusion). Chaque
-point renvoie à sa source de détail.
+**bloquant** quelle que soit la finalité (l'année PMSI : **à vérifier**).
+Chaque point renvoie à sa source de détail.
 
 1. **Existence et noms réels.** Chaque table et colonne existe dans
    `variables.tsv`, sur la bonne table (`SEJ_TYP` est dans `T_MCO{aa}B`, pas
@@ -194,10 +223,12 @@ point renvoie à sa source de détail.
    `DBMS_STATS.GATHER_TABLE_STATS`) ; patients uniques pluriannuels sommés
    par année au lieu d'une union avant `n_distinct`. Pattern de référence :
    `template/06_sorties.R` (Pattern B) et `template/01_inclusion.R` (Pattern C).
-7. **Sorties.** Cellules de 1 à 10 dans un résultat destiné à sortir de
-   l'environnement (seuil 11) ; écriture locale d'un identifiant, d'une date
-   ou d'une localisation individuelle ; année PMSI = année de sortie, à dire
-   si la requête parle d'incidence ou d'entrée.
+7. **Sorties.** Cellules de 1 à 10 (seuil 11) dans un fichier écrit ou un
+   résultat destiné à sortir de l'environnement, quelle que soit la
+   finalité ; l'écran peut rester brut ; dans un script généré par
+   `snds-query`, fichier écrit hors `exporter()` ; écriture locale d'un
+   identifiant, d'une date ou d'une localisation individuelle ; année PMSI
+   = année de sortie, à dire si la requête parle d'incidence ou d'entrée.
 
 ## Mode complétion
 
@@ -230,10 +261,8 @@ requête à relire, ou posez votre question (table, variable, fragment à
   R dbplyr). SAS se lit (un script existant collé) et se traduit en R dbplyr
   sur demande ; la skill n'écrit jamais de SAS. Le style historique
   `glue()` + chaîne SQL brute se lit et se relit tel quel.
-- **Données individuelles collées** (résultats, extraits de table) :
-  traiter la requête normalement et rappeler en une ligne que les données
-  individuelles du SNDS ne se collent pas hors de l'environnement.
-- **Confidentialité des sorties** : secret statistique (aucune cellule de 1
-  à 10, seuil 11) dès que l'utilisateur annonce une diffusion ; jamais
-  d'écriture locale d'identifiants, de dates ou de localisations
-  individuelles.
+- **Confidentialité des sorties** : tout fichier écrit sur la plateforme
+  est sous seuil (aucune cellule de 1 à 10, seuil 11), quelle que soit la
+  finalité ; l'écran peut rester brut. Dans un script de la chaîne
+  (`snds-query`), toute écriture passe par `exporter()`. Jamais d'écriture
+  locale d'identifiants, de dates ou de localisations individuelles.

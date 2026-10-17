@@ -93,7 +93,8 @@ passages uniquement. Couverture non exhaustive selon les années : le signaler.
   suivi inter-champs). Dans `fixe` (MCO) ou `fixe_sej` (SSR/HAD/PSY).
 - **Qualité obligatoire** : ne garder que les séjours où `ano_retour` (concaténation de
   9 codes retour) vaut `'000000000'` — sinon la clé n'est pas fiable (patient compté
-  plusieurs fois). Mentionner dans la note méthodologique la part de séjours exclus.
+  plusieurs fois). La part de séjours exclus est une perte à quantifier, que le
+  flowchart des scripts chiffre.
 - Patients uniques sur plusieurs années : `n_distinct(anonyme)` **sur l'union des
   années**, pas la somme des distincts annuels.
 

@@ -32,12 +32,8 @@ Rendu : rmarkdown, rmdformats, DT (packages à signaler à l'utilisateur). -->
 
 ```{r setup, include = FALSE}
 # ==============================================================================
-# Indicateur : <titre court de l'indicateur / de la question>
 # Question   : <question en langage naturel de l'utilisateur>
 # Protocole  : <résumé 1 ligne : sources SNDS, population, exclusions, critère de jugement>
-# Source     : <si indicateur documenté : référence biblio, DOI>          [optionnel]
-# Catégorie  : <ex. 02_casemix_patientele, 04_efficience_capacitaire>     [optionnel]
-# Fiche      : <chemin de la fiche indicateur si elle existe>             [optionnel]
 # ==============================================================================
 
 # ==== PROFIL DE BASE (mapping utilisé — profils/hdh_oracle.md) =====
@@ -55,14 +51,14 @@ Rendu : rmarkdown, rmdformats, DT (packages à signaler à l'utilisateur). -->
 # Jointure DCIR -> référentiel : BEN_NIR_PSA + BEN_RNG_GEM (clé de IR_BEN_R, PAS un
 #   identifiant d'individu : un individu peut porter plusieurs BEN_NIR_PSA)
 # Individu (tous SNDS)         : IR_BEN_R.BEN_IDT_ANO ; causes de décès reliées par
-#   KI_CCI_R.BEN_IDT_ANO = IR_BEN_R.BEN_IDT_ANO — voir modele-donnees.md,
-#   section « Chaînage patient », avant tout rapprochement inter-sources.
+#   KI_CCI_R.BEN_IDT_ANO = IR_BEN_R.BEN_IDT_ANO — voir « Chaînage » de
+#   `## Données` (protocole.md) avant tout rapprochement inter-sources.
 # GHM (6 car) / CMD (2 car)    : GRG_GHM / substr(GRG_GHM, 1, 2)
 # Géo. résidence patient       : BDI_DEP (T_MCO{aa}B) ; BEN_RES_COM / BEN_RES_DPT (ER_PRS_F)
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le rapport,
-#      vérifiés dans le dictionnaire (variables.tsv), millésimes compris.
-# Dictionnaire : schema-snds (Health Data Hub, MPL-2.0), commit <SOURCE.txt>
+#      vérifiés par snds-schema (`## Données` de protocole.md), millésimes compris.
+# Dictionnaire : <ligne Dictionnaire de `## Données`, recopiée telle quelle> (schema-snds, Health Data Hub, MPL-2.0)
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, eval = TRUE, message = FALSE)
 options(knitr.kable.NA = '')
@@ -96,12 +92,22 @@ library(scales)
 annees     <- 2021:2024                                # années PMSI (année de sortie)
 codes_cim3 <- c("E10", "E11", "E12", "E13", "E14")      # codes CIM-10 (3 caractères)
 
-# Secret statistique : selon la finalité validée (bloc 0 des clarifications).
-# FALSE pour un dénombrement interne ; TRUE dès que les sorties sont diffusées
-# à l'extérieur (aucune cellule < seuil). Appliqué en 05_flowchart (effectifs
-# et nombres d'exclus) et 06_sorties (résultats).
-secret_statistique <- FALSE
+# Secret statistique. Règle : ce qui s'affiche peut être brut, ce qui s'écrit
+# est sous seuil. Tout fichier de sorties/ passe par exporter() (ci-dessous),
+# qui masque toujours ; secret_statistique régit le rapport HTML, lui aussi un
+# fichier écrit : TRUE (défaut) donne des tables et un texte identiques aux
+# fichiers de sorties/ ; FALSE, un HTML brut, à lire sur la plateforme et à ne
+# jamais exporter.
+secret_statistique <- TRUE
 seuil              <- 11
+
+# Sorties : dossier sorties/ à côté du .Rmd et de protocole.md (le .Rmd est
+# rendu depuis son dossier) ; valeurs reprises dans sorties/manifeste.md.
+dossier_sorties  <- "sorties"
+question         <- "<question en langage naturel de l'utilisateur>"
+sources          <- "<PMSI MCO / DCIR / CAUSE_DECES>"
+dictionnaire     <- "<ligne Dictionnaire de ## Données, recopiée telle quelle>"
+protocole_valide <- "<AAAA-MM-JJ, date de validation du protocole>"
 
 # NIR_ANO_17 fictifs (documentation officielle HDH) : à exclure avant tout
 # comptage de patients, sinon chaque valeur fictive compte comme un patient.
@@ -156,8 +162,9 @@ compute_session <- function(requete, nom) {
 # chaque exclusion successive en 02) ; 05_flowchart assemble, sans rien
 # redéfinir. Libellé : préfixe du chunk + lettre si plusieurs étapes dans un
 # chunk ("02a", "02b"…) ; le tri alphabétique restitue l'ordre du protocole.
-# nb_sejours : 1 ligne = 1 séjour en PMSI ; renommer (nb_prestations,
-# nb_deces) si l'unité du protocole est la prestation DCIR ou le décès.
+# nb_sejours : nom fixé par le contrat de sorties/flowchart.csv, gardé quelle
+# que soit l'unité du protocole (1 ligne = 1 séjour en PMSI, 1 prestation en
+# DCIR, 1 décès en CAUSE_DECES) ; ne pas le renommer.
 attrition <- tibble::tibble(etape = character(), annee = integer(), nb_sejours = numeric())
 
 noter_attrition <- function(attrition, requete, etape) {
@@ -170,12 +177,61 @@ noter_attrition <- function(attrition, requete, etape) {
     bind_rows(effectifs)
 }
 
+# ==== SORTIES : exporter(), seule voie d'écriture de fichier ====
+# Même fonction que 00_setup.R du dossier de scripts, qui documente ses
+# arguments ; appelée par le chunk 06_sorties_export, une fois par fichier.
+# Renvoie, invisible, la table telle qu'écrite (NA = cellule masquée).
+sorties_ecrites <- tibble::tibble(fichier = character(), cellules_masquees = integer())
+
+exporter <- function(x, fichier, comptages = character(), derivees = character()) {
+  dir.create(dossier_sorties, showWarnings = FALSE, recursive = TRUE)
+  chemin <- file.path(dossier_sorties, fichier)
+  if (inherits(x, "ggplot")) {
+    ggplot2::ggsave(chemin, plot = x, width = 8, height = 5, dpi = 150)
+    masquees <- NA_integer_
+  } else {
+    for (col in comptages) x[[col]] <- as.numeric(x[[col]])   # integer64, texte
+    effectifs  <- as.matrix(x[comptages])
+    sous_seuil <- !is.na(effectifs) & effectifs > 0 & effectifs < seuil
+    for (col in comptages) x[[col]][sous_seuil[, col]] <- NA
+    for (col in derivees)  x[[col]][rowSums(sous_seuil) > 0] <- NA
+    masquees <- as.integer(sum(sous_seuil))
+    utils::write.csv(x, chemin, row.names = FALSE, fileEncoding = "UTF-8")
+  }
+
+  sorties_ecrites <<- sorties_ecrites |>
+    filter(fichier != !!fichier) |>
+    bind_rows(tibble::tibble(fichier = fichier, cellules_masquees = masquees))
+  writeLines(enc2utf8(c(
+    "# Manifeste de sorties/",
+    "",
+    paste0("- Question : ", question),
+    paste0("- Répertoire : ", basename(normalizePath(file.path(dossier_sorties, "..")))),
+    paste0("- Date d'exécution : ", format(Sys.time(), "%Y-%m-%d %H:%M")),
+    paste0("- Années : ", paste(annees, collapse = ", ")),
+    paste0("- Sources : ", sources),
+    paste0("- Seuil : ", seuil),
+    paste0("- Secret appliqué : comptages de 1 à ", seuil - 1, " masqués (NA), ",
+           "colonnes dérivées de leur ligne aussi"),
+    paste0("- Dictionnaire : ", dictionnaire),
+    paste0("- Protocole validé le : ", protocole_valide),
+    "",
+    "| Fichier | Cellules masquées |",
+    "| --- | --- |",
+    paste0("| ", sorties_ecrites$fichier, " | ",
+           ifelse(is.na(sorties_ecrites$cellules_masquees), "sans objet (figure)",
+                  sorties_ecrites$cellules_masquees), " |")
+  )), file.path(dossier_sorties, "manifeste.md"), useBytes = TRUE)
+
+  invisible(x)
+}
+
 # ==== RÈGLE SNDS : NON-PERSISTANCE LOCALE ====
 # Aucun fichier local ne contient un identifiant (NIR_ANO_17, BEN_NIR_PSA,
 # BEN_IDT_ANO…), une date ou une localisation individuelle : les tables de
-# session restent dans Oracle, et seuls des AGRÉGATS vérifiés vis-à-vis du
-# seuil (06_sorties) sortent de l'environnement HDH. Le rapport rendu ne
-# contient que du code, des agrégats et la section Méthodologie.
+# session restent dans Oracle, et seuls des AGRÉGATS sous seuil, écrits par
+# exporter() dans sorties/, sortent de l'environnement HDH. Le rapport HTML
+# suit secret_statistique : brut (FALSE), il ne quitte pas la plateforme.
 ```
 
 ```{r 01_inclusion}
@@ -295,10 +351,11 @@ attrition <- noter_attrition(attrition, pop_03_critere_jugement, "03 Critere de 
 pop_04_covariables <- pop_03_critere_jugement |>
   mutate(
     classe_age = case_when(
-      AGE_ANN < 18 ~ "0-17",
-      AGE_ANN < 65 ~ "18-64",
-      AGE_ANN < 80 ~ "65-79",
-      TRUE         ~ "80+"
+      AGE_ANN < 18  ~ "0-17",
+      AGE_ANN < 65  ~ "18-64",
+      AGE_ANN < 80  ~ "65-79",
+      AGE_ANN >= 80 ~ "80+",
+      TRUE          ~ "Inconnu"                     # AGE_ANN manquant
     ),
     sexe_lib = case_when(COD_SEX == "1" ~ "Homme", COD_SEX == "2" ~ "Femme", TRUE ~ "Inconnu")
   ) |>
@@ -310,44 +367,37 @@ attrition <- noter_attrition(attrition, pop_04_covariables, "04 Covariables")
 ```{r 05_flowchart}
 # ==== 05 — FLOWCHART D'ATTRITION ====
 # Attendu : objet `attrition`, rempli par les chunks 01 à 04
-# Produit : objet `flowchart` (annee, etape, nb_sejours, nb_exclus, pct_perdu),
-#           affiché dans la section Méthodologie. Ne redéfinit aucune étape.
+# Produit : objet `flowchart` (annee, etape, nb_sejours, nb_exclus), écrit dans
+#           sorties/flowchart.csv (chunk 06_sorties_export) et affiché dans la
+#           section Résultats. Ne redéfinit aucune étape.
 
 flowchart <- attrition |>
   arrange(annee, etape) |>                  # le préfixe "01", "02a"… donne l'ordre
   group_by(annee) |>
-  mutate(
-    nb_exclus = lag(nb_sejours) - nb_sejours,
-    pct_perdu = round(100 * nb_exclus / lag(nb_sejours), 1)
-  ) |>
+  mutate(nb_exclus = coalesce(lag(nb_sejours) - nb_sejours, 0)) |>  # 0 à l'inclusion
   ungroup() |>
-  select(annee, etape, nb_sejours, nb_exclus, pct_perdu)
+  select(annee, etape, nb_sejours, nb_exclus)
 
-# Secret statistique : diffusion externe seulement (paramètre du chunk setup).
-# Effectifs ET nombres d'exclus entre étapes (un exclus < seuil se déduit
-# sinon de deux effectifs diffusés) ; 0 reste diffusable.
-if (secret_statistique) {
-  flowchart <- flowchart |>
-    mutate(
-      nb_sejours = if_else(nb_sejours > 0 & nb_sejours < seuil, NA_real_, nb_sejours),
-      nb_exclus  = if_else(nb_exclus > 0 & nb_exclus < seuil, NA_real_, nb_exclus)
-    )
-}
+# nb_exclus est requis par le contrat ; masque primaire seulement : une
+# cellule masquée se déduit par différence des nb_sejours voisins (voir
+# exporter()), et la procédure d'export de la plateforme reste seule juge de
+# ce qui sort.
 ```
 
 ```{r 06_sorties}
 # ==== 06 — RÉSULTAT ====
 # Table attendue : tmp_04_covariables (pop_04_covariables), ou
 #                  tmp_03_critere_jugement si le protocole n'a pas de covariable
-# Produit        : objets `resultat_annuel`, `nb_patients_periode`
+# Produit        : objets `resultat_annuel`, `nb_patients_periode`,
+#                  `strate_<variable>` (une table par stratification)
 # Le calcul reste côté Oracle ; collect() uniquement sur les agrégats.
 # Libellés (référentiels), indicateurs méthodologiques : references/template/06_sorties.R
 
 pop_analyse <- pop_04_covariables      # pop_03_critere_jugement si 04 omis
 
-# -- Pattern A — agrégats par année (et par strate) ----------------------------
+# -- Pattern A — agrégats par année --------------------------------------------
 resultat_annuel <- pop_analyse |>
-  group_by(annee) |>                   # + sexe_lib, classe_age… selon la stratification
+  group_by(annee) |>
   summarise(
     nb_sejours  = n(),                 # 1 ligne = 1 séjour (ou n_distinct(sejour_id))
     nb_patients = n_distinct(NIR_ANO_17)   # patients uniques PAR ANNÉE — pseudonymes
@@ -362,108 +412,48 @@ nb_patients_periode <- pop_analyse |>
   summarise(nb_patients = n_distinct(NIR_ANO_17)) |>
   collect()
 
-# -- Secret statistique (seuil = 11) : diffusion externe seulement (chunk setup)
-# verifier_seuil() arrête le rendu sur toute cellule de 1 à seuil - 1 (0
-# diffusable) : stop() plutôt que warning(), car warning = FALSE (chunk setup)
-# masquerait l'alerte dans le rapport. Corriger en regroupant les modalités
-# < seuil sous "Autre" puis en ré-agrégeant (group_by + summarise une seconde
-# fois), plutôt que masquer : les totaux restent justes.
-verifier_seuil <- function(df, col_effectif) {
-  n_masque <- sum(df[[col_effectif]] > 0 & df[[col_effectif]] < seuil, na.rm = TRUE)
-  if (n_masque > 0) {
-    stop(sprintf(
-      "%d cellule(s) < %d (%s) - à regrouper sous 'Autre' avant toute diffusion externe.",
-      n_masque, seuil, col_effectif
-    ))
-  }
-  df
-}
-if (secret_statistique) {
-  resultat_annuel     <- resultat_annuel |> verifier_seuil("nb_patients") |> verifier_seuil("nb_sejours")
-  nb_patients_periode <- nb_patients_periode |> verifier_seuil("nb_patients")
-  # resultat_annuel <- resultat_annuel |>
-  #   mutate(classe_age = if_else(nb_patients < seuil, "Autre", classe_age)) |>
-  #   group_by(annee, classe_age) |>
-  #   summarise(across(c(nb_sejours, nb_patients), sum), .groups = "drop")
-}
+# -- Tables stratifiées : une par variable de stratification du protocole -------
+# (strate_sexe_lib, strate_classe_age…), par année, aucune sans stratification ;
+# le pourcentage est une colonne dérivée, masquée avec les effectifs de sa ligne.
+# Masque primaire : une modalité masquée seule se déduit du total de l'année
+# (nb_sejours de resultat_annuel.csv), et le pourcentage d'une ligne visible
+# redonne lui aussi le total des nb_patients ; le regroupement sous "Autre"
+# ci-dessous en est la parade.
+strate_classe_age <- pop_analyse |>
+  group_by(annee, classe_age) |>
+  summarise(nb_sejours = n(), nb_patients = n_distinct(NIR_ANO_17), .groups = "drop") |>
+  collect() |>
+  # Regroupement sous "Autre", à proposer si la table compte des cellules
+  # masquées : modalités < seuil regroupées puis ré-agrégées avant exporter(),
+  # moins de cellules masquées et des totaux justes.
+  # mutate(classe_age = if_else(nb_patients < seuil, "Autre", classe_age)) |>
+  # group_by(annee, classe_age) |>
+  # summarise(across(c(nb_sejours, nb_patients), sum), .groups = "drop") |>
+  group_by(annee) |>
+  mutate(pct_patients = round(100 * nb_patients / sum(nb_patients), 1)) |>
+  ungroup() |>
+  arrange(annee, classe_age)
 ```
 
-# Méthodologie
+```{r 06_sorties_export}
+# ==== ÉCRITURE DE sorties/ : mêmes fichiers que le dossier de scripts ====
+# Règle SNDS (chunk setup) : aucun fichier ne contient un identifiant
+# (pseudonyme patient, clé de séjour), une date de soin ou une localisation
+# fine ; seuls des agrégats sont écrits, par exporter(), sous seuil.
+flowchart_ecrit  <- exporter(flowchart, "flowchart.csv",
+                             comptages = c("nb_sejours", "nb_exclus"))
+annuel_ecrit     <- exporter(resultat_annuel, "resultat_annuel.csv",
+                             comptages = c("nb_sejours", "nb_patients"))
+periode_ecrit    <- exporter(nb_patients_periode, "nb_patients_periode.csv",
+                             comptages = "nb_patients")
+classe_age_ecrit <- exporter(strate_classe_age, "strate_classe_age.csv",
+                             comptages = c("nb_sejours", "nb_patients"),
+                             derivees = "pct_patients")
 
-## Question et périmètre
-
-<Reformuler la question en 2-3 phrases : population, phénomène mesuré, période,
-source(s) SNDS, unité de compte.>
-
-- **Sources SNDS** : <PMSI MCO / DCIR / CAUSE_DECES ; si plusieurs : intersection
-  ou union, et méthode de chaînage retenue (`NIR_ANO_17` = `BEN_NIR_PSA`,
-  individu `IR_BEN_R.BEN_IDT_ANO`)>.
-- **Population** : <champ(s), années, critères d'inclusion validés avec l'utilisateur>.
-- **Exclusions** : <dans l'ordre du chunk 02_exclusion>.
-- **Unité de compte** : <patients uniques / séjours / journées / délivrances>.
-- **Période** : <années>.
-- **Stratification** : <année, sexe, classe d'âge…>.
-- **Dictionnaire** : schema-snds, commit <SOURCE.txt> ; chaque table et variable
-  vérifiée pour chaque millésime demandé.
-
-## Définitions et source des codes
-
-<Codes CIM-10 / CCAM / ATC retenus, avec la source si issue d'une recherche de
-références (Santé publique France, cartographie CNAM, HAS, projet de
-l'écosystème SNDS, publication), et les amendements de l'utilisateur.>
-
-<!-- Si la finalité implique une diffusion externe (bloc 0 des clarifications) :
-
-## Secret statistique
-
-Les effectifs du flowchart (séjours et exclus) inférieurs à `r seuil` sont
-masqués, et les répartitions par <dimension> appliquent un secret statistique :
-toute combinaison regroupant moins de `r seuil` <séjours/patients> est
-reclassée sous la modalité "Autre" avant ré-agrégation.
--->
-
-## Flowchart d'attrition
-
-Effectifs à chaque étape du protocole, tels que notés par les chunks 01 à 04 :
-c'est ce qui rend l'analyse auditable.
-
-```{r 05_flowchart_table}
-flowchart |>
-  setNames(c("Année", "Étape", "Nombre de séjours", "Exclus", "% perdu")) |>
-  dtttable()
-```
-
-## Limites connues
-
-<2-3 limites ciblées sur ce protocole précis — cf. « Points de vigilance » du
-workflow de la skill (fiabilité du chaînage inter-source le cas échéant,
-année PMSI = année de sortie, évolutions de codage, alimentation effective des
-variables DCIR, dates PMSI absentes avant 2009, réforme SMR 2023, exhaustivité
-du statut vital, années Covid dans une tendance, petits effectifs…). Ne rien
-lister qui ne s'applique pas.>
-
-## Pistes de sensibilité
-
-<ex. élargir aux DAS (variante de `01_inclusion.R`), croiser avec le DCIR
-(pharmacie, actes en ville), inclure les séances, codes complets plutôt que
-troncature à 3 caractères, marge de flux DCIR plus large.>
-
-## Confidentialité
-
-Aucune donnée individuelle n'a quitté l'environnement du Health Data Hub :
-les tables intermédiaires sont des tables de session Oracle, et aucun fichier
-local ne contient d'identifiant, de date ou de localisation individuelle. Les
-seules sorties sont des agrégats, <soumis au seuil de 11 / sans secret
-statistique (dénombrement interne)>.
-
-# Résultats
-
-Sur l'ensemble de la période, `r format(nb_patients_periode$nb_patients, big.mark = " ")`
-patients uniques.
-
-```{r 06_sorties_figure}
-# ==== FIGURE (adapter au critère de jugement) ====
-ggplot(resultat_annuel, aes(x = annee, y = nb_patients)) +
+# Figure de resultat_annuel, toujours (critère de jugement en y) : construite
+# uniquement depuis un agrégat écrit, une barre masquée n'apparaît pas ;
+# affichée dans la section Résultats.
+figure_annuelle <- ggplot(annuel_ecrit, aes(x = annee, y = nb_patients)) +
   geom_col(fill = "#4E79A7") +
   scale_x_continuous(breaks = annees) +
   labs(
@@ -473,22 +463,53 @@ ggplot(resultat_annuel, aes(x = annee, y = nb_patients)) +
     caption  = "Source : SNDS (Health Data Hub)"
   ) +
   theme_minimal(base_size = 11)
+exporter(figure_annuelle, "figure_resultat_annuel.png")
+
+# Affichage du rapport : brut, ou tel qu'écrit si secret_statistique (chunk setup).
+if (secret_statistique) {
+  flowchart           <- flowchart_ecrit
+  resultat_annuel     <- annuel_ecrit
+  nb_patients_periode <- periode_ecrit
+  strate_classe_age   <- classe_age_ecrit
+}
+
+# Fin du travail : les lignes des tables de session disparaissent à la déconnexion.
+dbDisconnect(conn)
+```
+
+# Méthodologie
+
+Le protocole de l'étude est `protocole.md`, à côté de ce rapport : question,
+données (tables, variables, millésimes, codes et leur source), protocole validé
+et confidentialité. Il fait foi et n'est pas recopié ici.
+
+Les fichiers de `sorties/` masquent tout effectif de 1 à `r seuil - 1`, avec
+les pourcentages et taux de sa ligne ; les tables de ce rapport sont
+`r if (secret_statistique) "celles des fichiers" else "brutes, non masquées"`.
+
+# Résultats
+
+## Flowchart d'attrition
+
+```{r 05_flowchart_table}
+flowchart |>
+  setNames(c("Année", "Étape", "Nombre de séjours", "Exclus")) |>
+  dtttable()
+```
+
+## Résultat principal
+
+Sur l'ensemble de la période, `r format(nb_patients_periode$nb_patients, big.mark = " ")`
+patients uniques.
+
+```{r 06_sorties_figure}
+# Figure construite et écrite dans le chunk 06_sorties_export (adapter au
+# critère de jugement).
+figure_annuelle
 ```
 
 ```{r 06_sorties_table}
 resultat_annuel |>
   setNames(c("Année", "Nombre de séjours", "Nombre de patients")) |>
   dtttable()
-```
-
-```{r 06_sorties_export}
-# ==== EXPORT (décommenter si besoin) ====
-# Règle SNDS (chunk setup) : ne jamais persister en local un fichier contenant
-# un identifiant (pseudonyme patient, clé de séjour), une date de soin ou une
-# localisation fine — seuls des AGRÉGATS vérifiés par verifier_seuil() sortent.
-# readr::write_csv(resultat_annuel, "resultat_annuel.csv")
-# readr::write_csv(flowchart, "flowchart.csv")
-
-# Fin du travail : les lignes des tables de session disparaissent à la déconnexion.
-dbDisconnect(conn)
 ```

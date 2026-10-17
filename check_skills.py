@@ -12,18 +12,33 @@ import sys
 from pathlib import Path
 
 SKILLS_DIR = "skills"
+README = "README.md"
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 NESTED_RE = re.compile(r"^(- |[\w-]+:)")
+CATALOGUE_RE = re.compile(r"^\|\s*`([^`]+)`\s*\|")
+
+
+def scalar(key, value):
+    """Valeur d'une ligne `clé: valeur`, guillemets retirés.
+
+    Lève ValueError pour une valeur non citée contenant « : », que YAML refuse.
+    """
+    if value[:1] in "'\"":
+        return value[1:-1] if len(value) >= 2 and value[-1] == value[0] else value[1:]
+    if ": " in value or value.endswith(":"):
+        raise ValueError(f"« {key} » : valeur non citée contenant « : », YAML invalide")
+    return value
 
 
 def parse_frontmatter(text):
-    """Renvoie le dict des clés de premier niveau, ou None sans frontmatter.
+    """Renvoie le dict des clés du frontmatter, ou None sans frontmatter.
 
     Sous-ensemble YAML : `clé: valeur`, éventuellement prolongée par des lignes
     indentées (dépliées), blocs `>` (dépliés) et `|` (lignes conservées),
-    valeurs entre guillemets, et clés suivies d'une liste ou d'un dictionnaire
-    imbriqué (valeur ignorée). Lève ValueError pour une valeur non citée
-    contenant « : », que YAML refuse.
+    valeurs entre guillemets, clés suivies d'une liste (valeur ignorée) ou d'un
+    dictionnaire imbriqué, dont les paires `clé: valeur` sont rendues sous une
+    clé pointée (`metadata.suivante`). Lève ValueError pour une valeur non
+    citée contenant « : », que YAML refuse.
     """
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
@@ -51,19 +66,18 @@ def parse_frontmatter(text):
         elif value.startswith(">"):
             value = " ".join(part for part in block if part)
         elif not value and NESTED_RE.match(first):
-            value = ""
+            for part in block:
+                if part and part[0] not in "#-" and ":" in part:
+                    sub_key, sub_value = (p.strip() for p in part.split(":", 1))
+                    fields[f"{key}.{sub_key}"] = scalar(f"{key}.{sub_key}", sub_value)
         else:
-            value = " ".join(part for part in [value, *block] if part)
-            if value[:1] in "'\"":
-                value = value[1:-1] if len(value) >= 2 and value[-1] == value[0] else value[1:]
-            elif ": " in value or value.endswith(":"):
-                raise ValueError(f"« {key} » : valeur non citée contenant « : », YAML invalide")
+            value = scalar(key, " ".join(part for part in [value, *block] if part))
         fields[key] = value
     return fields
 
 
-def check_skill(skill_dir):
-    """Violations propres à un dossier de skill."""
+def check_skill(skill_dir, skill_names):
+    """Violations propres à un dossier de skill ; `skill_names` : les dossiers de skills/."""
     subject = f"{SKILLS_DIR}/{skill_dir.name}"
     skill_md = skill_dir / "SKILL.md"
     if not skill_md.is_file():
@@ -90,14 +104,34 @@ def check_skill(skill_dir):
         violations.append(("name-dossier", subject, f"name « {name} » différent du dossier « {skill_dir.name} »"))
     if len(description) > 200:
         violations.append(("description-200", subject, f"description de {len(description)} caractères (200 au plus)"))
+    for target in fields.get("metadata.suivante", "").split():
+        if target not in skill_names:
+            violations.append(("suivante", subject, f"metadata.suivante « {target} » : aucun dossier {SKILLS_DIR}/{target}"))
     return violations
 
 
+def catalogued_skills(root):
+    """Noms en première colonne des lignes de tableau du README racine ; vide sans README."""
+    readme = root / README
+    if not readme.is_file():
+        return set()
+    matches = map(CATALOGUE_RE.match, readme.read_text(encoding="utf-8").splitlines())
+    return {match.group(1) for match in matches if match}
+
+
 def check_repo(root):
-    skill_dirs = sorted(p for p in (root / SKILLS_DIR).glob("*") if p.is_dir()) if (root / SKILLS_DIR).is_dir() else []
+    skills = root / SKILLS_DIR
+    skill_dirs = sorted(p for p in skills.glob("*") if p.is_dir()) if skills.is_dir() else []
     if not skill_dirs:
         return [("aucune-skill", SKILLS_DIR, "aucun dossier de skill (racine du dépôt ?)")]
-    return [v for skill_dir in skill_dirs for v in check_skill(skill_dir)]
+    skill_names = {p.name for p in skill_dirs}
+    catalogued = catalogued_skills(root)
+    violations = []
+    for skill_dir in skill_dirs:
+        violations.extend(check_skill(skill_dir, skill_names))
+        if skill_dir.name not in catalogued:
+            violations.append(("catalogue", f"{SKILLS_DIR}/{skill_dir.name}", f"aucune ligne dans le tableau de {README}"))
+    return violations
 
 
 def main(argv):

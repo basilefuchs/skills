@@ -13,10 +13,11 @@
 pop_04_covariables <- pop_03_critere_jugement |>
   mutate(
     classe_age = case_when(
-      AGE_ANN < 18 ~ "0-17",
-      AGE_ANN < 65 ~ "18-64",
-      AGE_ANN < 80 ~ "65-79",
-      TRUE         ~ "80+"
+      AGE_ANN < 18  ~ "0-17",
+      AGE_ANN < 65  ~ "18-64",
+      AGE_ANN < 80  ~ "65-79",
+      AGE_ANN >= 80 ~ "80+",
+      TRUE          ~ "Inconnu"                     # AGE_ANN manquant
     ),
     sexe_lib = case_when(COD_SEX == "1" ~ "Homme", COD_SEX == "2" ~ "Femme", TRUE ~ "Inconnu")
   ) |>

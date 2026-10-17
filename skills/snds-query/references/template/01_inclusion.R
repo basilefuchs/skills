@@ -60,7 +60,7 @@ attrition <- noter_attrition(attrition, pop_01_inclusion, "01 Sejours DP cible")
 # EXT_PMSI (extension documentaire) n'existe qu'à partir de 2015.
 # Pathologie ET acte (intersection) : enchaîner le filter() sur DGN_PAL et le
 # semi_join ; pathologie OU acte (union) : union_all des deux requêtes puis
-# distinct — effectifs très différents (clarification Q1 / Q3a-Q3b).
+# distinct — effectifs très différents (ligne Sources de `## Données`).
 
 # -- Variante SSR : clé (ETA_NUM, RHA_NUM), tables T_SSR{aa}C / T_SSR{aa}B,
 #    diagnostic = FP_PEC (jusqu'en 2022) / MOR_PRP / ETL_AFF selon le protocole
@@ -96,8 +96,8 @@ attrition <- noter_attrition(attrition, pop_01_inclusion, "01 Sejours DP cible")
 #   semi_join(cip_cible, by = c("PHA_PRS_C13" = "PHA_CIP_C13")) |>
 #   transmute(anonyme = BEN_NIR_PSA, rang = BEN_RNG_GEM, dte_exe = EXE_SOI_DTD)
 # ATTENTION : la forme ci-dessus ne doit PAS être exécutée telle quelle au-delà
-# de quelques mois — ER_PRS_F est trop volumineuse (voir modele-donnees.md,
-# piège n°11). Batcher sur FLX_DIS_DTD : voir Pattern C ci-dessous.
+# de quelques mois — ER_PRS_F est trop volumineuse. Batcher sur FLX_DIS_DTD :
+# voir Pattern C ci-dessous.
 
 # -- Variante : croisement de sources (PMSI x DCIR, PMSI x CAUSE_DECES) -------
 # Le croisement reste DANS ce fichier : une requête lazy par source, ramenée à
@@ -106,8 +106,8 @@ attrition <- noter_attrition(attrition, pop_01_inclusion, "01 Sejours DP cible")
 #   union (« hospitalisés OU traités »)        : union_all puis distinct.
 # Clé commune : NIR_ANO_17 (PMSI) = BEN_NIR_PSA (DCIR) ; individu et décès via
 # IR_BEN_R.BEN_IDT_ANO (plusieurs BEN_NIR_PSA par individu, appariement des
-# décès incomplet : DCD_IDT_TOP) — lire modele-donnees.md, « Chaînage
-# patient », avant d'écrire la jointure ; noter la perte dans attrition.
+# décès incomplet : DCD_IDT_TOP) — lire « Chaînage » de `## Données` avant
+# d'écrire la jointure ; noter la perte dans attrition.
 # deces_cible <- tbl(conn, I("KI_CCI_R")) |>
 #   filter(substr(DCD_CIM_COD, 1, 3) %in% codes_cim3) |>   # cause initiale
 #   distinct(BEN_IDT_ANO)
@@ -120,7 +120,7 @@ attrition <- noter_attrition(attrition, pop_01_inclusion, "01 Sejours DP cible")
 # La boucle de flux court donc jusqu'à la fin de la période clinique PLUS UNE
 # MARGE (documentation officielle HDH, fiche filtres : au minimum 5 mois de
 # données après la période, 12 mois pour une extraction exhaustive, jamais plus
-# de 24 — voir points-de-vigilance.md), chaque batch filtrant ensuite
+# de 24), chaque batch filtrant ensuite
 # précisément sur EXE_SOI_DTD.
 #
 # date_debut  <- as.Date("2020-01-01")   # début période clinique demandée
@@ -166,10 +166,11 @@ attrition <- noter_attrition(attrition, pop_01_inclusion, "01 Sejours DP cible")
 #     filter(is.na(ETE_IND_TAA) | ETE_IND_TAA != 1) |>      # hors ES ex-DG en facturation directe
 #     inner_join(pha, by = DCIR_JOIN_KEY) |>
 #     semi_join(cip_cible, by = c("PHA_PRS_C13" = "PHA_CIP_C13")) |>
-#     transmute(anonyme = BEN_NIR_PSA, rang = BEN_RNG_GEM, dte_exe = EXE_SOI_DTD, cip = PHA_PRS_C13) |>
+#     transmute(anonyme = BEN_NIR_PSA, rang = BEN_RNG_GEM, dte_exe = EXE_SOI_DTD, cip = PHA_PRS_C13,
+#               annee = sql("EXTRACT(YEAR FROM EXE_SOI_DTD)")) |>   # annee du flowchart : année de soin en DCIR
 #     collect()                                              # collect PAR BATCH : seule exception documentée à la
 #                                                             # règle "jamais de collect() avant agrégation
-#                                                             # finale" (SKILL.md § 5) -- itération sur
+#                                                             # finale" (rappels de 00_setup.R) -- itération sur
 #                                                             # plusieurs connexions, impossible à garder lazy
 # }
 #

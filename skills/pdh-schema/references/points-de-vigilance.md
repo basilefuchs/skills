@@ -3,7 +3,7 @@
 Checklist des risques méthodologiques classiques à évaluer pour un protocole PMSI.
 Utilisée par `SKILL.md` à deux moments :
 
-- **étape 3 (clarification)** : dès qu'une réponse fait apparaître un des risques
+- **étape 3 (traduction)** : dès qu'une réponse fait apparaître un des risques
   ci-dessous, le signaler immédiatement — c'est le moment le moins coûteux pour
   corriger, pas la peine d'attendre la synthèse finale ;
 - **étape 4 (synthèse)** : pour les risques qui n'apparaissent qu'une fois l'ensemble
@@ -34,5 +34,5 @@ robustesse du profil, proposer un lissage ou un regroupement.
 
 ## Diffusion
 
-Si la finalité implique une sortie externe, secret statistique (aucune cellule < 11)
-à prévoir dans les sorties.
+Tout fichier écrit par les scripts est sous secret statistique, quelle que soit
+la finalité (aucune cellule de 1 à 10 ; 0 reste diffusable) — seuil `seuil <- 11`.

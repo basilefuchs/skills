@@ -7,7 +7,7 @@
 | Connexion         | `dbConnect(dbDriver("Oracle"), dbname = "IPIAMPR2.WORLD")` |
 | Schéma            | tables interrogées sans préfixe de schéma (résolution implicite au schéma courant du projet) ; en cas d'erreur Oracle `ORA-00942` (table introuvable), demander à l'utilisateur le schéma exact de son projet HDH |
 | Années couvertes  | variable par table — DCIR/PMSI vont jusqu'à 2006 pour les tables les plus anciennes, jusqu'à 2024 pour les colonnes PMSI documentées ; la profondeur réellement accessible dépend de l'autorisation HDH du projet en cours, pas seulement du dictionnaire — toujours confirmer avec l'utilisateur |
-| Chaînage          | PMSI `NIR_ANO_17` = DCIR `BEN_NIR_PSA` ; individu et causes de décès via `IR_BEN_R.BEN_IDT_ANO` — voir `modele-donnees.md`, « Chaînage patient » |
+| Chaînage          | PMSI `NIR_ANO_17` = DCIR `BEN_NIR_PSA` ; individu et causes de décès via `IR_BEN_R.BEN_IDT_ANO` — voir `modele-donnees.md` de `snds-schema` ou `snds-copilot`, « Chaînage patient » |
 
 ## Connexion — bloc standard à reproduire en tête de script
 
@@ -55,8 +55,8 @@ de se fier uniquement à un extrait figé, en particulier pour :
 - **`snds/tables/`** — schéma officiel des tables (variables, types, clés),
   alimentant le dictionnaire interactif
   https://health-data-hub.shinyapps.io/dico-snds/ ; à croiser avec le
-  dictionnaire embarqué (`references/dictionnaire/`, généré depuis la même
-  source schema-snds) en cas de doute ou d'absence.
+  dictionnaire de `snds-schema` ou `snds-copilot` (`references/dictionnaire/`,
+  généré depuis la même source schema-snds) en cas de doute ou d'absence.
 - Les ~80 fiches thématiques (`snds/fiches/`) pour un sujet précis (chaînage
   mère-enfant, cartographie des pathologies, ALD…) non couvert par ce profil.
 
@@ -74,13 +74,12 @@ alors que l'URL du site est en minuscules).
 usage sous Oracle — `RIGHT(x, n)` → `SUBSTR(x, -n)`, littéraux de date
 `'AAAA-MM-JJ'` → `DATE 'AAAA-MM-JJ'` (en dbplyr : `!!ora_date(d)`).
 
-**Sites connexes** (non autoritatifs, voir `SKILL.md` § « Ressources
-complémentaires » pour leur usage précis dans le workflow) :
+**Sites connexes** (non autoritatifs) :
 [forum d'entraide](https://entraide.health-data-hub.fr/) (dépannage
 communautaire) et
 [cartographie de l'écosystème SNDS](https://ecosysteme-snds.health-data-hub.fr/)
 (annuaire de projets/algorithmes, utile pour sourcer une définition de
-cohorte à l'étape 3).
+cohorte).
 
 ## DCIR — `ER_PRS_F` (en-tête de prestation, 1 ligne / prestation)
 
@@ -179,7 +178,7 @@ non valide). Filtre « pas de décès connu » :
 `EXTRACT(YEAR FROM BEN_DCD_DTE) IN (1600, 1)`. Ce n'est pas un statut vital
 exhaustif : il n'est fiable que pour le régime général hors SLM depuis juillet
 2009 (MSA depuis 2009 ; RSI/SLM peu renseignés) — voir
-`points-de-vigilance.md`, « Statut vital ».
+`points-de-vigilance.md` de `snds-schema`, « Statut vital ».
 
 **Filtres de qualité de la population** (source : documentation officielle
 HDH, fiche filtres) — à appliquer pour constituer une base bénéficiaires
@@ -324,8 +323,9 @@ depuis 2014 ; CdARR `T_SSR{aa}CCAR` 2009-2013.
 | Dates d'entrée / sortie (`T_SSR{aa}C`)        | `EXE_SOI_DTD` / `EXE_SOI_DTF` (2009+) ; `SOR_ANN`/`SOR_MOI` (2006-2008) |
 
 Trio diagnostique SSR (`FP_PEC`/`MOR_PRP`/`ETL_AFF`) — à toujours faire
-préciser lequel (ou lesquels) correspond au périmètre demandé, cf.
-`clarifications.md`.
+préciser lequel (ou lesquels) correspond au périmètre demandé : dans la
+chaîne, c'est la Position du diagnostic de `## Données`, fixée par
+`snds-schema` dans `protocole.md`.
 
 Filtres qualité SSR recommandés (source : documentation officielle HDH,
 fiche filtres) :
@@ -353,7 +353,8 @@ Filtres validés via la documentation officielle HDH (fiche filtres), sans
 script local de référence — seules les tables et variables listées
 ci-dessous sont confirmées ; pour toute autre table de la famille `T_HAD{aa}*`
 (diagnostics, actes), vérifier sa structure exacte dans le dictionnaire
-(`references/dictionnaire/variables.tsv`) avant usage.
+(`references/dictionnaire/variables.tsv` de `snds-schema` ou `snds-copilot`)
+avant usage.
 
 Clé technique HAD : `(ETA_NUM_EPMSI, RHAD_NUM)` — pas de colonne `ETA_NUM`.
 
@@ -370,7 +371,8 @@ Filtres validés via la documentation officielle HDH (fiche filtres), sans
 script local de référence — seules les tables et variables listées
 ci-dessous sont confirmées ; pour toute autre table de la famille `T_RIP{aa}*`
 (diagnostics, actes), vérifier sa structure exacte dans le dictionnaire
-(`references/dictionnaire/variables.tsv`) avant usage.
+(`references/dictionnaire/variables.tsv` de `snds-schema` ou `snds-copilot`)
+avant usage.
 
 Clé technique RIP : `(ETA_NUM_EPMSI, RIP_NUM)` — pas de colonne `ETA_NUM`.
 Actes CCAM (`T_RIP{aa}CCAM`) depuis 2017 seulement.
@@ -405,7 +407,7 @@ demande explicite.
 | `DPN_QLF`/`PRS_DPN_QLP` potentiellement `NULL` | `filter((is.na(DPN_QLF) | !DPN_QLF %in% c(71,72)) & (is.na(PRS_DPN_QLP) | !PRS_DPN_QLP %in% c(71,72)))` — un simple `DPN_QLF != 71` exclut silencieusement les lignes `NULL` en SQL Oracle (logique ternaire), et laisse passer le code 72 ainsi que les doublons visibles seulement sur `PRS_DPN_QLP` |
 | `ORDER BY` sur colonne contenant des `NULL` (Oracle) | Oracle trie les `NULL` en dernier (SAS les traite comme valeur minimale) — éviter de trier côté Oracle sur une colonne à `NULL`, reporter le tri après `collect()` |
 | Millésimes DCIR déclarés ≠ alimentation effective | Pour une variable DCIR récente ou peu utilisée, vérifier empiriquement (`COUNT(*)` par année de `FLX_DIS_DTD`) |
-| Chaînage inter-sources | PMSI `NIR_ANO_17` = DCIR `BEN_NIR_PSA` ; individu = `IR_BEN_R.BEN_IDT_ANO` ; causes de décès via `BEN_IDT_ANO` (appariement incomplet) — voir `modele-donnees.md`, « Chaînage patient » |
+| Chaînage inter-sources | PMSI `NIR_ANO_17` = DCIR `BEN_NIR_PSA` ; individu = `IR_BEN_R.BEN_IDT_ANO` ; causes de décès via `BEN_IDT_ANO` (appariement incomplet) — voir `modele-donnees.md` de `snds-schema` ou `snds-copilot`, « Chaînage patient » |
 | Requêtes de la fiche filtres HDH (MySQL) | Traduire `RIGHT()` → `SUBSTR(x, -n)` et les littéraux de date → `DATE 'AAAA-MM-JJ'` |
 | Liste `IN (...)` de plus de 1000 valeurs | ORA-01795 : `semi_join` sur une requête lazy ou une table temporaire |
 | `BEN_DCD_DTE`/`BEN_DCD_AME` — valeur sentinelle | `01-01-1600` (resp. `160001`) = aucun décès connu (vivant OU date manquante) ; statut vital exhaustif seulement pour le RG hors SLM depuis 07/2009 — croiser avec `KI_CCI_R` et `SOR_MOD = 9` du PMSI |
@@ -422,7 +424,7 @@ demande explicite.
 |----------------------------------------|------------------------------------------------------------------|
 | Connexion                              | `dbConnect(dbDriver("Oracle"), dbname = "IPIAMPR2.WORLD")`      |
 | Fuseau                                 | `TZ = "Europe/Paris"`, `ORA_SDTZ = "Europe/Paris"`               |
-| Seuil de diffusion (secret statistique) | 11 (`SEUIL`), convention usuelle sur les extractions SNDS        |
+| Seuil de diffusion (secret statistique) | 11 (`seuil`), convention usuelle sur les extractions SNDS        |
 | Filtres qualité PMSI par défaut         | `NIR_RET`/`NAI_RET`/`SEX_RET`/`SEJ_RET`/`FHO_RET`/`PMS_RET` = `'0'` (depuis 2005), `+ DAT_RET = '0'` (depuis 2006), `+ COH_NAI_RET`/`COH_SEX_RET` = `'0'` (depuis 2013), `+` NIR fictifs exclus |
 | Exclusion prestations inter-établissements (MCO) | `SEJ_TYP <> 'B' OR SEJ_TYP IS NULL` (table `T_MCO{aa}B`) |
 | Exclusion doublons de transmission (MCO, 2005-2017 uniquement) | Liste de ~50 FINESS APHP/APHM/HCL — à récupérer en direct sur la fiche officielle (voir ci-dessus), non codée en dur |
@@ -431,4 +433,4 @@ demande explicite.
 | Marge de flux DCIR (`FLX_DIS_DTD`)      | Au moins 5 mois de données après la période clinique (6 flux) ; 12 pour une extraction exhaustive ; jamais plus de 24 |
 | Filtres qualité population (`IR_BEN_R`) | `BEN_CDI_NIR = '00'`, `BEN_NAI_ANN NOT IN ('1600', '0001')`, `BEN_SEX_COD <> 0` — à appliquer avant tout chaînage ou comptage de patients uniques |
 | Parallélisation par millésime           | `future::plan(future::multisession(workers = 4))` (générique — adapter à la machine de l'utilisateur) |
-| Persistance locale                      | Jamais d'export local avec identifiants (ID, date, localisation) — voir `points-de-vigilance.md` |
+| Persistance locale                      | Jamais d'export local avec identifiants (ID, date, localisation) — voir `points-de-vigilance.md` de `snds-schema` |

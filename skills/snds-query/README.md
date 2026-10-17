@@ -1,153 +1,130 @@
-# snds-query — statisticien DIM virtuel pour Claude
+# snds-query — scripts R d'un protocole SNDS
 
 Skill pour [Claude Code](https://claude.com/claude-code), [claude.ai](https://claude.ai)
-et les autres agents compatibles [Agent Skills](https://agentskills.io), destinée
-aux statisticiens de DIM travaillant sur le **SNDS via le
-Health Data Hub** (Oracle). Elle traduit une question en langage naturel —
-« combien de patients diabétiques hospitalisés entre 2020 et 2023 ? » — en un
-dossier de scripts R dplyr/dbplyr prêt à exécuter sur l'environnement du
-Health Data Hub, **en passant par les mêmes étapes qu'un statisticien** :
-clarification, protocole validé, puis scripts.
+et les autres agents compatibles [Agent Skills](https://agentskills.io),
+destinée aux statisticiens de DIM et chargés d'études qui travaillent sur le
+**SNDS via le Health Data Hub** (Oracle). Troisième maillon du parcours SNDS
+du dépôt : elle lit le `protocole.md` validé par `snds-schema` et en génère
+les scripts R dbplyr/Oracle, un par étape du protocole, à exécuter sur la
+plateforme. Elle ne clarifie rien et ne consulte aucun dictionnaire : la
+question est cadrée par `question-recherche-pico`, les tables, variables et
+millésimes sont vérifiés par `snds-schema`.
 
-## Comment ça se passe concrètement
+```
+/question-recherche-pico  →  /snds-schema  →  /snds-query  →  plateforme  →  /rapport-imrad
+```
 
-1. **Vous posez la question** en langage naturel, comme un clinicien la poserait.
-2. **La skill fait préciser** ce qu'un DIM ferait préciser, en commençant par la
-   **finalité** (dénombrement interne, rapport, diffusion externe, publication —
-   qui conditionne rigueur, seuils et secret statistique), puis : codes CIM-10
-   exacts (proposés d'après les définitions publiées trouvées par recherche web —
-   sources citées, liste amendable), source(s) mobilisée(s) (PMSI hospitalier,
-   DCIR ambulatoire, causes de décès), position du diagnostic, période, patients
-   vs séjours vs délivrances, exclusions (GHM en erreur, doublons, qualité de
-   chaînage), stratification.
-3. **Elle soumet un protocole** synthétique, accompagné de ses **points de
-   vigilance** (chaînage inter-sources NIR_ANO_17/BEN_NIR_PSA/BEN_IDT_ANO,
-   années Covid dans une tendance, petits effectifs...) :
-   > **Population** : séjours MCO 2020–2023, DP en E10–E14, France entière.
-   > **Exclusions** : GHM en erreur (CMD 90), doublons établissement, chaînage défaillant.
-   > **Critère de jugement** : patients uniques (`NIR_ANO_17`), par année.
-   > **Stratification** : année, sexe, classe d'âge.
-4. **Après votre validation seulement**, elle génère un **dossier de
-   scripts** `.R`, un script par étape du protocole (`00_setup.R`,
-   `01_inclusion.R`, `02_exclusion.R`, `03_critere_jugement.R`,
-   `04_covariables.R`, `05_flowchart.R`, `06_sorties.R`) enchaînés par un
-   `main.R` : paramétrés dans `00_setup.R`, commentés, avec en-tête normalisé
-   (question, protocole, « PROFIL DE BASE » listant sources, tables et
-   variables utilisées), chaque étape matérialisée dans une table de session
-   Oracle que la suivante reprend, un **flowchart d'attrition** (effectifs et
-   % perdus à chaque étape d'exclusion), une vérification **secret
-   statistique** (seuil de diffusion) et une note méthodologique (limites,
-   pistes de sensibilité, rappel de non-persistance locale) livrée dans le
-   dossier. Un fichier `.R` unique est fourni sur demande, mêmes sections
-   dans le même ordre ; un rapport `.Rmd` suit les mêmes étapes, un chunk par
-   étape, avec la note méthodologique intégrée.
+Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/skills#parcours).
 
-Vous exécutez les scripts vous-même sur l'environnement du Health Data Hub :
-**Claude n'accède jamais aux données** — il ne voit que la question, le
-protocole et le code généré. Le dictionnaire embarqué (généré depuis le
-dépôt open source [schema-snds](https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds)
-du Health Data Hub, licence MPL-2.0 — voir [NOTICE](NOTICE)) décrit la base
-(métadonnées), sans aucune donnée patient.
+## Contenu
 
-## Ce que la skill sait (et vérifie)
-
-- Les conventions de l'environnement : `ROracle`/`dbConnect(dbDriver("Oracle"),
-  dbname = "IPIAMPR2.WORLD")`, fuseau `Europe/Paris` (R et `ORA_SDTZ`), tables
-  référencées par `tbl(conn, I("NOM_TABLE"))`, calcul côté Oracle et `collect()`
-  uniquement sur les agrégats.
-- Le modèle de données PMSI (tables suffixées par année de sortie) et DCIR
-  (tables continues, filtrées par date/flux) : grain des tables, clés de
-  jointure, chaînage patient.
-- Les pièges classiques du SNDS, signalés ou traités d'office : **chaînage
-  inter-sources** (PMSI `NIR_ANO_17` = DCIR `BEN_NIR_PSA`, individu et causes
-  de décès via `IR_BEN_R.BEN_IDT_ANO`), qualité de chaînage PMSI
-  (`NIR_RET`/`NAI_RET`/`SEX_RET`/`SEJ_RET`/`FHO_RET`/`PMS_RET`/`COH_SEX_RET`,
-  NIR fictifs), doublons APHP/APHM/HCL (2005-2017 uniquement), GHM en erreur
-  (CMD 90), filtres qualité DCIR (`DPN_QLF`+`PRS_DPN_QLP`, `ER_ETE_F`,
-  `CPL_MAJ_TOP`), clé composite à 9 colonnes des tables DCIR, marge de flux
-  DCIR, `ER_GEO_LOC_R` géolocalise le professionnel de santé
-  (`NUM_PS` = `PFS_EXE_NUM`) et non le patient, ruptures de disponibilité
-  (dates PMSI avant 2009, réforme SMR 2023), littéraux de date et limite des
-  1000 valeurs d'une liste `IN` sous Oracle, patients uniques pluriannuels
-  par union avant `n_distinct`.
-- L'existence et la disponibilité de **chaque table et variable utilisées**,
-  via le dictionnaire plat (`references/dictionnaire/*.tsv` : tables, variables et
-  millésimes, jointures, nomenclatures et leurs valeurs), les tables
-  de référence `IR_BEN_R` (filtres population) et `IR_IMB_R` (ALD), et les
-  filtres PMSI HAD/RIP, validés au même titre que MCO/SSR.
-- La documentation officielle en ligne du Health Data Hub, consultée en
-  complément (via WebFetch) quand elle est disponible : elle **fait foi** sur
-  les filtres recommandés et la méthodologie, y compris en cas de
-  contradiction avec le reste de la skill. Le forum d'entraide et la
-  cartographie de l'écosystème SNDS complètent ponctuellement (dépannage,
-  définitions de cohortes déjà validées).
-
-Les scripts générés restent **à relire avant exécution**, comme ceux d'un interne :
-la skill fiabilise la traduction question → code, elle ne remplace pas la
-validation métier ni le respect du secret statistique sur les sorties.
+- `SKILL.md` : la skill (démarche, contrat de `sorties/`, livrable, ligne de fin).
+- `references/profils/hdh_oracle.md` : profil de l'environnement Health Data
+  Hub (connexion, colonnes, filtres qualité, pièges), qui fait foi sur
+  l'environnement.
+- `references/template/` : squelette du dossier de scripts, un fichier par
+  étape, avec les patterns dbplyr/Oracle validés.
+- `references/template.Rmd` : squelette du rapport R Markdown, mêmes étapes.
 
 ## Prérequis
 
-- [Claude Code](https://claude.com/claude-code) (CLI ou application), **ou** un
-  compte [claude.ai](https://claude.ai) avec la capacité Skills et l'exécution de
-  code activée (la skill pèse environ 3 Mo décompressés, dictionnaire compris),
-  **ou** un autre agent compatible Agent Skills. Installation : voir le
-  [README du dépôt](https://github.com/basilefuchs/skills).
-- Un accès à l'environnement du Health Data Hub (pour exécuter les scripts ;
-  la génération elle-même n'en a pas besoin).
-- Aucune compétence particulière en dbplyr : les scripts sont autoportants.
+- [Claude Code](https://claude.com/claude-code) (CLI ou application), **ou**
+  un compte [claude.ai](https://claude.ai) avec la capacité Skills et
+  l'exécution de code activée, **ou** un autre agent compatible Agent Skills.
+  Installation : voir le [README du dépôt](https://github.com/basilefuchs/skills).
+- Un `protocole.md` validé par
+  [`snds-schema`](https://github.com/basilefuchs/skills/tree/main/skills/snds-schema).
+- Un accès au Health Data Hub pour exécuter les scripts ; la génération n'en
+  a pas besoin.
 
-## Utilisation
+## Usage
 
-Poser une question SNDS en langage naturel — la skill se déclenche d'elle-même —
-ou l'invoquer explicitement :
+Se placer dans le répertoire de l'étude (un répertoire par étude :
+`protocole.md`, les scripts et `sorties/` y vivent ensemble) :
 
-- copiée comme **skill** dans Claude Code (`~/.claude/skills/` ou
-  `.claude/skills/`) : `/snds-query <question>` ;
-- sur **claude.ai** : pas de commande d'invocation, poser directement la
-  question ; la skill se déclenche sur sa description. Faute d'outil de choix
-  multiple, elle pose ses questions de clarification à l'écrit : répondre en
-  langage naturel.
+- copiée comme skill dans Claude Code (`~/.claude/skills/` ou
+  `.claude/skills/`) : `/snds-query`, sans argument, ou suivi du chemin
+  d'un `protocole.md` ;
+- dans LibreChat : `$snds-query` ;
+- sur claude.ai : téléverser `protocole.md` et taper « générer les scripts
+  du protocole ».
 
-Exemples de questions :
+La skill retrouve le protocole seule : chemin passé en argument, sinon
+`./protocole.md`, sinon fichier téléversé, sinon une question. Un protocole
+du PMSI national (source de données de `## Finalité`) est renvoyé vers
+`/pdh-query` ; un protocole non validé (`## Statut` en brouillon, ou sans
+`## Données`), vers `/snds-schema` ; une question en langage naturel sans
+protocole, vers `/question-recherche-pico <question>`.
 
-- « Combien de patients diabétiques ont été hospitalisés en 2023, par région ? »
-- « Évolution des délivrances d'antidépresseurs (DCIR) 2019–2024 dans mon département »
-- « Taux de recours à l'HAD pour soins palliatifs, pour 100 000 habitants »
+Elle ne pose qu'une question, le format : dossier `scripts/` de fichiers
+`.R` (par défaut) ou rapport `analyse.Rmd`. Un fichier `analyse.R` unique
+est fourni sur demande.
 
-## Adapter à un autre environnement que le Health Data Hub
+## Ce que la skill écrit
 
-Toute la connaissance spécifique à l'environnement (connexion, tables,
-mapping colonne, défauts) vit dans `references/profils/`.
-Pour un autre environnement (base locale, export parquet/DuckDB…), dupliquer
-`hdh_oracle.md`, adapter les valeurs, et la skill l'utilisera. Le squelette
-(`references/template/`) et `template.Rmd` contiennent aussi des éléments
-propres à Oracle (`REGEXP_LIKE` via `sql()`, `ora_date()`, tables temporaires
-de session, limite des listes `IN`) à adapter pour un autre SGBD. Les profils **font foi** : c'est aussi là que capitaliser vos
-mappings validés et pièges découverts, pour que les scripts suivants en
-profitent.
+- Les scripts, à côté de `protocole.md` : `main.R`, `00_setup.R`,
+  `01_inclusion.R`, `02_exclusion.R`, `03_critere_jugement.R`,
+  `04_covariables.R`, `05_flowchart.R`, `06_sorties.R` dans `scripts/`, ou
+  les mêmes étapes en chunks de `analyse.Rmd`. Tables, variables,
+  millésimes, codes et commit du dictionnaire sont recopiés du protocole.
+  Une colonne que ni le protocole ni le squelette ne nomment porte le
+  marqueur « À VÉRIFIER », signalé dans le message final.
+- Dans `protocole.md` : `## Scripts` (format, fichiers, contrat de
+  `sorties/`, date de génération) et `## Confidentialité`, rien d'autre.
 
-## Mise à jour du dictionnaire
+À l'exécution, les scripts écrivent `sorties/` à côté de `protocole.md` :
+`flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`, un
+`strate_<variable>.csv` par stratification, `figure_resultat_annuel.png`
+et `manifeste.md`. Tout fichier est sous secret statistique, quelle que
+soit la finalité : un effectif de 1 à 10 est masqué (`NA`), avec les
+pourcentages et taux de sa ligne. Ce masque est primaire : une cellule
+masquée peut se déduire par différence, toujours dans `flowchart.csv`, où
+les exclus d'une étape sont l'écart de deux effectifs écrits ; la procédure
+d'export de la plateforme reste seule juge de ce qui sort. L'écran reste
+brut, pour contrôler le travail ; `secret_statistique <- TRUE` dans
+`00_setup.R` l'aligne sur les fichiers. Le rapport HTML rendu depuis
+`analyse.Rmd` est un fichier : `secret_statistique` y vaut `TRUE` par
+défaut, tables identiques à `sorties/` ; à `FALSE`, il est brut, à lire sur
+la plateforme et à ne jamais exporter.
 
-Le dictionnaire est généré depuis le dépôt open source
-[schema-snds](https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds)
-du Health Data Hub (Table Schema JSON par table + nomenclatures), qui fait
-foi pour la skill : à chaque génération, elle en tire une version fraîche par
-clone partiel si le réseau le permet, la copie embarquée servant de secours
-hors ligne. Cette source
-alimente aussi la [documentation officielle](https://documentation-snds.health-data-hub.fr/)
-et le [dictionnaire interactif](http://dico-snds.health-data-hub.fr/).
+## Après la génération
 
-1. Cloner (ou mettre à jour) la source :
-   ```
-   git clone --depth 1 https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds.git
-   ```
-2. Régénérer les fichiers de la skill (Python 3, bibliothèque standard), en
-   passant le chemin du clone :
-   ```
-   python3 scripts/build-dictionary.py /chemin/vers/schema-snds   # depuis le dossier de la skill
-   ```
-   Produit `tables.tsv`, `variables.tsv`, `jointures.tsv`,
-   `nomenclatures.tsv`, `valeurs.tsv` et `SOURCE.txt` (commit utilisé) dans
-   `references/dictionnaire/`. Idempotent.
-3. Committer et pousser.
+- **Exécuter** sur le Health Data Hub, exporter `sorties/` par la procédure
+  de la plateforme, le placer à côté de `protocole.md`, puis
+  [`/rapport-imrad`](https://github.com/basilefuchs/skills/tree/main/skills/rapport-imrad).
+- **Un critère à changer** : `/snds-schema` amende le protocole, puis
+  `/snds-query` régénère les scripts en entier et liste les fichiers
+  réécrits. Les corrections faites à la main dans les scripts ne sont pas
+  mémorisées : la régénération les écrase.
+- **Une erreur à l'exécution** :
+  [`/snds-copilot`](https://github.com/basilefuchs/skills/tree/main/skills/snds-copilot),
+  avec le script et le message d'erreur ; il corrige le script sans toucher
+  au protocole.
+
+## Confidentialité
+
+Claude ne voit jamais de données individuelles : il reçoit des agrégats sous
+seuil, sortis par la procédure d'export de la plateforme, seule juge de ce
+qui sort. Un téléversement sur claude.ai est un transfert à un tiers,
+acceptable pour ces agrégats seulement. Pour générer les scripts, Claude ne
+reçoit que `protocole.md`, qui ne contient aucun effectif.
+
+## Autre environnement
+
+Un autre environnement que le Health Data Hub (base locale, export
+parquet/DuckDB…) se traite avant de lancer la skill, en ajoutant un profil :
+copier `references/profils/hdh_oracle.md` sous un autre nom dans
+`references/profils/`, adapter ses valeurs, puis `/snds-query <profil>`. Le
+squelette contient aussi des éléments propres à Oracle (`REGEXP_LIKE` via
+`sql()`, `ora_date()`, tables temporaires de session, limite des listes
+`IN`) à adapter pour un autre SGBD. Au cadrage, choisir la source « SNDS
+via le Health Data Hub », même pour une copie locale au même format :
+`snds-schema` vérifie le protocole dans le dictionnaire du SNDS, et une
+source « autre » sort du parcours.
+
+## Références communes
+
+Le profil et le squelette de scripts ont leur source ici ; `snds-schema`
+porte une copie du profil, `snds-copilot` une copie du profil et du
+squelette. Modifier la source, puis recopier (règle de copie du
+[CONTRIBUTING](https://github.com/basilefuchs/skills/blob/main/CONTRIBUTING.md#références-communes-à-une-famille)).

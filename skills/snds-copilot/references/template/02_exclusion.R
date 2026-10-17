@@ -40,7 +40,7 @@ attrition <- noter_attrition(attrition, etape_02c, "02c hors GHM en erreur (90)"
 #   filter(!ETA_NUM %in% c(<liste FINESS 2023-12-11_synthese_filtres_snds_v1>))
 # attrition <- noter_attrition(attrition, etape_02d, "02d hors doublons APHP/APHM/HCL")
 
-# -- Autres exclusions selon le protocole (clarifications Q8, Q12) -------------
+# -- Autres exclusions selon le protocole (`## Protocole validé`) --------------
 # filter(substr(GRG_GHM, 1, 2) != "28")   # séances (si exclues)
 # filter(SEJ_NBJ > 0)                     # séjours de la même journée
 # filter(SOR_MOD != "9")                  # décès (ex. avant une ré-hospitalisation)

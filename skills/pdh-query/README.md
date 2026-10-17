@@ -1,118 +1,134 @@
-# pdh-query — statisticien DIM virtuel pour Claude
+# pdh-query — scripts R d'un protocole PMSI national
 
 Skill pour [Claude Code](https://claude.com/claude-code), [claude.ai](https://claude.ai)
-et les autres agents compatibles [Agent Skills](https://agentskills.io), destinée
-aux statisticiens de DIM (et d'agences : ATIH, ARS…)
-travaillant sur la **base nationale PMSI du portail ATIH** (Teradata). Elle
-traduit une question en langage naturel — « combien de patients hospitalisés
-pour diabète entre 2020 et 2023 ? » — en un dossier de scripts R dplyr/dbplyr prêt à
-exécuter sur le portail, **en passant par les mêmes étapes qu'un
-statisticien** : clarification, protocole validé, puis scripts.
+et les autres agents compatibles [Agent Skills](https://agentskills.io),
+destinée aux statisticiens de DIM et chargés d'études qui travaillent sur la
+**base nationale PMSI du portail ATIH** (Teradata). Troisième maillon du
+parcours PMSI national du dépôt : elle lit le `protocole.md` validé par
+`pdh-schema` et en génère les scripts R dbplyr/Teradata, un par étape du
+protocole, à exécuter sur le portail. Elle ne clarifie rien et ne consulte
+aucun dictionnaire : la question est cadrée par `question-recherche-pico`,
+les champs, tables, variables et années sont vérifiés par `pdh-schema`.
 
-## Comment ça se passe concrètement
+```
+/question-recherche-pico  →  /pdh-schema  →  /pdh-query  →  plateforme  →  /rapport-imrad
+```
 
-1. **Vous posez la question** en langage naturel, comme un clinicien la poserait.
-2. **La skill fait préciser** ce qu'un DIM ferait préciser, en commençant par la
-   **finalité** (dénombrement interne, rapport, diffusion externe, publication —
-   qui conditionne rigueur, seuils et secret statistique), puis : codes CIM-10
-   exacts (proposés d'après les définitions publiées trouvées par recherche web —
-   Santé publique France, cartographie CNAM… — sources citées, liste amendable),
-   position du diagnostic (DP seul / DP-DR / avec DAS), champ(s) PMSI, période,
-   patients vs séjours vs journées, exclusions (séances, GHM en erreur, chaînage),
-   stratification.
-3. **Elle soumet un protocole** synthétique, accompagné de ses **points de
-   vigilance** (années Covid dans une tendance, petits effectifs, biais de
-   définition…) :
-   > **Population** : séjours MCO 2020–2023, DP en E10–E14, France entière.
-   > **Exclusions** : séances (CMD 28), GHM en erreur (90Z), chaînage en erreur.
-   > **Critère de jugement** : patients uniques (clé `anonyme`), par année.
-   > **Stratification** : année, sexe, classe d'âge.
-4. **Après votre validation seulement**, elle génère un **dossier de
-   scripts** `.R`, un script par étape du protocole (`00_setup.R`,
-   `01_inclusion.R`, `02_exclusion.R`, `03_critere_jugement.R`,
-   `04_covariables.R`, `05_flowchart.R`, `06_sorties.R`) enchaînés par un
-   `main.R` : paramétrés dans `00_setup.R`, commentés, avec en-tête normalisé
-   (question, protocole, « PROFIL DE BASE » listant schémas et variables
-   utilisés), chaque étape matérialisée dans une table de session Teradata
-   que la suivante reprend, un **flowchart d'attrition** (effectifs et %
-   perdus à chaque étape d'exclusion) et une note méthodologique (limites,
-   pistes de sensibilité) livrée dans le dossier. Un fichier `.R` unique est
-   fourni sur demande, mêmes sections dans le même ordre ; un rapport `.Rmd`
-   suit les mêmes étapes, un chunk par étape, avec la note méthodologique
-   intégrée.
+Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/skills#parcours).
 
-Vous exécutez les scripts vous-même sur le portail : **Claude n'accède jamais aux
-données** — il ne voit que la question, le protocole et le code généré. Le
-dictionnaire des variables embarqué est le document de description de la base
-(métadonnées), sans aucune donnée patient.
+## Contenu
 
-## Ce que la skill sait (et vérifie)
-
-- Les conventions du portail : `pRatihque::connection_database()`, schémas
-  `prd_vue_<champ>bl_AAAA`, tables référencées par `tbl(conn, I("schema.table"))`,
-  calcul côté Teradata et `collect()` uniquement sur les agrégats.
-- Le modèle de données des champs MCO, SMR, HAD, PSY (RPU partiellement) :
-  grain des tables, clés de jointure, chaînage patient.
-- Les pièges classiques du PMSI, signalés ou traités d'office : année PMSI =
-  année de **sortie**, séances (CMD 28), GHM en erreur (90), qualité du chaînage
-  (`ano_retour`), patients uniques pluriannuels par union avant `n_distinct`,
-  FINESS juridique vs géographique, codes CIM-10 stockés sans point…
-- L'existence et la disponibilité de **chaque variable utilisée**, vérifiées
-  dans le dictionnaire (plage `andeb`/`anfin` couvrant les années demandées).
-
-Les scripts générés restent **à relire avant exécution**, comme ceux d'un interne :
-la skill fiabilise la traduction question → code, elle ne remplace pas la
-validation métier ni le respect du secret statistique sur les sorties.
+- `SKILL.md` : la skill (démarche, contrat de `sorties/`, livrable, ligne de fin).
+- `references/profils/portail_atih_<champ>.md` : profils MCO, SMR, HAD, PSY
+  et RPU du portail ATIH (connexion, schéma annuel, colonnes, pièges,
+  défauts recommandés), qui font foi sur l'environnement.
+- `references/template/` : squelette du dossier de scripts, un fichier par
+  étape, avec les patterns dbplyr/Teradata validés.
+- `references/template.Rmd` : squelette du rapport R Markdown, mêmes étapes.
 
 ## Prérequis
 
-- [Claude Code](https://claude.com/claude-code) (CLI ou application), **ou** un
-  compte [claude.ai](https://claude.ai) avec la capacité Skills et l'exécution de
-  code activée, **ou** un autre agent compatible Agent Skills. Installation :
-  voir le [README du dépôt](https://github.com/basilefuchs/skills).
-- Un accès à la base nationale sur le portail ATIH (pour exécuter les scripts ;
-  la génération elle-même n'en a pas besoin).
-- Aucune compétence particulière en dbplyr : les scripts sont autoportants.
+- [Claude Code](https://claude.com/claude-code) (CLI ou application), **ou**
+  un compte [claude.ai](https://claude.ai) avec la capacité Skills et
+  l'exécution de code activée, **ou** un autre agent compatible Agent Skills.
+  Installation : voir le [README du dépôt](https://github.com/basilefuchs/skills).
+- Un `protocole.md` validé par
+  [`pdh-schema`](https://github.com/basilefuchs/skills/tree/main/skills/pdh-schema).
+- Un accès au portail ATIH pour exécuter les scripts ; la génération n'en a
+  pas besoin.
 
-## Utilisation
+## Usage
 
-Poser une question PMSI en langage naturel — la skill se déclenche d'elle-même —
-ou l'invoquer explicitement :
+Se placer dans le répertoire de l'étude (un répertoire par étude :
+`protocole.md`, les scripts et `sorties/` y vivent ensemble) :
 
-- copiée comme **skill** dans Claude Code (`~/.claude/skills/` ou
-  `.claude/skills/`) : `/pdh-query <question>` ;
-- sur **claude.ai** : pas de commande d'invocation, poser directement la
-  question ; la skill se déclenche sur sa description. Faute d'outil de choix
-  multiple, elle pose ses questions de clarification à l'écrit : répondre en
-  langage naturel.
+- copiée comme skill dans Claude Code (`~/.claude/skills/` ou
+  `.claude/skills/`) : `/pdh-query`, sans argument, ou suivi du chemin
+  d'un `protocole.md` ;
+- dans LibreChat : `$pdh-query` ;
+- sur claude.ai : téléverser `protocole.md` et taper « générer les scripts
+  du protocole ».
 
-Exemples de questions :
+La skill retrouve le protocole seule : chemin passé en argument, sinon
+`./protocole.md`, sinon fichier téléversé, sinon une question. Un protocole
+du SNDS (source de données de `## Finalité`) est renvoyé vers
+`/snds-query` ; un protocole non validé (`## Statut` en brouillon, ou sans
+`## Données`), vers `/pdh-schema` ; une question en langage naturel sans
+protocole, vers `/question-recherche-pico <question>`.
 
-- « Combien de patients ont été hospitalisés pour AVC en 2023, par région ? »
-- « Évolution des séjours de chirurgie bariatrique 2019–2024 dans mon département »
-- « Taux de recours à l'HAD pour soins palliatifs, pour 100 000 habitants »
+Elle ne pose qu'une question, le format : dossier `scripts/` de fichiers
+`.R` (par défaut) ou rapport `analyse.Rmd`. Un fichier `analyse.R` unique
+est fourni sur demande.
 
-## Adapter à un autre environnement que le portail ATIH
+## Ce que la skill écrit
 
-Toute la connaissance spécifique à l'environnement (connexion, schémas, mapping
-colonne, défauts) vit dans `references/profils/`. Pour un
-autre environnement (base locale de DIM, export parquet/DuckDB…), dupliquer un
-profil, adapter les valeurs, et la skill l'utilisera — le reste ne change pas.
-Les profils **font foi** : c'est aussi là que capitaliser vos mappings validés
-et pièges découverts, pour que les scripts suivants en profitent.
+- Les scripts, à côté de `protocole.md` : `main.R`, `00_setup.R`,
+  `01_inclusion.R`, `02_exclusion.R`, `03_critere_jugement.R`,
+  `04_covariables.R`, `05_flowchart.R`, `06_sorties.R` dans `scripts/`, ou
+  les mêmes étapes en chunks de `analyse.Rmd`. Champs, tables, variables,
+  années, codes et version du dictionnaire sont recopiés du protocole. Une
+  colonne que ni le protocole ni le squelette ne nomment porte le marqueur
+  « À VÉRIFIER », signalé dans le message final.
+- Dans `protocole.md` : `## Scripts` (format, fichiers, contrat de
+  `sorties/`, date de génération) et `## Confidentialité`, rien d'autre.
 
-## Mise à jour du dictionnaire
+## `sorties/`
 
-Remplacer `references/dictionnaire/variables-*.csv` par la
-dernière version issue du portail ATIH (format : `librairie;table;var;libelle;
-andeb;anfin;jointure;commentaire;type;longueur;droits`). L'export natif du
-portail est en **Windows-1252** ; le fichier embarqué dans la skill doit rester
-en **UTF-8** (fichier unique, utilisé quel que soit le mode d'installation) —
-convertir avant de remplacer, par exemple depuis le dossier de la skill :
+À l'exécution, les scripts écrivent `sorties/` à côté de `protocole.md` :
+`flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`, un
+`strate_<variable>.csv` par stratification, `figure_resultat_annuel.png`
+et `manifeste.md`. Tout fichier est sous secret statistique, quelle que
+soit la finalité : un effectif de 1 à 10 est masqué (`NA`), avec les
+pourcentages et taux de sa ligne. Ce masque est primaire : une cellule
+masquée peut se déduire par différence, toujours dans `flowchart.csv`, où
+les exclus d'une étape sont l'écart de deux effectifs écrits ; la procédure
+d'export de la plateforme reste seule juge de ce qui sort. L'écran reste
+brut, pour contrôler le travail ; `secret_statistique <- TRUE` dans
+`00_setup.R` l'aligne sur les fichiers. Le rapport HTML rendu depuis
+`analyse.Rmd` est un fichier : `secret_statistique` y vaut `TRUE` par
+défaut, tables identiques à `sorties/` ; à `FALSE`, il est brut, à lire sur
+la plateforme et à ne jamais exporter.
 
-```
-iconv -f WINDOWS-1252 -t UTF-8 nouvel-export.csv > references/dictionnaire/variables-AAAA-MM-JJ.csv
-```
+## Après la génération
 
-Un fichier `variables-*.csv` placé à la racine d'un projet prime sur celui
-embarqué dans la skill (celui-là peut rester dans l'encodage de l'export).
+- **Exécuter** sur le portail ATIH, exporter `sorties/` par la procédure de
+  la plateforme, le placer à côté de `protocole.md`, puis
+  [`/rapport-imrad`](https://github.com/basilefuchs/skills/tree/main/skills/rapport-imrad).
+- **Un critère à changer** : `/pdh-schema` amende le protocole, puis
+  `/pdh-query` régénère les scripts en entier et liste les fichiers
+  réécrits. Les corrections faites à la main dans les scripts ne sont pas
+  mémorisées : la régénération les écrase.
+- **Une erreur à l'exécution** : aucune skill ne corrige un script PMSI
+  national ; le corriger à la main, sans toucher au protocole.
+
+## Confidentialité
+
+Claude ne voit jamais de données individuelles : il reçoit des agrégats sous
+seuil, sortis par la procédure d'export de la plateforme, seule juge de ce
+qui sort. Un téléversement sur claude.ai est un transfert à un tiers,
+acceptable pour ces agrégats seulement. Pour générer les scripts, Claude ne
+reçoit que `protocole.md`, qui ne contient aucun effectif.
+
+## Autre environnement
+
+Un autre environnement que le portail ATIH (base locale de DIM, export
+parquet/DuckDB…) se traite avant de lancer la skill, en ajoutant un profil :
+copier le profil du champ (`references/profils/portail_atih_<champ>.md`)
+sous un autre nom dans `references/profils/`, adapter ses valeurs, puis
+`/pdh-query <profil>`. Le squelette contient aussi des éléments propres à
+Teradata (tables volatiles de session, `REGEXP_SIMILAR` via `sql()`) à
+adapter pour un autre SGBD. Au cadrage, choisir la source « PMSI national
+via le portail ATIH », même pour une base locale au même format :
+`pdh-schema` vérifie le protocole dans le dictionnaire du portail, et une
+source « autre » sort du parcours. Les profils font foi : y capitaliser les
+mappings validés et les pièges découverts.
+
+## Références communes
+
+Les profils ont leur source ici ; `pdh-schema` en porte une copie. Modifier
+la source, puis recopier (règle de copie du
+[CONTRIBUTING](https://github.com/basilefuchs/skills/blob/main/CONTRIBUTING.md#références-communes-à-une-famille)).
+Le dictionnaire des variables, le modèle de données et les points de
+vigilance sont dans
+[`pdh-schema`](https://github.com/basilefuchs/skills/tree/main/skills/pdh-schema),
+qui décrit la mise à jour du dictionnaire.
