@@ -24,10 +24,6 @@ def frontmatter(name, description="description: Fait une chose précise.\n", met
     return f"---\nname: {name}\n{description}license: MIT\n{metadata}---\n\n# {name}\n"
 
 
-def suivante(names):
-    return f"metadata:\n  suivante: {names}\n"
-
-
 class CheckSkillsTest(unittest.TestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()
@@ -182,24 +178,6 @@ class CheckSkillsTest(unittest.TestCase):
         (self.root / "README.md").unlink()
         self.assertViolation("catalogue", "alpha")
         self.assertViolation("catalogue", "beta")
-
-    def test_suivante_sans_dossier(self):
-        for names in ["delta", "alpha delta"]:
-            with self.subTest(suivante=names):
-                self.setUp()
-                self.valid_repo()
-                self.add_skill("gamma", frontmatter("gamma", metadata=suivante(names)))
-                self.assertViolation("suivante", "gamma")
-                self.assertNoViolation("suivante", "alpha")
-
-    def test_suivante_absente_ou_existante_acceptee(self):
-        for metadata in ["", "metadata:\n  auteur: Basile\n", suivante("alpha"), suivante("alpha beta")]:
-            with self.subTest(metadata=metadata):
-                self.setUp()
-                self.valid_repo()
-                self.add_skill("gamma", frontmatter("gamma", metadata=metadata))
-                code, out = self.run_check()
-                self.assertEqual(code, 0, out)
 
     def test_plusieurs_violations_sur_une_meme_skill(self):
         self.add_skill("gamma", "---\nname: Autre\n---\n")

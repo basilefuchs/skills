@@ -1,7 +1,7 @@
 # Recette du parcours SNDS
 
-Vérification manuelle de la chaîne `question-recherche-pico` → `snds-schema`
-→ `snds-query` → `rapport-imrad`, dont aucun test automatisé ne couvre le
+Vérification manuelle de la chaîne `to-protocole` → `snds-schema`
+→ `snds-query`, dont aucun test automatisé ne couvre le
 comportement. À dérouler avant un tag qui touche une skill de la chaîne.
 
 Étude fictive : patients hospitalisés pour diabète, MCO, 2021-2023,
@@ -9,27 +9,22 @@ dénombrement interne, source SNDS, sous-groupe sexe.
 
 ## Préparation
 
-- [ ] Les quatre skills et `snds-copilot`, copiées depuis la branche à
+- [ ] Les trois skills et `snds-copilot`, copiées depuis la branche à
       recetter (`cp -r skills/<nom> ~/.claude/skills/`) ; plugins
       `snds-hdh` et `pdh-atih` désinstallés.
 - [ ] Répertoire vide (`mkdir etude-diabete && cd etude-diabete`), Claude Code
       lancé dedans.
 
-## 1. Cadrage : `/question-recherche-pico`
+## 1. Cadrage : `/to-protocole`
 
-Taper `/question-recherche-pico patients hospitalisés pour diabète en MCO de
-2021 à 2023`, puis répondre : finalité « Dénombrement interne », source « SNDS
-via le Health Data Hub », population France entière par résidence, patients
-uniques par année, sous-groupe « sexe », « Valider ».
+Taper `/to-protocole patients hospitalisés pour diabète en MCO de
+2021 à 2023`, puis répondre : objectif « Dénombrement interne », source
+« SNDS via le Health Data Hub », population France entière par
+résidence, critère de jugement principal « patients uniques par année »,
+analyse stratifiée par sexe, puis valider la synthèse.
 
-- [ ] Chemin court : ni question de type d'étude ni critère FINER.
-- [ ] Une question par message, « Ok : … » avant chacune.
-- [ ] `protocole.md` créé avec `## Question` (type Descriptif, tableau P, O,
-      T, sans bloc Fragilités FINER), `## Finalité` (Usage, Destinataires,
-      Source de données : SNDS (Health Data Hub)) et `## Sous-groupes`, rien
-      d'autre ; aucun effectif.
-- [ ] Ligne de fin : « Étape suivante : `/snds-schema` » et la phrase
-      « vérifier les données du protocole ».
+- [ ] `protocole.md` créé avec la synthèse validée (`# Introduction`,
+      `# Matériels & Méthode`, `# Limites`), rien d'autre ; aucun effectif.
 
 ## 2. Traduction en données : `/snds-schema`
 
@@ -43,12 +38,11 @@ Taper `/snds-schema`, sans argument, puis accepter les défauts.
 - [ ] Lots de quatre questions au plus, « Tout par défaut » au premier ;
       codes E10–E14 proposés avec leur source.
 - [ ] Une seule validation « Valider / Corriger », après la synthèse.
-- [ ] `protocole.md` reçoit `## Données` (ligne Dictionnaire et son commit,
+- [ ] `protocole.md` reçoit `# Données` (ligne Dictionnaire et son commit,
       tables `T_MCO{aa}B` et `T_MCO{aa}C` vérifiées 2021-2023),
-      `## Protocole validé`, `## Statut` (`validé le <date du jour>`) et
-      `## Modifications` vide ; les sections de l'étape 1 sont intactes ;
+      `# Protocole validé`, `# Statut` (`validé le <date du jour>`) et
+      `# Modifications` vide ; les sections de l'étape 1 sont intactes ;
       aucun effectif.
-- [ ] Ligne de fin : `/snds-query` et « générer les scripts du protocole ».
 
 ## 3. Scripts : `/snds-query`
 
@@ -58,11 +52,8 @@ Taper `/snds-query`, sans argument, puis choisir le dossier `.R`.
 - [ ] `scripts/` généré : `main.R`, `00_setup.R` à `06_sorties.R` ;
       `annees`, codes, question, dictionnaire et date de validation recopiés
       du protocole ; colonnes « À VÉRIFIER » listées dans le message.
-- [ ] `## Scripts` et `## Confidentialité` écrits, le reste de `protocole.md`
+- [ ] `# Scripts` et `# Confidentialité` écrits, le reste de `protocole.md`
       intact.
-- [ ] Ligne de fin : exécuter, exporter `sorties/`, `/rapport-imrad`, la
-      phrase « rédiger le rapport IMRaD », puis les retours (`/snds-schema`,
-      `/snds-copilot`).
 
 ## 4. Plateforme simulée : `sorties/`
 
@@ -122,15 +113,15 @@ absente :
 ```
 # Manifeste de sorties/
 
-- Question : <question en une phrase de ## Question>
+- Question : <question principale de # Introduction>
 - Répertoire : etude-diabete
 - Date d'exécution : <AAAA-MM-JJ HH:MM du jour>
 - Années : 2021, 2022, 2023
-- Sources : <valeur de la ligne Sources de ## Données>
+- Sources : <valeur de la ligne Sources de # Données>
 - Seuil : 11
 - Secret appliqué : comptages de 1 à 10 masqués (NA), colonnes dérivées de leur ligne aussi
-- Dictionnaire : <valeur de la ligne Dictionnaire de ## Données>
-- Protocole validé le : <date de ## Statut>
+- Dictionnaire : <valeur de la ligne Dictionnaire de # Données>
+- Protocole validé le : <date de # Statut>
 
 | Fichier | Cellules masquées |
 | --- | --- |
@@ -140,43 +131,10 @@ absente :
 | strate_sexe.csv | 0 |
 ```
 
-## 5. Rapport : `/rapport-imrad`
+## 5. Renvoi vers l'autre base
 
-Taper `/rapport-imrad`, sans argument.
-
-- [ ] Aucune question ; `rapport.md` écrit à côté de `protocole.md`.
-- [ ] Cible « Rapport interne » : Introduction réduite à Objectif,
-      Discussion à Résultat principal, Limites et Statistiques absentes.
-- [ ] Avertissement de tête : 1 cellule masquée dans `flowchart.csv` ;
-      « < 11 » à sa place dans le tableau, signalé sous lui.
-- [ ] Colonne d'effectif du flowchart libellée « Séjours ».
-- [ ] Méthodes : « étude descriptive sur base médico-administrative »,
-      schéma marqué **À préciser** (chemin court).
-- [ ] Chaque chiffre est une cellule de `sorties/` ; STROBE et RECORD
-      nommées ; limites tirées des points de vigilance de `## Données`.
-
-## 6. Refus d'un CSV à une ligne par séjour
-
-Ajouter `sorties/sejours.csv` :
-
-```
-"annee","ETA_NUM","RSA_NUM","DGN_PAL","COD_SEX"
-2021,"000000000","0000000001","E119","1"
-2021,"000000000","0000000002","E109","2"
-```
-
-Taper `/rapport-imrad`.
-
-- [ ] Un seul message : nomme le fichier et le signe (`RSA_NUM`), ne cite
-      aucune valeur, demande de retirer le fichier, rappelle que seule la
-      procédure d'export de la plateforme fait sortir des données.
-- [ ] `rapport.md` inchangé, aucun autre fichier écrit.
-
-Retirer `sorties/sejours.csv`.
-
-## 7. Renvoi vers l'autre base
-
-Dans un autre répertoire, une copie des trois sections de l'étape 1, puis
+Dans un autre répertoire, une copie du `protocole.md` de l'étape 1, sans
+les sections ajoutées ensuite, puis
 `/pdh-schema`, copiée elle aussi depuis la branche à recetter.
 
 - [ ] Une ligne, « Ce protocole vise le SNDS : `/snds-schema`. », et rien
@@ -203,7 +161,7 @@ variables de l'étude présentes de 2021 à 2023.
   **À préciser** (case ajoutée à l'étape 5).
 - Corrigé (8ecdf9b) : la valeur par défaut de `dictionnaire` dans les
   squelettes ajoutait « schema-snds, commit » devant la ligne Dictionnaire
-  de `## Données`, préfixe doublé dans le manifeste ; elle recopie
+  de `# Données`, préfixe doublé dans le manifeste ; elle recopie
   désormais la ligne telle quelle.
 
 L'étape 7 jouait alors `/snds-schema` sur un protocole PMSI national, faute

@@ -37,7 +37,7 @@ def parse_frontmatter(text):
     indentées (dépliées), blocs `>` (dépliés) et `|` (lignes conservées),
     valeurs entre guillemets, clés suivies d'une liste (valeur ignorée) ou d'un
     dictionnaire imbriqué, dont les paires `clé: valeur` sont rendues sous une
-    clé pointée (`metadata.suivante`). Lève ValueError pour une valeur non
+    clé pointée (`metadata.auteur`). Lève ValueError pour une valeur non
     citée contenant « : », que YAML refuse.
     """
     lines = text.splitlines()
@@ -76,8 +76,8 @@ def parse_frontmatter(text):
     return fields
 
 
-def check_skill(skill_dir, skill_names):
-    """Violations propres à un dossier de skill ; `skill_names` : les dossiers de skills/."""
+def check_skill(skill_dir):
+    """Violations propres à un dossier de skill."""
     subject = f"{SKILLS_DIR}/{skill_dir.name}"
     skill_md = skill_dir / "SKILL.md"
     if not skill_md.is_file():
@@ -104,9 +104,6 @@ def check_skill(skill_dir, skill_names):
         violations.append(("name-dossier", subject, f"name « {name} » différent du dossier « {skill_dir.name} »"))
     if len(description) > 200:
         violations.append(("description-200", subject, f"description de {len(description)} caractères (200 au plus)"))
-    for target in fields.get("metadata.suivante", "").split():
-        if target not in skill_names:
-            violations.append(("suivante", subject, f"metadata.suivante « {target} » : aucun dossier {SKILLS_DIR}/{target}"))
     return violations
 
 
@@ -124,11 +121,10 @@ def check_repo(root):
     skill_dirs = sorted(p for p in skills.glob("*") if p.is_dir()) if skills.is_dir() else []
     if not skill_dirs:
         return [("aucune-skill", SKILLS_DIR, "aucun dossier de skill (racine du dépôt ?)")]
-    skill_names = {p.name for p in skill_dirs}
     catalogued = catalogued_skills(root)
     violations = []
     for skill_dir in skill_dirs:
-        violations.extend(check_skill(skill_dir, skill_names))
+        violations.extend(check_skill(skill_dir))
         if skill_dir.name not in catalogued:
             violations.append(("catalogue", f"{SKILLS_DIR}/{skill_dir.name}", f"aucune ligne dans le tableau de {README}"))
     return violations

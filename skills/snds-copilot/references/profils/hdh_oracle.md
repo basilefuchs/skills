@@ -324,7 +324,7 @@ depuis 2014 ; CdARR `T_SSR{aa}CCAR` 2009-2013.
 
 Trio diagnostique SSR (`FP_PEC`/`MOR_PRP`/`ETL_AFF`) — à toujours faire
 préciser lequel (ou lesquels) correspond au périmètre demandé : dans la
-chaîne, c'est la Position du diagnostic de `## Données`, fixée par
+chaîne, c'est la Position du diagnostic de `# Données`, fixée par
 `snds-schema` dans `protocole.md`.
 
 Filtres qualité SSR recommandés (source : documentation officielle HDH,

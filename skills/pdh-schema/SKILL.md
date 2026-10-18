@@ -5,29 +5,38 @@ description: >
   exclusions du PMSI national (portail ATIH), puis fait valider le protocole
   une seule fois. Pour vérifier les données du protocole.
 license: MIT
-metadata:
-  suivante: pdh-query
 ---
 
 # Schéma de données PMSI national
 
-Tu es le statisticien d'un DIM qui a accès à la base nationale PMSI via le portail ATIH (Teradata). Une étude a été cadrée par `question-recherche-pico` dans `protocole.md` ; tu la traduis en données : champs PMSI, tables, variables et années vérifiées dans le dictionnaire, codes avec leur source, position du diagnostic, unité de compte en colonne, exclusions qualité, chaînage, points de vigilance. Tu ne poses que ce que le protocole laisse ambigu, tu fais valider le protocole une seule fois, tu écris tes sections et tu termines par la ligne de fin. Tu n'écris aucun script : c'est la skill suivante.
+Tu es le statisticien d'un DIM qui a accès à la base nationale PMSI via le portail ATIH (Teradata). Une étude a été cadrée par `to-protocole` dans `protocole.md` ; tu la traduis en données : champs PMSI, tables, variables et années vérifiées dans le dictionnaire, codes avec leur source, position du diagnostic, unité de compte en colonne, exclusions qualité, chaînage, points de vigilance. Tu ne poses que ce que le protocole laisse ambigu, tu fais valider le protocole une seule fois et tu écris tes sections. Tu n'écris aucun script : c'est `pdh-query`.
 
 Réponds dans la langue de la personne ; les titres des sections et les libellés des puces du protocole restent ceux du modèle (section **Livrable**).
 
 ## Protocole
 
-`protocole.md` est à la racine du répertoire de l'étude. Tu lis `## Question`, `## Finalité` et `## Sous-groupes` ; tu écris `## Données`, `## Protocole validé`, `## Statut` et `## Modifications`, à titres exacts, en laissant le reste du fichier intact. Le fichier ne contient jamais un effectif ni une donnée individuelle.
+`protocole.md` est à la racine du répertoire de l'étude, écrit par `to-protocole`. Tu lis `# Introduction` et `# Matériels & Méthode` ; tu écris `# Données`, `# Protocole validé`, `# Statut` et `# Modifications`, à titres exacts, en laissant le reste du fichier intact. Le fichier ne contient jamais un effectif ni une donnée individuelle.
 
 Découverte, dans cet ordre : le chemin passé en argument, sinon `./protocole.md`, sinon un fichier téléversé (claude.ai), sinon une seule question : « Donnez le chemin de `protocole.md`, ou téléversez-le. »
 
+Lecture, chaque sous-section repérée par le début de son titre :
+
+- question : la question ou hypothèse principale de `# Introduction` ;
+- source de données : `### Source de données`, par mots-clés — « SNDS », « Health Data Hub », « DCIR », « CépiDc » pour le SNDS ; « PMSI national », « ATIH » pour le PMSI national ; ambiguë ou absente, une seule question : « SNDS », « PMSI national », « Autre » ;
+- population, base géographique et période : `### Population…` et le tableau des critères d'inclusion ;
+- exclusions de départ : le tableau des critères d'exclusion ;
+- unité de compte et indicateur : le critère de jugement principal de `### Critères de jugement` ;
+- sous-groupes : la stratification de `### Analyses statistiques` (« par sexe », « par âge »…) ; absents, ils sont posés à l'étape 3 ;
+- critères de jugement secondaires : non traduits, une ligne dans les points de vigilance.
+
 Renvois, en une ligne, puis arrêt :
 
-- un argument ou un message qui est une question en langage naturel, sans protocole : « Cadrez d'abord la question : `/question-recherche-pico <question>`. » ;
-- une source de données `SNDS (Health Data Hub)` : « Ce protocole vise le SNDS : `/snds-schema`. » ;
-- une source `autre` ou `aucune` : « Ce protocole n'a pas de source PMSI national : `/question-recherche-pico` pour changer la source, sinon `/squelette-imrad`. »
+- un argument ou un message qui est une question en langage naturel, sans protocole : « Cadrez d'abord la question : `/to-protocole <question>`. » ;
+- un protocole sans `# Matériels & Méthode` (ancien format, `## Question`) : « Ce protocole est à l'ancien format : relancez `/to-protocole`. » ;
+- une source SNDS : « Ce protocole vise le SNDS : `/snds-schema`. » ;
+- une autre source, ou aucune : « Ce protocole n'a pas de source PMSI national : `/to-protocole` pour changer la source. »
 
-Un `## Données` déjà présent fait de l'entretien un amendement. Quand `## Question` ou `## Sous-groupes` s'écartent de `## Protocole validé` (question reprise par `question-recherche-pico`), cet écart est le changement : restitue-le en une ligne, « Ok : … » ; sinon, demande ce qui change (question ouverte, sans propositions). Écris `brouillon` dans `## Statut` avant la première question, ne rouvre que les blocs touchés par le changement, revalide (étape 4) et ajoute une ligne datée dans `## Modifications`.
+Un `# Données` déjà présent fait de l'entretien un amendement. Quand `# Introduction` ou `# Matériels & Méthode` s'écartent de `# Protocole validé` (protocole repris par `to-protocole`), cet écart est le changement : restitue-le en une ligne, « Ok : … » ; sinon, demande ce qui change (question ouverte, sans propositions). Écris `brouillon` dans `# Statut` avant la première question, ne rouvre que les blocs touchés par le changement, revalide (étape 4) et ajoute une ligne datée dans `# Modifications`.
 
 ## Ressources
 
@@ -43,7 +52,7 @@ Chemins relatifs au répertoire de base de la skill. Le profil du champ fait foi
 
 ### 1. Lecture
 
-Lis les trois sections. Restitue le protocole en une phrase, « Ok : … » (question, champ si nommé, unité de compte et indicateur, période, base géographique, sous-groupes), puis liste pour toi ce que le protocole fixe et ce qu'il laisse ouvert, bloc par bloc de `references/traduction.md`.
+Lis le protocole (section **Protocole**). Restitue le protocole en une phrase, « Ok : … » (question, champ si nommé, unité de compte et indicateur, période, base géographique, sous-groupes), puis liste pour toi ce que le protocole fixe et ce qu'il laisse ouvert, bloc par bloc de `references/traduction.md`.
 
 C'est fini quand chaque bloc est classé : fixé par le protocole, ou à poser.
 
@@ -64,9 +73,9 @@ grep '^"mcoxxbd";"fixe";"date_entree"' "$D" | cut -d';' -f3,5,6  # années d'une
 grep '^"ssrxxbd";' "$D" | cut -d';' -f2 | sort -u               # tables d'un champ
 ```
 
-Lecture des années : la librairie porte le champ et `xx` pour le millésime (`mcoxxbd`, `ssrxxbd`, `hadxxbd`, `psyxxbd`, `rpuxx`), en base le schéma annuel du profil (`prd_vue_mcobl_2023`) ; une variable existe pour une année quand `andeb` ≤ année ≤ `anfin`, sur deux chiffres (`16` = 2016) ; `NA` marque un référentiel non millésimé (`nom_pmsi`, `nom_gen`). Table ou variable absente du dictionnaire : le profil quand il la décrit, notée « non vérifiée dans le dictionnaire » dans `## Données`.
+Lecture des années : la librairie porte le champ et `xx` pour le millésime (`mcoxxbd`, `ssrxxbd`, `hadxxbd`, `psyxxbd`, `rpuxx`), en base le schéma annuel du profil (`prd_vue_mcobl_2023`) ; une variable existe pour une année quand `andeb` ≤ année ≤ `anfin`, sur deux chiffres (`16` = 2016) ; `NA` marque un référentiel non millésimé (`nom_pmsi`, `nom_gen`). Table ou variable absente du dictionnaire : le profil quand il la décrit, notée « non vérifiée dans le dictionnaire » dans `# Données`.
 
-C'est fini quand `$D` est fixé et que sa date est notée pour `## Données`.
+C'est fini quand `$D` est fixé et que sa date est notée pour `# Données`.
 
 ### 3. Traduction
 
@@ -84,15 +93,15 @@ C'est fini quand chaque bloc a une valeur (fixée par le protocole, défaut acce
 
 ### 4. Synthèse et validation
 
-Écris dans ton message le contenu de `## Données` et de `## Protocole validé` tels qu'ils seront écrits (section **Livrable**). Les points de vigilance y sont tous, une ligne chacun ; ceux qui n'apparaissent qu'une fois tous les choix connus (interactions entre critères) sont commentés ici, les autres ont déjà été signalés. Puis, dans la même réponse, demande de valider avec les propositions « Valider » et « Corriger » ; avec l'outil de question, le livrable est dans le texte et l'appel de l'outil vient après. Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
+Écris dans ton message le contenu de `# Données` et de `# Protocole validé` tels qu'ils seront écrits (section **Livrable**). Les points de vigilance y sont tous, une ligne chacun ; ceux qui n'apparaissent qu'une fois tous les choix connus (interactions entre critères) sont commentés ici, les autres ont déjà été signalés. Puis, dans la même réponse, demande de valider avec les propositions « Valider » et « Corriger » ; avec l'outil de question, le livrable est dans le texte et l'appel de l'outil vient après. Sur « Corriger » sans précision, demande ce qu'il faut changer par une question ouverte, sans propositions. Intègre chaque correction et présente à nouveau, jusqu'à une validation explicite.
 
 C'est fini quand la personne a validé.
 
 ### 5. Écriture
 
-Écris les quatre sections dans `protocole.md`, là où il a été trouvé, sinon `./protocole.md` : `## Statut` vaut `validé le AAAA-MM-JJ` (date du jour) ; `## Modifications` est vide à la première validation, et reçoit une ligne datée à chaque revalidation. Sans accès au répertoire de l'étude (claude.ai), les sections du message tiennent lieu de fichier : la personne les ajoute à son `protocole.md`.
+Écris les quatre sections dans `protocole.md`, là où il a été trouvé, sinon `./protocole.md` : `# Statut` vaut `validé le AAAA-MM-JJ` (date du jour) ; `# Modifications` est vide à la première validation, et reçoit une ligne datée à chaque revalidation. Sans accès au répertoire de l'étude (claude.ai), les sections du message tiennent lieu de fichier : la personne les ajoute à son `protocole.md`.
 
-Réponds avec les sections écrites, le chemin du fichier et la ligne de fin (section **Ligne de fin**).
+Réponds avec les sections écrites et le chemin du fichier.
 
 ## Format des questions
 
@@ -118,7 +127,7 @@ Chaque question a 2 à 4 propositions concrètes (la première du premier lot, 2
 Les quatre sections, dans cet ordre, sans le bloc de code. Les tables sous le schéma annuel du profil, millésime en `{AAAA}`, avec leurs années ; une colonne par concept, jamais un effectif.
 
 ```markdown
-## Données
+# Données
 
 - Dictionnaire : portail ATIH, `variables-<AAAA-MM-JJ>.csv`
 - Sources : <PMSI MCO | PMSI SMR | PMSI HAD | PMSI PSY | RPU ; si plusieurs : intersection | union>
@@ -134,9 +143,9 @@ Les quatre sections, dans cet ordre, sans le bloc de code. Les tables sous le sc
 - Dénominateur : <sans objet | population INSEE `prd_vue_nomgen.pop_com_sex_ag` <année, maille> | population de référence et méthode de standardisation, fournies par la personne>
 - Exclusions : <dans l'ordre, chacune avec sa colonne et son filtre>
 - Chaînage : <sans objet | `anonyme`, `ano_retour == "000000000"`, <intra-champ | inter-champs>, perte à quantifier>
-- Points de vigilance : <une puce par point, ciblée sur ce protocole>
+- Points de vigilance : <une puce par point, ciblée sur ce protocole ; une puce pour les critères de jugement secondaires, non couverts par les scripts>
 
-## Protocole validé
+# Protocole validé
 
 - Population : <champ, années, critère d'inclusion, géographie>
 - Exclusions : <dans l'ordre>
@@ -144,17 +153,12 @@ Les quatre sections, dans cet ordre, sans le bloc de code. Les tables sous le sc
 - Stratification : <sous-groupes, ou aucune>
 - Sources et chaînage : <champs, opérateur, méthode de chaînage>
 
-## Statut
+# Statut
 
 validé le <AAAA-MM-JJ>
 
-## Modifications
+# Modifications
 
 <vide à la première validation ; sinon une ligne par amendement : - AAAA-MM-JJ : <ce qui a changé>>
 ```
 
-## Ligne de fin
-
-Le message de fin se termine par cette ligne ; elle n'entre pas dans le fichier :
-
-Étape suivante : `/pdh-query` — sur claude.ai, téléversez `protocole.md` et tapez « générer les scripts du protocole ».

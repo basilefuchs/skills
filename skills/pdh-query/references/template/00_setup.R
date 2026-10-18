@@ -17,8 +17,8 @@
 # Référentiel établisst.      : prd_vue_nomgen.finessgeo (rs, millésimé par annee)
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le dossier,
-#      vérifiés par pdh-schema (`## Données` de protocole.md), années comprises.
-# Dictionnaire : <ligne Dictionnaire de `## Données`>
+#      vérifiés par pdh-schema (`# Données` de protocole.md), années comprises.
+# Dictionnaire : <ligne Dictionnaire de `# Données`>
 
 # ==============================================================================
 # 00_setup.R — packages, paramètres, connexion, fonctions partagées
@@ -48,7 +48,7 @@ seuil              <- 11
 dossier_sorties  <- "../sorties"
 question         <- "<question en langage naturel de l'utilisateur>"
 sources          <- "<champs PMSI : MCO / SMR / HAD / PSY / RPU>"
-dictionnaire     <- "<ligne Dictionnaire de ## Données, recopiée telle quelle>"
+dictionnaire     <- "<ligne Dictionnaire de # Données, recopiée telle quelle>"
 protocole_valide <- "<AAAA-MM-JJ, date de validation du protocole>"
 
 # Connexion — selon le profil d'environnement (ici : portail ATIH)

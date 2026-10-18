@@ -28,7 +28,7 @@
 | Piège                                   | Traitement                                  |
 |-----------------------------------------|---------------------------------------------|
 | Pas de clé de chaînage patient          | Comptage en **passages** uniquement         |
-| Couverture non exhaustive selon années  | Le signaler dans les points de vigilance de `## Données` |
+| Couverture non exhaustive selon années  | Le signaler dans les points de vigilance de `# Données` |
 
 ## Défauts recommandés
 

@@ -5,21 +5,21 @@ et les autres agents compatibles [Agent Skills](https://agentskills.io),
 destinée aux statisticiens de DIM et chargés d'études qui travaillent sur la
 **base nationale PMSI du portail ATIH** (Teradata). Deuxième maillon du
 parcours PMSI national du dépôt : elle lit le `protocole.md` écrit par
-`question-recherche-pico`, le traduit en données (champs PMSI, tables,
+`to-protocole`, le traduit en données (champs PMSI, tables,
 variables et années vérifiées dans le dictionnaire, codes avec leur source,
 position du diagnostic, exclusions, chaînage, points de vigilance), fait
 valider le protocole une seule fois et passe la main à `pdh-query`, qui
 génère les scripts.
 
 ```
-/question-recherche-pico  →  /pdh-schema  →  /pdh-query  →  plateforme  →  /rapport-imrad
+/to-protocole  →  /pdh-schema  →  /pdh-query  →  plateforme
 ```
 
 Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/skills#parcours).
 
 ## Contenu
 
-- `SKILL.md` : la skill (démarche, format des questions, livrable, ligne de fin).
+- `SKILL.md` : la skill (démarche, format des questions, livrable).
 - `references/dictionnaire/variables-<AAAA-MM-JJ>.csv` : dictionnaire des
   variables du portail ATIH (librairie, table, variable, libellé, années
   `andeb`/`anfin`, droits d'accès), métadonnées sans aucune donnée patient.
@@ -39,7 +39,7 @@ Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/sk
   l'exécution de code activée, **ou** un autre agent compatible Agent
   Skills. Installation : voir le [README du dépôt](https://github.com/basilefuchs/skills).
 - Un `protocole.md` écrit par
-  [`question-recherche-pico`](https://github.com/basilefuchs/skills/tree/main/skills/question-recherche-pico),
+  [`to-protocole`](https://github.com/basilefuchs/skills/tree/main/skills/to-protocole),
   dont la source de données est le PMSI national (portail ATIH).
 - Aucun accès au portail ATIH n'est nécessaire : la skill ne lit que le
   protocole et le dictionnaire.
@@ -59,7 +59,7 @@ Se placer dans le répertoire de l'étude (un répertoire par étude :
 La skill retrouve le protocole seule : chemin passé en argument, sinon
 `./protocole.md`, sinon fichier téléversé, sinon une question. Une question
 en langage naturel sans protocole est renvoyée vers
-`/question-recherche-pico <question>` ; un protocole dont la source est le
+`/to-protocole <question>` ; un protocole dont la source est le
 SNDS est renvoyé vers `/snds-schema`.
 
 ## Déroulé
@@ -67,30 +67,36 @@ SNDS est renvoyé vers `/snds-schema`.
 1. **Lecture** : la skill restitue le protocole en une phrase (« Ok : … »)
    et repère ce qu'il laisse ouvert.
 2. **Dictionnaire** : la copie embarquée, dont la date est inscrite dans
-   `## Données`.
+   `# Données`.
 3. **Traduction** : proposition par défaut, chaque table, variable et année
    vérifiée dans le dictionnaire, codes avec leur source ; puis seulement ce
    qui reste ambigu, par lots de quatre questions au plus, « Tout par
    défaut » proposé au premier lot. Un point de vigilance est signalé dès
    qu'il apparaît.
-4. **Synthèse et validation** : `## Données` et `## Protocole validé` sont
+4. **Synthèse et validation** : `# Données` et `# Protocole validé` sont
    présentés, avec un seul choix « Valider / Corriger ».
-5. **Écriture** : les sections sont écrites dans `protocole.md`, et le
-   message se termine par « Étape suivante : `/pdh-query` ».
+5. **Écriture** : les sections sont écrites dans `protocole.md` ; la
+   suite est `/pdh-query`.
 
 ## Le fichier `protocole.md`
 
-La skill lit `## Question`, `## Finalité` et `## Sous-groupes`, écrit
-`## Données`, `## Protocole validé`, `## Statut` (`validé le AAAA-MM-JJ`)
-et `## Modifications`, et ne touche à rien d'autre. Le fichier ne contient
+La skill lit `# Introduction` et `# Matériels & Méthode`, écrits par
+`to-protocole` : question principale, source de données, population et
+critères d'inclusion et d'exclusion, critère de jugement principal,
+sous-groupes de l'analyse statistique (demandés s'ils manquent). Les
+critères de jugement secondaires ne sont pas traduits : ils sont signalés
+dans les points de vigilance. Un protocole à l'ancien format (`## Question`)
+est renvoyé vers `/to-protocole`. Elle écrit
+`# Données`, `# Protocole validé`, `# Statut` (`validé le AAAA-MM-JJ`)
+et `# Modifications`, et ne touche à rien d'autre. Le fichier ne contient
 jamais un effectif ni une donnée individuelle : il se colle sur claude.ai
 sans relecture.
 
 **Amendement.** Relancer `/pdh-schema` sur un protocole déjà validé ouvre
 un amendement : la skill reprend l'écart entre la question et le protocole
-validé quand `question-recherche-pico` a changé la question, sinon demande
-ce qui change, repasse `## Statut` à `brouillon` pendant l'entretien,
-revalide, puis ajoute une ligne datée dans `## Modifications`. Les scripts
+validé quand `to-protocole` a changé la question, sinon demande
+ce qui change, repasse `# Statut` à `brouillon` pendant l'entretien,
+revalide, puis ajoute une ligne datée dans `# Modifications`. Les scripts
 générés depuis l'ancienne version sont à régénérer avec `/pdh-query`.
 
 Conventions du parcours : voir le
@@ -99,7 +105,7 @@ Conventions du parcours : voir le
 ## Dictionnaire
 
 Le dictionnaire embarqué fait foi ; la date de son nom de fichier est la
-version inscrite dans `## Données`. Il ne contient pas les valeurs CIM-10,
+version inscrite dans `# Données`. Il ne contient pas les valeurs CIM-10,
 CCAM ni CSARR : la skill vérifie tables, variables et années ; les listes
 de codes viennent d'une recherche web ou de ses connaissances, source citée.
 
@@ -123,4 +129,4 @@ octet (règle de copie du
 - Copies ici, source dans `pdh-query` : `references/profils/`.
 - Le dictionnaire, le modèle de données, les blocs de traduction et les
   points de vigilance ne sont qu'ici : `pdh-query` lit leur résultat dans
-  `## Données`.
+  `# Données`.

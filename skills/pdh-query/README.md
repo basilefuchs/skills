@@ -7,18 +7,18 @@ destinée aux statisticiens de DIM et chargés d'études qui travaillent sur la
 parcours PMSI national du dépôt : elle lit le `protocole.md` validé par
 `pdh-schema` et en génère les scripts R dbplyr/Teradata, un par étape du
 protocole, à exécuter sur le portail. Elle ne clarifie rien et ne consulte
-aucun dictionnaire : la question est cadrée par `question-recherche-pico`,
+aucun dictionnaire : la question est cadrée par `to-protocole`,
 les champs, tables, variables et années sont vérifiés par `pdh-schema`.
 
 ```
-/question-recherche-pico  →  /pdh-schema  →  /pdh-query  →  plateforme  →  /rapport-imrad
+/to-protocole  →  /pdh-schema  →  /pdh-query  →  plateforme
 ```
 
 Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/skills#parcours).
 
 ## Contenu
 
-- `SKILL.md` : la skill (démarche, contrat de `sorties/`, livrable, ligne de fin).
+- `SKILL.md` : la skill (démarche, contrat de `sorties/`, livrable).
 - `references/profils/portail_atih_<champ>.md` : profils MCO, SMR, HAD, PSY
   et RPU du portail ATIH (connexion, schéma annuel, colonnes, pièges,
   défauts recommandés), qui font foi sur l'environnement.
@@ -51,10 +51,10 @@ Se placer dans le répertoire de l'étude (un répertoire par étude :
 
 La skill retrouve le protocole seule : chemin passé en argument, sinon
 `./protocole.md`, sinon fichier téléversé, sinon une question. Un protocole
-du SNDS (source de données de `## Finalité`) est renvoyé vers
-`/snds-query` ; un protocole non validé (`## Statut` en brouillon, ou sans
-`## Données`), vers `/pdh-schema` ; une question en langage naturel sans
-protocole, vers `/question-recherche-pico <question>`.
+du SNDS (`### Source de données`) est renvoyé vers
+`/snds-query` ; un protocole non validé (`# Statut` en brouillon, ou sans
+`# Données`), vers `/pdh-schema` ; une question en langage naturel sans
+protocole, vers `/to-protocole <question>`.
 
 Elle ne pose qu'une question, le format : dossier `scripts/` de fichiers
 `.R` (par défaut) ou rapport `analyse.Rmd`. Un fichier `analyse.R` unique
@@ -69,8 +69,8 @@ est fourni sur demande.
   années, codes et version du dictionnaire sont recopiés du protocole. Une
   colonne que ni le protocole ni le squelette ne nomment porte le marqueur
   « À VÉRIFIER », signalé dans le message final.
-- Dans `protocole.md` : `## Scripts` (format, fichiers, contrat de
-  `sorties/`, date de génération) et `## Confidentialité`, rien d'autre.
+- Dans `protocole.md` : `# Scripts` (format, fichiers, contrat de
+  `sorties/`, date de génération) et `# Confidentialité`, rien d'autre.
 
 ## `sorties/`
 
@@ -92,8 +92,7 @@ la plateforme et à ne jamais exporter.
 ## Après la génération
 
 - **Exécuter** sur le portail ATIH, exporter `sorties/` par la procédure de
-  la plateforme, le placer à côté de `protocole.md`, puis
-  [`/rapport-imrad`](https://github.com/basilefuchs/skills/tree/main/skills/rapport-imrad).
+  la plateforme.
 - **Un critère à changer** : `/pdh-schema` amende le protocole, puis
   `/pdh-query` régénère les scripts en entier et liste les fichiers
   réécrits. Les corrections faites à la main dans les scripts ne sont pas

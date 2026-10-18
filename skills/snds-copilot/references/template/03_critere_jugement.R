@@ -22,7 +22,7 @@ pop_03_critere_jugement <- pop_02_exclusion |>
 # (un critère restrictif, ex. ré-hospitalisation à 30 jours, y ferait une perte).
 attrition <- noter_attrition(attrition, pop_03_critere_jugement, "03 Critere de jugement")
 
-# -- Lectures d'une « évolution » (ligne Période de `## Données`) --------------
+# -- Lectures d'une « évolution » (ligne Période de `# Données`) --------------
 # Patients uniques PAR ANNÉE (un patient peut compter plusieurs années) et
 # cohorte dédupliquée SUR LA PÉRIODE se calculent toutes deux en 06_sorties.R
 # à partir de cette table ; aucune colonne supplémentaire n'est nécessaire.
@@ -30,14 +30,14 @@ attrition <- noter_attrition(attrition, pop_03_critere_jugement, "03 Critere de 
 # -- Variante : individus au sens strict (DCIR ou décès mobilisés) -------------
 # NIR_ANO_17 est un pseudonyme d'ouvreur de droit (= BEN_NIR_PSA) ; l'individu
 # est IR_BEN_R.BEN_IDT_ANO, à rattacher ici (une colonne de plus dans la table
-# de session) selon « Chaînage » de `## Données` — jointure sur
+# de session) selon « Chaînage » de `# Données` — jointure sur
 # (BEN_NIR_PSA, BEN_RNG_GEM) côté DCIR, filtres qualité population de IR_BEN_R
 # (profils/hdh_oracle.md) appliqués avant.
 
 # -- Variante : statut vital à N jours (létalité) -----------------------------
 # Décès hospitalier : SOR_MOD == "9" (ci-dessus). Décès toutes causes : date
 # IR_BEN_R.BEN_DCD_DTE (sentinelle 1600 = aucun décès connu ; exhaustivité
-# limitée, voir Points de vigilance de `## Données`) et/ou KI_CCI_R via
+# limitée, voir Points de vigilance de `# Données`) et/ou KI_CCI_R via
 # BEN_IDT_ANO ; fixer la règle de priorité entre dates dans le protocole.
 
 # -- Variante : taux pour 100 000 habitants ------------------------------------
