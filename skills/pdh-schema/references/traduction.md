@@ -1,6 +1,6 @@
 # Blocs de traduction en données
 
-Questions de l'étape 3 de `SKILL.md`, par bloc. La finalité, l'unité de compte, le type d'indicateur, la base géographique et les sous-groupes viennent de `protocole.md` (`## Question`, `## Finalité`, `## Sous-groupes`) : ils se traduisent en colonnes sans question. Un bloc ne donne lieu à une question que si le protocole le laisse ouvert ; sinon sa valeur entre telle quelle dans la proposition par défaut.
+Questions de l'étape 3 de `SKILL.md`, par bloc. L'unité de compte, le type d'indicateur, la base géographique et les sous-groupes viennent de `protocole.md` (section **Protocole** de `SKILL.md`) : ils se traduisent en colonnes sans question ; des sous-groupes absents du protocole sont posés. Un bloc ne donne lieu à une question que si le protocole le laisse ouvert ; sinon sa valeur entre telle quelle dans la proposition par défaut.
 
 ## Dépendances entre blocs (ordre des lots)
 
@@ -29,7 +29,7 @@ Questions de l'étape 3 de `SKILL.md`, par bloc. La finalité, l'unité de compt
 
 ## D. Période et années
 
-4. Années de `## Question` (T), bornes incluses, année PMSI = année de sortie (PSY : année de fin de séquence), dans la plage du profil. Vérifier dans le dictionnaire que chaque table et variable retenue couvre chaque année (`andeb` ≤ année ≤ `anfin`) ; une rupture devient une question (variable alternative, restriction de période) ou un point de vigilance.
+4. Années de la population et des critères d'inclusion, bornes incluses, année PMSI = année de sortie (PSY : année de fin de séquence), dans la plage du profil. Vérifier dans le dictionnaire que chaque table et variable retenue couvre chaque année (`andeb` ≤ année ≤ `anfin`) ; une rupture devient une question (variable alternative, restriction de période) ou un point de vigilance.
 
 ## E. Lecture par année ou cohorte (si évolution ou patients uniques pluriannuels)
 
@@ -37,7 +37,7 @@ Questions de l'étape 3 de `SKILL.md`, par bloc. La finalité, l'unité de compt
 
 ## F. Dénominateur (si taux)
 
-6. Population INSEE de `prd_vue_nomgen.pop_com_sex_ag` (commune, âge, sexe, `annee_pop`), ramenée au `codegeo` PMSI par `corresp_code_com_geo_ts_pop` : année de population et maille (France, région, département). Un taux standardisé demande en plus une population de référence et la méthode (directe, bornes des classes d'âge), fournies par la personne ; noter dans `## Données` ce qui reste **À préciser**.
+6. Population INSEE de `prd_vue_nomgen.pop_com_sex_ag` (commune, âge, sexe, `annee_pop`), ramenée au `codegeo` PMSI par `corresp_code_com_geo_ts_pop` : année de population et maille (France, région, département). Un taux standardisé demande en plus une population de référence et la méthode (directe, bornes des classes d'âge), fournies par la personne ; noter dans `# Données` ce qui reste **À préciser**.
 
 ## G. Exclusions qualité
 

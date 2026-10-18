@@ -21,7 +21,7 @@ pop_03_critere_jugement <- pop_02_exclusion %>%
 # (un critère restrictif, ex. ré-hospitalisation à 30 jours, y ferait une perte).
 attrition <- noter_attrition(attrition, pop_03_critere_jugement, "03 Critere de jugement")
 
-# -- Lectures d'une « évolution » (ligne Période de `## Données`) --------------
+# -- Lectures d'une « évolution » (ligne Période de `# Données`) --------------
 # Patients uniques PAR ANNÉE (un patient peut compter plusieurs années) et
 # cohorte dédupliquée SUR LA PÉRIODE se calculent toutes deux en 06_sorties.R
 # à partir de cette table ; aucune colonne supplémentaire n'est nécessaire.

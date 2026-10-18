@@ -19,9 +19,10 @@ dénombrement interne, source PMSI national, sous-groupe sexe.
 ## 1. Cadrage : `/to-protocole`
 
 Taper `/to-protocole patients hospitalisés pour diabète en MCO de
-2021 à 2023`, puis répondre : finalité « Dénombrement interne », source
+2021 à 2023`, puis répondre : objectif « Dénombrement interne », source
 « PMSI national via le portail ATIH », population France entière par
-résidence, patients uniques par année, sous-groupe « sexe », « Valider ».
+résidence, critère de jugement principal « patients uniques par année »,
+analyse stratifiée par sexe, puis valider la synthèse.
 
 - [ ] `protocole.md` créé avec la synthèse validée (`# Introduction`,
       `# Matériels & Méthode`, `# Limites`), rien d'autre ; aucun effectif.
@@ -37,12 +38,11 @@ Taper `/pdh-schema`, sans argument, puis accepter les défauts.
 - [ ] Lots de quatre questions au plus, « Tout par défaut » au premier ;
       codes E10–E14 proposés avec leur source.
 - [ ] Une seule validation « Valider / Corriger », après la synthèse.
-- [ ] `protocole.md` reçoit `## Données` (ligne « Dictionnaire : portail
+- [ ] `protocole.md` reçoit `# Données` (ligne « Dictionnaire : portail
       ATIH, `variables-<AAAA-MM-JJ>.csv` », table
-      `prd_vue_mcobl_{AAAA}.fixe` vérifiée 2021-2023), `## Protocole validé`,
-      `## Statut` (`validé le <date du jour>`) et `## Modifications` vide ;
+      `prd_vue_mcobl_{AAAA}.fixe` vérifiée 2021-2023), `# Protocole validé`,
+      `# Statut` (`validé le <date du jour>`) et `# Modifications` vide ;
       les sections de l'étape 1 sont intactes ; aucun effectif.
-- [ ] Ligne de fin : `/pdh-query` et « générer les scripts du protocole ».
 
 ## 3. Scripts : `/pdh-query`
 
@@ -55,11 +55,8 @@ Taper `/pdh-query`, sans argument, puis choisir le dossier `.R`.
       recopiés du protocole ; bloc « PROFIL DE BASE » avec Sources, la table
       et ses variables, la ligne Dictionnaire ; colonnes « À VÉRIFIER »
       listées dans le message (aucune pour cette étude).
-- [ ] `## Scripts` et `## Confidentialité` écrits, le reste de `protocole.md`
+- [ ] `# Scripts` et `# Confidentialité` écrits, le reste de `protocole.md`
       intact.
-- [ ] Ligne de fin : exécuter et exporter `sorties/`, puis le retour
-      `/pdh-schema` ;
-      aucun renvoi vers `snds-copilot`.
 
 ## 4. Plateforme simulée : `sorties/`
 
@@ -119,15 +116,15 @@ absente :
 ```
 # Manifeste de sorties/
 
-- Question : <question en une phrase de ## Question>
+- Question : <question principale de # Introduction>
 - Répertoire : etude-diabete-pmsi
 - Date d'exécution : <AAAA-MM-JJ HH:MM du jour>
 - Années : 2021, 2022, 2023
-- Sources : <valeur de la ligne Sources de ## Données>
+- Sources : <valeur de la ligne Sources de # Données>
 - Seuil : 11
 - Secret appliqué : comptages de 1 à 10 masqués (NA), colonnes dérivées de leur ligne aussi
-- Dictionnaire : <valeur de la ligne Dictionnaire de ## Données>
-- Protocole validé le : <date de ## Statut>
+- Dictionnaire : <valeur de la ligne Dictionnaire de # Données>
+- Protocole validé le : <date de # Statut>
 
 | Fichier | Cellules masquées |
 | --- | --- |
@@ -139,7 +136,8 @@ absente :
 
 ## 5. Renvois
 
-Dans un autre répertoire, une copie des trois sections de l'étape 1.
+Dans un autre répertoire, une copie du `protocole.md` de l'étape 1, sans
+les sections ajoutées ensuite.
 
 - [ ] `/snds-schema` : une ligne, « Ce protocole vise le PMSI national :
       `/pdh-schema`. », et rien d'autre ; `protocole.md` intact.
@@ -154,16 +152,22 @@ Dans un répertoire vide :
       une ligne, « Cadrez d'abord la question :
       `/to-protocole <question>`. ».
 
+Dans un répertoire dont le `protocole.md` est à l'ancien format (`## Question`,
+`## Finalité`, `## Sous-groupes`) :
+
+- [ ] `/pdh-schema` : une ligne, « Ce protocole est à l'ancien format :
+      relancez `/to-protocole`. », et rien d'autre ; `protocole.md` intact.
+
 ## 6. Amendement et régénération
 
 Dans le répertoire de l'étude, taper `/pdh-schema` et demander d'élargir la
 position du diagnostic au DR, valider, puis `/pdh-query`.
 
-- [ ] `## Statut` repasse à `validé le <date du jour>`, une ligne datée dans
-      `## Modifications`.
-- [ ] `/pdh-query` régénère : « (Recommandé) » sur le format de `## Scripts`,
+- [ ] `# Statut` repasse à `validé le <date du jour>`, une ligne datée dans
+      `# Modifications`.
+- [ ] `/pdh-query` régénère : « (Recommandé) » sur le format de `# Scripts`,
       scripts réécrits en entier, message listant les fichiers réécrits ;
-      `## Scripts` remplacée.
+      `# Scripts` remplacée.
 
 ## Exécution du 2026-10-16
 

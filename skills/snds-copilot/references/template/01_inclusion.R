@@ -60,7 +60,7 @@ attrition <- noter_attrition(attrition, pop_01_inclusion, "01 Sejours DP cible")
 # EXT_PMSI (extension documentaire) n'existe qu'à partir de 2015.
 # Pathologie ET acte (intersection) : enchaîner le filter() sur DGN_PAL et le
 # semi_join ; pathologie OU acte (union) : union_all des deux requêtes puis
-# distinct — effectifs très différents (ligne Sources de `## Données`).
+# distinct — effectifs très différents (ligne Sources de `# Données`).
 
 # -- Variante SSR : clé (ETA_NUM, RHA_NUM), tables T_SSR{aa}C / T_SSR{aa}B,
 #    diagnostic = FP_PEC (jusqu'en 2022) / MOR_PRP / ETL_AFF selon le protocole
@@ -106,7 +106,7 @@ attrition <- noter_attrition(attrition, pop_01_inclusion, "01 Sejours DP cible")
 #   union (« hospitalisés OU traités »)        : union_all puis distinct.
 # Clé commune : NIR_ANO_17 (PMSI) = BEN_NIR_PSA (DCIR) ; individu et décès via
 # IR_BEN_R.BEN_IDT_ANO (plusieurs BEN_NIR_PSA par individu, appariement des
-# décès incomplet : DCD_IDT_TOP) — lire « Chaînage » de `## Données` avant
+# décès incomplet : DCD_IDT_TOP) — lire « Chaînage » de `# Données` avant
 # d'écrire la jointure ; noter la perte dans attrition.
 # deces_cible <- tbl(conn, I("KI_CCI_R")) |>
 #   filter(substr(DCD_CIM_COD, 1, 3) %in% codes_cim3) |>   # cause initiale

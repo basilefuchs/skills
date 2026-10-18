@@ -18,9 +18,10 @@ dénombrement interne, source SNDS, sous-groupe sexe.
 ## 1. Cadrage : `/to-protocole`
 
 Taper `/to-protocole patients hospitalisés pour diabète en MCO de
-2021 à 2023`, puis répondre : finalité « Dénombrement interne », source « SNDS
-via le Health Data Hub », population France entière par résidence, patients
-uniques par année, sous-groupe « sexe », « Valider ».
+2021 à 2023`, puis répondre : objectif « Dénombrement interne », source
+« SNDS via le Health Data Hub », population France entière par
+résidence, critère de jugement principal « patients uniques par année »,
+analyse stratifiée par sexe, puis valider la synthèse.
 
 - [ ] `protocole.md` créé avec la synthèse validée (`# Introduction`,
       `# Matériels & Méthode`, `# Limites`), rien d'autre ; aucun effectif.
@@ -37,12 +38,11 @@ Taper `/snds-schema`, sans argument, puis accepter les défauts.
 - [ ] Lots de quatre questions au plus, « Tout par défaut » au premier ;
       codes E10–E14 proposés avec leur source.
 - [ ] Une seule validation « Valider / Corriger », après la synthèse.
-- [ ] `protocole.md` reçoit `## Données` (ligne Dictionnaire et son commit,
+- [ ] `protocole.md` reçoit `# Données` (ligne Dictionnaire et son commit,
       tables `T_MCO{aa}B` et `T_MCO{aa}C` vérifiées 2021-2023),
-      `## Protocole validé`, `## Statut` (`validé le <date du jour>`) et
-      `## Modifications` vide ; les sections de l'étape 1 sont intactes ;
+      `# Protocole validé`, `# Statut` (`validé le <date du jour>`) et
+      `# Modifications` vide ; les sections de l'étape 1 sont intactes ;
       aucun effectif.
-- [ ] Ligne de fin : `/snds-query` et « générer les scripts du protocole ».
 
 ## 3. Scripts : `/snds-query`
 
@@ -52,10 +52,8 @@ Taper `/snds-query`, sans argument, puis choisir le dossier `.R`.
 - [ ] `scripts/` généré : `main.R`, `00_setup.R` à `06_sorties.R` ;
       `annees`, codes, question, dictionnaire et date de validation recopiés
       du protocole ; colonnes « À VÉRIFIER » listées dans le message.
-- [ ] `## Scripts` et `## Confidentialité` écrits, le reste de `protocole.md`
+- [ ] `# Scripts` et `# Confidentialité` écrits, le reste de `protocole.md`
       intact.
-- [ ] Ligne de fin : exécuter et exporter `sorties/`, puis les retours
-      (`/snds-schema`, `/snds-copilot`).
 
 ## 4. Plateforme simulée : `sorties/`
 
@@ -115,15 +113,15 @@ absente :
 ```
 # Manifeste de sorties/
 
-- Question : <question en une phrase de ## Question>
+- Question : <question principale de # Introduction>
 - Répertoire : etude-diabete
 - Date d'exécution : <AAAA-MM-JJ HH:MM du jour>
 - Années : 2021, 2022, 2023
-- Sources : <valeur de la ligne Sources de ## Données>
+- Sources : <valeur de la ligne Sources de # Données>
 - Seuil : 11
 - Secret appliqué : comptages de 1 à 10 masqués (NA), colonnes dérivées de leur ligne aussi
-- Dictionnaire : <valeur de la ligne Dictionnaire de ## Données>
-- Protocole validé le : <date de ## Statut>
+- Dictionnaire : <valeur de la ligne Dictionnaire de # Données>
+- Protocole validé le : <date de # Statut>
 
 | Fichier | Cellules masquées |
 | --- | --- |
@@ -135,7 +133,8 @@ absente :
 
 ## 5. Renvoi vers l'autre base
 
-Dans un autre répertoire, une copie des trois sections de l'étape 1, puis
+Dans un autre répertoire, une copie du `protocole.md` de l'étape 1, sans
+les sections ajoutées ensuite, puis
 `/pdh-schema`, copiée elle aussi depuis la branche à recetter.
 
 - [ ] Une ligne, « Ce protocole vise le SNDS : `/snds-schema`. », et rien
@@ -162,7 +161,7 @@ variables de l'étude présentes de 2021 à 2023.
   **À préciser** (case ajoutée à l'étape 5).
 - Corrigé (8ecdf9b) : la valeur par défaut de `dictionnaire` dans les
   squelettes ajoutait « schema-snds, commit » devant la ligne Dictionnaire
-  de `## Données`, préfixe doublé dans le manifeste ; elle recopie
+  de `# Données`, préfixe doublé dans le manifeste ; elle recopie
   désormais la ligne telle quelle.
 
 L'étape 7 jouait alors `/snds-schema` sur un protocole PMSI national, faute

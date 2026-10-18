@@ -1,6 +1,6 @@
 # Blocs de traduction en données
 
-Questions de l'étape 3 de `SKILL.md`, par bloc. La finalité, l'unité de compte, le type d'indicateur, la base géographique et les sous-groupes viennent de `protocole.md` (`## Question`, `## Finalité`, `## Sous-groupes`) : ils se traduisent en colonnes sans question. Un bloc ne donne lieu à une question que si le protocole le laisse ouvert ; sinon sa valeur entre telle quelle dans la proposition par défaut.
+Questions de l'étape 3 de `SKILL.md`, par bloc. L'unité de compte, le type d'indicateur, la base géographique et les sous-groupes viennent de `protocole.md` (section **Protocole** de `SKILL.md`) : ils se traduisent en colonnes sans question ; des sous-groupes absents du protocole sont posés. Un bloc ne donne lieu à une question que si le protocole le laisse ouvert ; sinon sa valeur entre telle quelle dans la proposition par défaut.
 
 ## Dépendances entre blocs (ordre des lots)
 
@@ -30,7 +30,7 @@ Questions de l'étape 3 de `SKILL.md`, par bloc. La finalité, l'unité de compt
 
 ## D. Période et millésimes
 
-5. Années de `## Question` (T), bornes incluses, année PMSI = année de sortie. Vérifier dans `$D` que chaque table et variable retenue couvre chaque année ; une rupture (variable DCIR récente, PMSI avant 2009, SSR après 2022, `EXT_PMSI` avant 2015) devient une question (variable alternative, restriction de période) ou un point de vigilance.
+5. Années de la population et des critères d'inclusion, bornes incluses, année PMSI = année de sortie. Vérifier dans `$D` que chaque table et variable retenue couvre chaque année ; une rupture (variable DCIR récente, PMSI avant 2009, SSR après 2022, `EXT_PMSI` avant 2015) devient une question (variable alternative, restriction de période) ou un point de vigilance.
 
 ## E. Lecture par année ou cohorte (si évolution ou patients uniques pluriannuels)
 
@@ -38,7 +38,7 @@ Questions de l'étape 3 de `SKILL.md`, par bloc. La finalité, l'unité de compt
 
 ## F. Dénominateur externe (si taux)
 
-7. Le SNDS ne contient pas de population de référence : un taux pour 100 000 habitants demande une population INSEE (année, maille : France, région, département) fournie par la personne, un taux standardisé une population de référence et la méthode (directe, bornes des classes d'âge). Noter dans `## Données` ce qui est fourni et ce qui reste **À préciser**.
+7. Le SNDS ne contient pas de population de référence : un taux pour 100 000 habitants demande une population INSEE (année, maille : France, région, département) fournie par la personne, un taux standardisé une population de référence et la méthode (directe, bornes des classes d'âge). Noter dans `# Données` ce qui est fourni et ce qui reste **À préciser**.
 
 ## G. Exclusions qualité
 

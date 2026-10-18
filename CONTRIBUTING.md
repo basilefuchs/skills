@@ -6,9 +6,9 @@ distribué seul (zip claude.ai, `npx skills`).
 
 `check_skills.py` vérifie une partie des conventions ci-dessous : le
 frontmatter (`name`, `description`), le nom du dossier, la présence d'au
-moins une skill, la ligne au catalogue du README racine et les noms de
-`metadata.suivante`. `tests/test_sync_familles.py` vérifie la règle de copie
-des références communes, `tests/test_contrat_sorties.py` le contrat
+moins une skill et la ligne au catalogue du README racine.
+`tests/test_sync_familles.py` vérifie la règle de copie des références
+communes, `tests/test_contrat_sorties.py` le contrat
 `sorties/` dans les squelettes de scripts des deux bases. La CI lance le
 vérificateur et tous les tests à chaque push et à chaque PR ; le reste se
 relit à la main.
@@ -89,13 +89,14 @@ conventions.
 
 **Sections de `protocole.md`.** Un titre exact par section, un seul
 propriétaire par section, pas de gabarit partagé : chaque SKILL.md liste les
-sections qu'il écrit et celles qu'il lit.
+sections qu'il écrit et celles qu'il lit. Les skills schema et query
+repèrent les sous-sections de `to-protocole` par le début de leur titre.
 
 | Propriétaire | Sections écrites |
 | --- | --- |
 | `to-protocole` | `# Introduction`, `# Matériels & Méthode`, `# Limites` |
-| skills schema (`snds-schema`, `pdh-schema`) | `## Données`, `## Protocole validé`, `## Statut`, `## Modifications` |
-| skills query (`snds-query`, `pdh-query`) | `## Scripts`, `## Confidentialité` |
+| skills schema (`snds-schema`, `pdh-schema`) | `# Données`, `# Protocole validé`, `# Statut`, `# Modifications` |
+| skills query (`snds-query`, `pdh-query`) | `# Scripts`, `# Confidentialité` |
 
 Le fichier ne contient jamais un effectif : les chiffres vivent dans
 `sorties/`.
@@ -104,27 +105,9 @@ Le fichier ne contient jamais un effectif : les chiffres vivent dans
 le chemin passé en argument, sinon `./protocole.md`, sinon un fichier
 téléversé (claude.ai), sinon une seule question.
 
-**Ligne de fin.** Le livrable se termine par « Étape suivante : `/<skill>` »,
-suivie de la phrase à taper sur claude.ai, reprise mot pour mot d'un libellé
-de la description de la skill suivante. Exception : les skills query,
-dernières de la chaîne, n'ont pas de `metadata.suivante` ; leur ligne de fin
-passe par la plateforme (« Étape suivante : exécutez sur la plateforme et
-exportez `sorties/` par sa procédure d'export. »), puis un paragraphe nomme
-les retours : critère à changer, la skill schema puis la skill query ;
-erreur à l'exécution SNDS, `/snds-copilot`.
-
-**`metadata.suivante`.** Le frontmatter porte la même cible : un ou plusieurs
-noms de dossiers de `skills/` séparés par des espaces, chemin principal
-seulement (schema : sa query). La règle
-`suivante` de `check_skills.py` refuse un nom sans dossier.
-
-```
-metadata:
-  suivante: snds-query
-```
-
-**Câblage.** Le ticket qui crée une skill câble la `suivante` de la skill en
-amont et ajoute sa ligne au catalogue du README racine.
+**Câblage.** Les skills ne nomment pas l'étape suivante : le parcours du
+README racine et les README des skills le font. Le ticket qui crée une skill
+de la chaîne l'y ajoute, avec sa ligne au catalogue.
 
 **Contrat `sorties/`.** Les scripts générés n'écrivent de fichier que par
 `exporter()`, définie dans le script de mise en place du squelette, sous des
@@ -132,8 +115,8 @@ noms et des colonnes fixes, les mêmes pour les deux bases :
 `flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`,
 `strate_<variable>.csv`, `figure_resultat_annuel.png` et `manifeste.md`.
 Le contrat est écrit dans deux tableaux identiques qui changent ensemble :
-ceux de `snds-query` et de `pdh-query`. `tests/test_contrat_sorties.py` vérifie les squelettes : `exporter()`
-définie une seule fois (`00_setup.R`, chunk `setup` du `.Rmd`), appelée par
+ceux de `snds-query` et de `pdh-query`. `tests/test_contrat_sorties.py`
+vérifie les squelettes : `exporter()` définie une seule fois (`00_setup.R`, chunk `setup` du `.Rmd`), appelée par
 le flowchart et les sorties, aucune autre écriture de fichier, noms du
 contrat présents.
 

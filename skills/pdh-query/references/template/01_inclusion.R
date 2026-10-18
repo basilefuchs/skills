@@ -48,7 +48,7 @@ attrition <- noter_attrition(attrition, pop_01_inclusion, "01 Sejours DP cible")
 # Pathologie ET acte (intersection) : enchaîner le filter() sur dp et le
 # semi_join ; pathologie OU acte (union) : union_all des deux requêtes puis
 # distinct(ident) — effectifs très différents (Population de
-# `## Protocole validé`).
+# `# Protocole validé`).
 
 # -- Variante SMR : diagnostics au niveau RHA (fixe), séjour = fixe_sej --------
 # sej_cible <- tbl(conn, I(paste0("prd_vue_smrbl_", an, ".fixe"))) %>%

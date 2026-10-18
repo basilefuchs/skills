@@ -20,8 +20,8 @@ ou dans tout agent compatible [Agent Skills](https://agentskills.io).
 
 De la question de recherche aux agrégats, sur le SNDS (Health Data Hub) ou le
 PMSI national (portail ATIH) : trois skills se relaient par un fichier,
-`protocole.md`, et chacune termine par la commande suivante. La source de
-données inscrite au cadrage choisit la branche : `snds-schema` et
+`protocole.md`, dans l'ordre du tableau ci-dessous. La source de
+données inscrite au protocole choisit la branche : `snds-schema` et
 `snds-query` pour le SNDS, `pdh-schema` et `pdh-query` pour le PMSI
 national. Les trois skills de la branche sont à installer, plus
 `snds-copilot` côté SNDS pour corriger une erreur d'exécution (voir
@@ -78,7 +78,7 @@ skill ne corrige un script. Une correction faite dans les scripts n'est pas
 mémorisée : une régénération l'écrase.
 
 **Mauvaise base.** Une skill schema ou query lancée sur un protocole de
-l'autre base (source de données de `## Finalité`) le dit en une ligne et
+l'autre base (`### Source de données` du protocole) le dit en une ligne et
 renvoie vers la bonne commande.
 
 **Hors parcours.** `snds-copilot` sert aussi seul, pour relire ou

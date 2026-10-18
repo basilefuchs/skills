@@ -89,4 +89,4 @@ mois. Le signaler dans le protocole, avec la marge retenue.
 une date ou une localisation individuelle potentiellement ré-identifiante.**
 Tout export destiné à quitter l'environnement HDH doit être agrégé et
 respecter le seuil de diffusion ; à la livraison des scripts, `snds-query` le
-rappelle dans `## Confidentialité`.
+rappelle dans `# Confidentialité`.

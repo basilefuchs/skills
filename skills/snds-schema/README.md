@@ -18,7 +18,7 @@ Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/sk
 
 ## Contenu
 
-- `SKILL.md` : la skill (démarche, format des questions, livrable, ligne de fin).
+- `SKILL.md` : la skill (démarche, format des questions, livrable).
 - `references/dictionnaire/` : dictionnaire du SNDS (tables, variables et
   millésimes, jointures, nomenclatures et leurs valeurs), généré depuis le
   dépôt open source
@@ -81,28 +81,34 @@ PMSI national (portail ATIH) est renvoyé vers `/pdh-schema`.
    défaut, « Ok : … » après chaque lot. Les propositions s'affichent en
    options cliquables quand la plateforme le permet, sinon en liste
    numérotée. Un point de vigilance est signalé dès qu'il apparaît.
-4. **Synthèse et validation** : `## Données` et `## Protocole validé` sont
+4. **Synthèse et validation** : `# Données` et `# Protocole validé` sont
    présentés, avec un seul choix « Valider / Corriger ».
-5. **Écriture** : les sections sont écrites dans `protocole.md`, et le
-   message se termine par « Étape suivante : `/snds-query` ».
+5. **Écriture** : les sections sont écrites dans `protocole.md` ; la
+   suite est `/snds-query`.
 
 ## Le fichier `protocole.md`
 
-La skill lit `## Question`, `## Finalité` et `## Sous-groupes`, écrit
-`## Données` (dictionnaire et commit, sources, période, tables, variables et
+La skill lit `# Introduction` et `# Matériels & Méthode`, écrits par
+`to-protocole` : question principale, source de données, population et
+critères d'inclusion et d'exclusion, critère de jugement principal,
+sous-groupes de l'analyse statistique (demandés s'ils manquent). Les
+critères de jugement secondaires ne sont pas traduits : ils sont signalés
+dans les points de vigilance. Un protocole à l'ancien format (`## Question`)
+est renvoyé vers `/to-protocole`. Elle écrit
+`# Données` (dictionnaire et commit, sources, période, tables, variables et
 millésimes vérifiés, codes et leur source, position du diagnostic, unité de
 compte traduite en colonnes, dénominateur, exclusions, chaînage, points de
-vigilance), `## Protocole validé` (population, exclusions, critère de
-jugement, stratification, sources et chaînage), `## Statut`
-(`validé le AAAA-MM-JJ`) et `## Modifications`, et ne touche à rien d'autre.
+vigilance), `# Protocole validé` (population, exclusions, critère de
+jugement, stratification, sources et chaînage), `# Statut`
+(`validé le AAAA-MM-JJ`) et `# Modifications`, et ne touche à rien d'autre.
 Le fichier ne contient jamais un effectif ni une donnée individuelle : il se
 colle sur claude.ai sans relecture.
 
 **Amendement.** Relancer `/snds-schema` sur un protocole déjà validé ouvre
 un amendement : la skill reprend l'écart entre la question et le protocole
 validé quand `to-protocole` a changé la question, sinon demande
-ce qui change, repasse `## Statut` à `brouillon` pendant l'entretien,
-revalide, puis ajoute une ligne datée dans `## Modifications`. Les scripts
+ce qui change, repasse `# Statut` à `brouillon` pendant l'entretien,
+revalide, puis ajoute une ligne datée dans `# Modifications`. Les scripts
 générés depuis l'ancienne version sont à régénérer avec `/snds-query`.
 
 Conventions du parcours : voir le
@@ -117,7 +123,7 @@ alimente aussi la [documentation officielle](https://documentation-snds.health-d
 et le [dictionnaire interactif](https://health-data-hub.shinyapps.io/dico-snds/).
 À chaque usage, la skill en tire une version fraîche par clone partiel si le
 réseau le permet ; la copie embarquée sert de secours hors ligne, et le
-commit utilisé est inscrit dans `## Données`.
+commit utilisé est inscrit dans `# Données`.
 
 Mettre à jour la copie embarquée :
 

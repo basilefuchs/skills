@@ -18,7 +18,7 @@ Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/sk
 
 ## Contenu
 
-- `SKILL.md` : la skill (démarche, contrat de `sorties/`, livrable, ligne de fin).
+- `SKILL.md` : la skill (démarche, contrat de `sorties/`, livrable).
 - `references/profils/hdh_oracle.md` : profil de l'environnement Health Data
   Hub (connexion, colonnes, filtres qualité, pièges), qui fait foi sur
   l'environnement.
@@ -51,9 +51,9 @@ Se placer dans le répertoire de l'étude (un répertoire par étude :
 
 La skill retrouve le protocole seule : chemin passé en argument, sinon
 `./protocole.md`, sinon fichier téléversé, sinon une question. Un protocole
-du PMSI national (source de données de `## Finalité`) est renvoyé vers
-`/pdh-query` ; un protocole non validé (`## Statut` en brouillon, ou sans
-`## Données`), vers `/snds-schema` ; une question en langage naturel sans
+du PMSI national (`### Source de données`) est renvoyé vers
+`/pdh-query` ; un protocole non validé (`# Statut` en brouillon, ou sans
+`# Données`), vers `/snds-schema` ; une question en langage naturel sans
 protocole, vers `/to-protocole <question>`.
 
 Elle ne pose qu'une question, le format : dossier `scripts/` de fichiers
@@ -69,8 +69,8 @@ est fourni sur demande.
   millésimes, codes et commit du dictionnaire sont recopiés du protocole.
   Une colonne que ni le protocole ni le squelette ne nomment porte le
   marqueur « À VÉRIFIER », signalé dans le message final.
-- Dans `protocole.md` : `## Scripts` (format, fichiers, contrat de
-  `sorties/`, date de génération) et `## Confidentialité`, rien d'autre.
+- Dans `protocole.md` : `# Scripts` (format, fichiers, contrat de
+  `sorties/`, date de génération) et `# Confidentialité`, rien d'autre.
 
 À l'exécution, les scripts écrivent `sorties/` à côté de `protocole.md` :
 `flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`, un

@@ -52,13 +52,13 @@ Rendu : rmarkdown, rmdformats, DT (packages à signaler à l'utilisateur). -->
 #   identifiant d'individu : un individu peut porter plusieurs BEN_NIR_PSA)
 # Individu (tous SNDS)         : IR_BEN_R.BEN_IDT_ANO ; causes de décès reliées par
 #   KI_CCI_R.BEN_IDT_ANO = IR_BEN_R.BEN_IDT_ANO — voir « Chaînage » de
-#   `## Données` (protocole.md) avant tout rapprochement inter-sources.
+#   `# Données` (protocole.md) avant tout rapprochement inter-sources.
 # GHM (6 car) / CMD (2 car)    : GRG_GHM / substr(GRG_GHM, 1, 2)
 # Géo. résidence patient       : BDI_DEP (T_MCO{aa}B) ; BEN_RES_COM / BEN_RES_DPT (ER_PRS_F)
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le rapport,
-#      vérifiés par snds-schema (`## Données` de protocole.md), millésimes compris.
-# Dictionnaire : <ligne Dictionnaire de `## Données`, recopiée telle quelle> (schema-snds, Health Data Hub, MPL-2.0)
+#      vérifiés par snds-schema (`# Données` de protocole.md), millésimes compris.
+# Dictionnaire : <ligne Dictionnaire de `# Données`, recopiée telle quelle> (schema-snds, Health Data Hub, MPL-2.0)
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, eval = TRUE, message = FALSE)
 options(knitr.kable.NA = '')
@@ -106,7 +106,7 @@ seuil              <- 11
 dossier_sorties  <- "sorties"
 question         <- "<question en langage naturel de l'utilisateur>"
 sources          <- "<PMSI MCO / DCIR / CAUSE_DECES>"
-dictionnaire     <- "<ligne Dictionnaire de ## Données, recopiée telle quelle>"
+dictionnaire     <- "<ligne Dictionnaire de # Données, recopiée telle quelle>"
 protocole_valide <- "<AAAA-MM-JJ, date de validation du protocole>"
 
 # NIR_ANO_17 fictifs (documentation officielle HDH) : à exclure avant tout
