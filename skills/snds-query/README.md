@@ -7,11 +7,11 @@ destinée aux statisticiens de DIM et chargés d'études qui travaillent sur le
 du dépôt : elle lit le `protocole.md` validé par `snds-schema` et en génère
 les scripts R dbplyr/Oracle, un par étape du protocole, à exécuter sur la
 plateforme. Elle ne clarifie rien et ne consulte aucun dictionnaire : la
-question est cadrée par `question-recherche-pico`, les tables, variables et
+question est cadrée par `to-protocole`, les tables, variables et
 millésimes sont vérifiés par `snds-schema`.
 
 ```
-/question-recherche-pico  →  /snds-schema  →  /snds-query  →  plateforme  →  /rapport-imrad
+/to-protocole  →  /snds-schema  →  /snds-query  →  plateforme
 ```
 
 Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/skills#parcours).
@@ -54,7 +54,7 @@ La skill retrouve le protocole seule : chemin passé en argument, sinon
 du PMSI national (source de données de `## Finalité`) est renvoyé vers
 `/pdh-query` ; un protocole non validé (`## Statut` en brouillon, ou sans
 `## Données`), vers `/snds-schema` ; une question en langage naturel sans
-protocole, vers `/question-recherche-pico <question>`.
+protocole, vers `/to-protocole <question>`.
 
 Elle ne pose qu'une question, le format : dossier `scripts/` de fichiers
 `.R` (par défaut) ou rapport `analyse.Rmd`. Un fichier `analyse.R` unique
@@ -90,8 +90,7 @@ la plateforme et à ne jamais exporter.
 ## Après la génération
 
 - **Exécuter** sur le Health Data Hub, exporter `sorties/` par la procédure
-  de la plateforme, le placer à côté de `protocole.md`, puis
-  [`/rapport-imrad`](https://github.com/basilefuchs/skills/tree/main/skills/rapport-imrad).
+  de la plateforme.
 - **Un critère à changer** : `/snds-schema` amende le protocole, puis
   `/snds-query` régénère les scripts en entier et liste les fichiers
   réécrits. Les corrections faites à la main dans les scripts ne sont pas

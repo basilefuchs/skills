@@ -11,7 +11,7 @@ metadata:
 
 # Schéma de données PMSI national
 
-Tu es le statisticien d'un DIM qui a accès à la base nationale PMSI via le portail ATIH (Teradata). Une étude a été cadrée par `question-recherche-pico` dans `protocole.md` ; tu la traduis en données : champs PMSI, tables, variables et années vérifiées dans le dictionnaire, codes avec leur source, position du diagnostic, unité de compte en colonne, exclusions qualité, chaînage, points de vigilance. Tu ne poses que ce que le protocole laisse ambigu, tu fais valider le protocole une seule fois, tu écris tes sections et tu termines par la ligne de fin. Tu n'écris aucun script : c'est la skill suivante.
+Tu es le statisticien d'un DIM qui a accès à la base nationale PMSI via le portail ATIH (Teradata). Une étude a été cadrée par `to-protocole` dans `protocole.md` ; tu la traduis en données : champs PMSI, tables, variables et années vérifiées dans le dictionnaire, codes avec leur source, position du diagnostic, unité de compte en colonne, exclusions qualité, chaînage, points de vigilance. Tu ne poses que ce que le protocole laisse ambigu, tu fais valider le protocole une seule fois, tu écris tes sections et tu termines par la ligne de fin. Tu n'écris aucun script : c'est la skill suivante.
 
 Réponds dans la langue de la personne ; les titres des sections et les libellés des puces du protocole restent ceux du modèle (section **Livrable**).
 
@@ -23,11 +23,11 @@ Découverte, dans cet ordre : le chemin passé en argument, sinon `./protocole.m
 
 Renvois, en une ligne, puis arrêt :
 
-- un argument ou un message qui est une question en langage naturel, sans protocole : « Cadrez d'abord la question : `/question-recherche-pico <question>`. » ;
+- un argument ou un message qui est une question en langage naturel, sans protocole : « Cadrez d'abord la question : `/to-protocole <question>`. » ;
 - une source de données `SNDS (Health Data Hub)` : « Ce protocole vise le SNDS : `/snds-schema`. » ;
-- une source `autre` ou `aucune` : « Ce protocole n'a pas de source PMSI national : `/question-recherche-pico` pour changer la source, sinon `/squelette-imrad`. »
+- une source `autre` ou `aucune` : « Ce protocole n'a pas de source PMSI national : `/to-protocole` pour changer la source. »
 
-Un `## Données` déjà présent fait de l'entretien un amendement. Quand `## Question` ou `## Sous-groupes` s'écartent de `## Protocole validé` (question reprise par `question-recherche-pico`), cet écart est le changement : restitue-le en une ligne, « Ok : … » ; sinon, demande ce qui change (question ouverte, sans propositions). Écris `brouillon` dans `## Statut` avant la première question, ne rouvre que les blocs touchés par le changement, revalide (étape 4) et ajoute une ligne datée dans `## Modifications`.
+Un `## Données` déjà présent fait de l'entretien un amendement. Quand `## Question` ou `## Sous-groupes` s'écartent de `## Protocole validé` (question reprise par `to-protocole`), cet écart est le changement : restitue-le en une ligne, « Ok : … » ; sinon, demande ce qui change (question ouverte, sans propositions). Écris `brouillon` dans `## Statut` avant la première question, ne rouvre que les blocs touchés par le changement, revalide (étape 4) et ajoute une ligne datée dans `## Modifications`.
 
 ## Ressources
 

@@ -16,8 +16,8 @@ protocole.
 
 Pour partir d'une question en langage naturel (« combien de patients
 diabétiques hospitalisés en 2023 ? »), utiliser plutôt
-[`question-recherche-pico`](https://github.com/basilefuchs/skills/tree/main/skills/question-recherche-pico) :
-la skill y renvoie d'elle-même (`/question-recherche-pico <question>`).
+[`to-protocole`](https://github.com/basilefuchs/skills/tree/main/skills/to-protocole) :
+la skill y renvoie d'elle-même (`/to-protocole <question>`).
 
 ## Trois usages
 

@@ -82,8 +82,8 @@ relatif entre dans le test de lui-même.
 
 ## Chaîne de skills
 
-Les skills du parcours (`question-recherche-pico`, skills schema, skills
-query, `rapport-imrad`) se relaient par un fichier unique, `protocole.md`, à
+Les skills du parcours (`to-protocole`, skills schema, skills
+query) se relaient par un fichier unique, `protocole.md`, à
 la racine du répertoire de l'étude. Une skill de la chaîne suit ces
 conventions.
 
@@ -93,7 +93,7 @@ sections qu'il écrit et celles qu'il lit.
 
 | Propriétaire | Sections écrites |
 | --- | --- |
-| `question-recherche-pico` | `## Question`, `## Finalité`, `## Sous-groupes` |
+| `to-protocole` | `# Introduction`, `# Matériels & Méthode`, `# Limites` |
 | skills schema (`snds-schema`, `pdh-schema`) | `## Données`, `## Protocole validé`, `## Statut`, `## Modifications` |
 | skills query (`snds-query`, `pdh-query`) | `## Scripts`, `## Confidentialité` |
 
@@ -106,23 +106,21 @@ téléversé (claude.ai), sinon une seule question.
 
 **Ligne de fin.** Le livrable se termine par « Étape suivante : `/<skill>` »,
 suivie de la phrase à taper sur claude.ai, reprise mot pour mot d'un libellé
-de la description de la skill suivante. Deux exceptions. La ligne de fin
-d'une skill query passe par la plateforme (« Étape suivante : exécutez sur la
-plateforme, exportez `sorties/` à côté de `protocole.md`, puis
-`/rapport-imrad` », et la phrase), puis un paragraphe nomme les retours :
-critère à changer, la skill schema puis la skill query ; erreur à
-l'exécution SNDS, `/snds-copilot`. La dernière skill, `rapport-imrad`, n'a
-ni ligne de fin ni `metadata.suivante`.
+de la description de la skill suivante. Exception : les skills query,
+dernières de la chaîne, n'ont pas de `metadata.suivante` ; leur ligne de fin
+passe par la plateforme (« Étape suivante : exécutez sur la plateforme et
+exportez `sorties/` par sa procédure d'export. »), puis un paragraphe nomme
+les retours : critère à changer, la skill schema puis la skill query ;
+erreur à l'exécution SNDS, `/snds-copilot`.
 
 **`metadata.suivante`.** Le frontmatter porte la même cible : un ou plusieurs
 noms de dossiers de `skills/` séparés par des espaces, chemin principal
-seulement (`question-recherche-pico` : `snds-schema pdh-schema
-squelette-imrad` ; schema : sa query ; query : `rapport-imrad`). La règle
+seulement (schema : sa query). La règle
 `suivante` de `check_skills.py` refuse un nom sans dossier.
 
 ```
 metadata:
-  suivante: snds-schema pdh-schema squelette-imrad
+  suivante: snds-query
 ```
 
 **Câblage.** Le ticket qui crée une skill câble la `suivante` de la skill en
@@ -133,9 +131,8 @@ amont et ajoute sa ligne au catalogue du README racine.
 noms et des colonnes fixes, les mêmes pour les deux bases :
 `flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`,
 `strate_<variable>.csv`, `figure_resultat_annuel.png` et `manifeste.md`.
-Le contrat est écrit dans trois tableaux qui changent ensemble : ceux de
-`snds-query` et de `pdh-query`, identiques, et celui de `rapport-imrad`, qui
-le lit. `tests/test_contrat_sorties.py` vérifie les squelettes : `exporter()`
+Le contrat est écrit dans deux tableaux identiques qui changent ensemble :
+ceux de `snds-query` et de `pdh-query`. `tests/test_contrat_sorties.py` vérifie les squelettes : `exporter()`
 définie une seule fois (`00_setup.R`, chunk `setup` du `.Rmd`), appelée par
 le flowchart et les sorties, aucune autre écriture de fichier, noms du
 contrat présents.

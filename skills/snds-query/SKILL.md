@@ -5,8 +5,6 @@ description: >
   d'une étude SNDS, à exécuter sur le Health Data Hub. Pour générer les
   scripts du protocole.
 license: MIT
-metadata:
-  suivante: rapport-imrad
 ---
 
 # Scripts SNDS
@@ -23,7 +21,7 @@ Découverte, dans cet ordre : le chemin passé en argument, sinon `./protocole.m
 
 Renvois, en une ligne, puis arrêt :
 
-- un argument ou un message qui est une question en langage naturel, sans protocole : « Cadrez d'abord la question : `/question-recherche-pico <question>`. » ;
+- un argument ou un message qui est une question en langage naturel, sans protocole : « Cadrez d'abord la question : `/to-protocole <question>`. » ;
 - une source de données `PMSI national (portail ATIH)` dans `## Finalité` : « Ce protocole vise le PMSI national : `/pdh-query`. » ;
 - un protocole sans `## Données` portant la ligne Dictionnaire et son commit, ou dont `## Statut` n'est pas `validé le AAAA-MM-JJ` : « Le protocole n'est pas validé : lancez `/snds-schema`. »
 
@@ -93,7 +91,7 @@ Règles :
 - Une valeur que le squelette renvoie à la documentation officielle (liste des FINESS APHP/APHM/HCL des séjours 2005-2017) vient de `## Données`, sinon de la fiche nommée dans le profil, lue via WebFetch ; sans accès web, `<À VÉRIFIER : liste FINESS>`.
 - Tout fichier s'écrit par `exporter()`, dans `sorties/`, selon le contrat ci-dessous ; chaque appel nomme ses colonnes de comptage et ses colonnes dérivées. L'écran peut être brut : `secret_statistique` ne régit que l'affichage. Dans le `.Rmd`, il régit aussi le HTML rendu, qui est un fichier : il y vaut `TRUE` ; à `FALSE`, le HTML est brut, à ne jamais exporter.
 
-**Contrat `sorties/`**, lu par `rapport-imrad` :
+**Contrat `sorties/`** :
 
 | Fichier | Colonnes | Écrit par |
 |---|---|---|
@@ -135,6 +133,6 @@ Seuls des agrégats sortent de la plateforme : les scripts n'écrivent que dans 
 
 Le message de fin se termine par ces deux paragraphes ; ils n'entrent pas dans le fichier :
 
-Étape suivante : exécutez sur la plateforme, exportez `sorties/` à côté de `protocole.md`, puis `/rapport-imrad` — sur claude.ai, téléversez `protocole.md` et les fichiers de `sorties/`, et tapez « rédiger le rapport IMRaD ».
+Étape suivante : exécutez sur la plateforme et exportez `sorties/` par sa procédure d'export.
 
 Un critère à changer : `/snds-schema` amende le protocole, puis `/snds-query` régénère les scripts. Une erreur à l'exécution : `/snds-copilot`, avec le script et le message d'erreur.

@@ -26,7 +26,7 @@ Avant tout mode, deux cas se règlent en un seul message, puis arrêt :
 
 - **Question de recherche en langage naturel** (« combien de patients
   diabétiques hospitalisés en 2023 ? ») : « Cadrez d'abord la question :
-  `/question-recherche-pico <question>`. » Rien d'autre.
+  `/to-protocole <question>`. » Rien d'autre.
 - **Données individuelles collées** : extrait de table, résultat ou message
   d'erreur à une ligne par personne, séjour, prestation ou décès (valeurs
   d'un identifiant comme `NIR_ANO_17`, `BEN_NIR_PSA`, `BEN_IDT_ANO`,

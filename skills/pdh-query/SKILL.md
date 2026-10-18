@@ -5,8 +5,6 @@ description: >
   d'une étude PMSI national, à exécuter sur le portail ATIH. Pour générer les
   scripts du protocole.
 license: MIT
-metadata:
-  suivante: rapport-imrad
 ---
 
 # Scripts PMSI national
@@ -23,7 +21,7 @@ Découverte, dans cet ordre : le chemin passé en argument, sinon `./protocole.m
 
 Renvois, en une ligne, puis arrêt :
 
-- un argument ou un message qui est une question en langage naturel, sans protocole : « Cadrez d'abord la question : `/question-recherche-pico <question>`. » ;
+- un argument ou un message qui est une question en langage naturel, sans protocole : « Cadrez d'abord la question : `/to-protocole <question>`. » ;
 - une source de données `SNDS (Health Data Hub)` dans `## Finalité` : « Ce protocole vise le SNDS : `/snds-query`. » ;
 - un protocole sans `## Données` portant la ligne « Dictionnaire : portail ATIH, `variables-<AAAA-MM-JJ>.csv` », ou dont `## Statut` n'est pas `validé le AAAA-MM-JJ` : « Le protocole n'est pas validé : lancez `/pdh-schema`. »
 
@@ -92,7 +90,7 @@ Règles :
 - Une colonne nécessaire que ni `## Données` ni le squelette ne nomment prend le nom que donne le profil, sinon `<À VÉRIFIER : concept>` ; sa ligne porte le commentaire `# À VÉRIFIER`, et la colonne entre dans le message final. Tu ne la demandes pas et tu ne la devines pas. Une valeur du profil marquée « [à confirmer] » (schéma RPU…) est traitée de même.
 - Tout fichier s'écrit par `exporter()`, dans `sorties/`, selon le contrat ci-dessous ; chaque appel nomme ses colonnes de comptage et ses colonnes dérivées. L'écran peut être brut : `secret_statistique` ne régit que l'affichage. Dans le `.Rmd`, il régit aussi le HTML rendu, qui est un fichier : il y vaut `TRUE` ; à `FALSE`, le HTML est brut, à ne jamais exporter.
 
-**Contrat `sorties/`**, lu par `rapport-imrad` :
+**Contrat `sorties/`** :
 
 | Fichier | Colonnes | Écrit par |
 |---|---|---|
@@ -134,6 +132,6 @@ Seuls des agrégats sortent de la plateforme : les scripts n'écrivent que dans 
 
 Le message de fin se termine par ces deux paragraphes ; ils n'entrent pas dans le fichier :
 
-Étape suivante : exécutez sur la plateforme, exportez `sorties/` à côté de `protocole.md`, puis `/rapport-imrad` — sur claude.ai, téléversez `protocole.md` et les fichiers de `sorties/`, et tapez « rédiger le rapport IMRaD ».
+Étape suivante : exécutez sur la plateforme et exportez `sorties/` par sa procédure d'export.
 
 Un critère à changer : `/pdh-schema` amende le protocole, puis `/pdh-query` régénère les scripts.

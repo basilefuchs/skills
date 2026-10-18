@@ -1,7 +1,7 @@
 # Recette du parcours PMSI national
 
-Vérification manuelle de la chaîne `question-recherche-pico` → `pdh-schema`
-→ `pdh-query` → `rapport-imrad`, dont aucun test automatisé ne couvre le
+Vérification manuelle de la chaîne `to-protocole` → `pdh-schema`
+→ `pdh-query`, dont aucun test automatisé ne couvre le
 comportement. À dérouler avant un tag qui touche une skill de la chaîne.
 
 Étude fictive : patients hospitalisés pour diabète, MCO, 2021-2023,
@@ -9,26 +9,22 @@ dénombrement interne, source PMSI national, sous-groupe sexe.
 
 ## Préparation
 
-- [ ] Les quatre skills copiées depuis la branche à recetter
+- [ ] Les trois skills copiées depuis la branche à recetter
       (`cp -r skills/<nom> ~/.claude/skills/`), et `snds-schema` et
-      `snds-query` pour l'étape 7 ; plugins `snds-hdh` et `pdh-atih`
+      `snds-query` pour l'étape 5 ; plugins `snds-hdh` et `pdh-atih`
       désinstallés.
 - [ ] Répertoire vide (`mkdir etude-diabete-pmsi && cd etude-diabete-pmsi`),
       Claude Code lancé dedans.
 
-## 1. Cadrage : `/question-recherche-pico`
+## 1. Cadrage : `/to-protocole`
 
-Taper `/question-recherche-pico patients hospitalisés pour diabète en MCO de
+Taper `/to-protocole patients hospitalisés pour diabète en MCO de
 2021 à 2023`, puis répondre : finalité « Dénombrement interne », source
 « PMSI national via le portail ATIH », population France entière par
 résidence, patients uniques par année, sous-groupe « sexe », « Valider ».
 
-- [ ] Chemin court : ni question de type d'étude ni critère FINER.
-- [ ] `protocole.md` créé avec `## Question` (type Descriptif, tableau P, O,
-      T), `## Finalité` (Source de données : PMSI national (portail ATIH))
-      et `## Sous-groupes`, rien d'autre ; aucun effectif.
-- [ ] Ligne de fin : « Étape suivante : `/pdh-schema` » et la phrase
-      « vérifier les données du protocole ».
+- [ ] `protocole.md` créé avec la synthèse validée (`# Introduction`,
+      `# Matériels & Méthode`, `# Limites`), rien d'autre ; aucun effectif.
 
 ## 2. Traduction en données : `/pdh-schema`
 
@@ -61,8 +57,8 @@ Taper `/pdh-query`, sans argument, puis choisir le dossier `.R`.
       listées dans le message (aucune pour cette étude).
 - [ ] `## Scripts` et `## Confidentialité` écrits, le reste de `protocole.md`
       intact.
-- [ ] Ligne de fin : exécuter, exporter `sorties/`, `/rapport-imrad`, la
-      phrase « rédiger le rapport IMRaD », puis le retour `/pdh-schema` ;
+- [ ] Ligne de fin : exécuter et exporter `sorties/`, puis le retour
+      `/pdh-schema` ;
       aucun renvoi vers `snds-copilot`.
 
 ## 4. Plateforme simulée : `sorties/`
@@ -141,40 +137,7 @@ absente :
 | strate_sexe_lib.csv | 0 |
 ```
 
-## 5. Rapport : `/rapport-imrad`
-
-Taper `/rapport-imrad`, sans argument.
-
-- [ ] Aucune question ; `rapport.md` écrit à côté de `protocole.md`.
-- [ ] Cible « Rapport interne » : Introduction réduite à Objectif,
-      Discussion à Résultat principal, Limites et Statistiques absentes.
-- [ ] Avertissement de tête : 1 cellule masquée dans `flowchart.csv` ;
-      « < 11 » à sa place dans le tableau, signalé sous lui.
-- [ ] Colonne d'effectif du flowchart libellée « Séjours » ; dictionnaire
-      `variables-<AAAA-MM-JJ>.csv` en tête et dans les Méthodes.
-- [ ] Chaque chiffre est une cellule de `sorties/` ; STROBE et RECORD
-      nommées ; limites tirées des points de vigilance de `## Données`.
-
-## 6. Refus d'un CSV à une ligne par séjour
-
-Ajouter `sorties/sejours.csv` :
-
-```
-"annee","ident","anonyme","dp","sexe"
-2021,"0000001","AAAAAAAAAAAAAAAAA","E119","1"
-2021,"0000002","BBBBBBBBBBBBBBBBB","E109","2"
-```
-
-Taper `/rapport-imrad`.
-
-- [ ] Un seul message : nomme le fichier et le signe (`ident`, `anonyme`),
-      ne cite aucune valeur, demande de retirer le fichier, rappelle que
-      seule la procédure d'export de la plateforme fait sortir des données.
-- [ ] `rapport.md` inchangé, aucun autre fichier écrit.
-
-Retirer `sorties/sejours.csv`.
-
-## 7. Renvois
+## 5. Renvois
 
 Dans un autre répertoire, une copie des trois sections de l'étape 1.
 
@@ -189,9 +152,9 @@ Dans un répertoire vide :
 
 - [ ] `/pdh-query combien de patients hospitalisés pour diabète en 2023 ?` :
       une ligne, « Cadrez d'abord la question :
-      `/question-recherche-pico <question>`. ».
+      `/to-protocole <question>`. ».
 
-## 8. Amendement et régénération
+## 6. Amendement et régénération
 
 Dans le répertoire de l'étude, taper `/pdh-schema` et demander d'élargir la
 position du diagnostic au DR, valider, puis `/pdh-query`.

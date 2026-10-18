@@ -4,14 +4,14 @@ Skill pour [Claude Code](https://claude.com/claude-code), [claude.ai](https://cl
 et les autres agents compatibles [Agent Skills](https://agentskills.io),
 destinée aux statisticiens de DIM et chargés d'études qui travaillent sur le
 **SNDS via le Health Data Hub** (Oracle). Deuxième maillon du parcours SNDS
-du dépôt : elle lit le `protocole.md` écrit par `question-recherche-pico`,
+du dépôt : elle lit le `protocole.md` écrit par `to-protocole`,
 le traduit en données (sources, tables, variables et millésimes vérifiés
 dans le dictionnaire, codes avec leur source, position du diagnostic,
 exclusions, chaînage, points de vigilance), fait valider le protocole une
 seule fois et passe la main à `snds-query`, qui génère les scripts.
 
 ```
-/question-recherche-pico  →  /snds-schema  →  /snds-query  →  plateforme  →  /rapport-imrad
+/to-protocole  →  /snds-schema  →  /snds-query  →  plateforme
 ```
 
 Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/skills#parcours).
@@ -43,7 +43,7 @@ Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/sk
   dictionnaire compris), **ou** un autre agent compatible Agent Skills.
   Installation : voir le [README du dépôt](https://github.com/basilefuchs/skills).
 - Un `protocole.md` écrit par
-  [`question-recherche-pico`](https://github.com/basilefuchs/skills/tree/main/skills/question-recherche-pico),
+  [`to-protocole`](https://github.com/basilefuchs/skills/tree/main/skills/to-protocole),
   dont la source de données est le SNDS (Health Data Hub).
 - Aucun accès au Health Data Hub n'est nécessaire : la skill ne lit que le
   protocole et le dictionnaire.
@@ -63,7 +63,7 @@ Se placer dans le répertoire de l'étude (un répertoire par étude :
 La skill retrouve le protocole seule : chemin passé en argument, sinon
 `./protocole.md`, sinon fichier téléversé, sinon une question. Une question
 en langage naturel sans protocole est renvoyée vers
-`/question-recherche-pico <question>` ; un protocole dont la source est le
+`/to-protocole <question>` ; un protocole dont la source est le
 PMSI national (portail ATIH) est renvoyé vers `/pdh-schema`.
 
 ## Déroulé
@@ -100,7 +100,7 @@ colle sur claude.ai sans relecture.
 
 **Amendement.** Relancer `/snds-schema` sur un protocole déjà validé ouvre
 un amendement : la skill reprend l'écart entre la question et le protocole
-validé quand `question-recherche-pico` a changé la question, sinon demande
+validé quand `to-protocole` a changé la question, sinon demande
 ce qui change, repasse `## Statut` à `brouillon` pendant l'entretien,
 revalide, puis ajoute une ligne datée dans `## Modifications`. Les scripts
 générés depuis l'ancienne version sont à régénérer avec `/snds-query`.
