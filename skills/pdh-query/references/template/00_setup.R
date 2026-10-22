@@ -18,7 +18,7 @@
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le dossier,
 #      d'après `# Données` de protocole.md, années comprises.
-# Dictionnaire : <dictionnaire utilisé, d'après `# Données`>
+# Dictionnaire : <dictionnaire utilisé, s'il est nommé dans `# Données`>
 
 # ==============================================================================
 # 00_setup.R — packages, paramètres, connexion, fonctions partagées
@@ -48,7 +48,7 @@ seuil              <- 11
 dossier_sorties  <- "../sorties"
 question         <- "<question principale du protocole>"
 sources          <- "<champs PMSI : MCO / SMR / HAD / PSY / RPU>"
-dictionnaire     <- "<dictionnaire utilisé, d'après # Données>"
+dictionnaire     <- "<dictionnaire utilisé, s'il est nommé dans # Données>"
 
 # Connexion — selon le profil d'environnement (ici : portail ATIH)
 conn <- pRatihque::connection_database()

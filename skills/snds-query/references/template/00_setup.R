@@ -28,7 +28,7 @@
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le dossier,
 #      d'après `# Données` de protocole.md, millésimes compris.
-# Dictionnaire : <dictionnaire utilisé, d'après `# Données`> (schema-snds, Health Data Hub, MPL-2.0)
+# Dictionnaire : <dictionnaire utilisé, s'il est nommé dans `# Données`> (schema-snds, Health Data Hub, MPL-2.0)
 
 # ==============================================================================
 # 00_setup.R — packages, paramètres, connexion, fonctions partagées
@@ -59,7 +59,7 @@ seuil              <- 11
 dossier_sorties  <- "../sorties"
 question         <- "<question principale du protocole>"
 sources          <- "<PMSI MCO / DCIR / CAUSE_DECES>"
-dictionnaire     <- "<dictionnaire utilisé, d'après # Données>"
+dictionnaire     <- "<dictionnaire utilisé, s'il est nommé dans # Données>"
 
 # NIR_ANO_17 fictifs (documentation officielle HDH) : à exclure avant tout
 # comptage de patients, sinon chaque valeur fictive compte comme un patient.

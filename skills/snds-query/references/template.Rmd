@@ -23,11 +23,11 @@ h1, h2, h3, h4, h5, h6, legend {
 <!-- Un chunk par étape du protocole, nommé comme le fichier correspondant de
 references/template/ et dans le même ordre : mêmes tables tmp_NN_<etape>,
 mêmes objets pop_NN_<etape>, même compute_session(), même objet attrition.
-Une étape absente du protocole validé est omise, sans renuméroter les autres.
+Une étape absente du protocole est omise, sans renuméroter les autres.
 Les variantes (DAS, CCAM PMSI et DCIR, ATC, croisement de sources, Pattern C
 de batching ER_PRS_F, SSR, site géographique, flags, ALD…) et les rappels
 dbplyr/Oracle sont dans le fichier de l'étape du dossier (00_setup.R pour les
-rappels) : ne garder ici que le code du protocole validé.
+rappels) : ne garder ici que le code du protocole.
 Rendu : rmarkdown, rmdformats, DT (packages à signaler à l'utilisateur). -->
 
 ```{r setup, include = FALSE}
@@ -58,7 +58,7 @@ Rendu : rmarkdown, rmdformats, DT (packages à signaler à l'utilisateur). -->
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le rapport,
 #      d'après `# Données` de protocole.md, millésimes compris.
-# Dictionnaire : <dictionnaire utilisé, d'après `# Données`> (schema-snds, Health Data Hub, MPL-2.0)
+# Dictionnaire : <dictionnaire utilisé, s'il est nommé dans `# Données`> (schema-snds, Health Data Hub, MPL-2.0)
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, eval = TRUE, message = FALSE)
 options(knitr.kable.NA = '')
@@ -106,7 +106,7 @@ seuil              <- 11
 dossier_sorties  <- "sorties"
 question         <- "<question principale du protocole>"
 sources          <- "<PMSI MCO / DCIR / CAUSE_DECES>"
-dictionnaire     <- "<dictionnaire utilisé, d'après # Données>"
+dictionnaire     <- "<dictionnaire utilisé, s'il est nommé dans # Données>"
 
 # NIR_ANO_17 fictifs (documentation officielle HDH) : à exclure avant tout
 # comptage de patients, sinon chaque valeur fictive compte comme un patient.
@@ -478,8 +478,8 @@ dbDisconnect(conn)
 # Méthodologie
 
 Le protocole de l'étude est `protocole.md`, à côté de ce rapport : question,
-données (tables, variables, millésimes, codes et leur source), protocole validé
-et confidentialité. Il fait foi et n'est pas recopié ici.
+méthode et données (tables, variables, millésimes, codes et leur source). Il
+fait foi et n'est pas recopié ici.
 
 Les fichiers de `sorties/` masquent tout effectif de 1 à `r seuil - 1`, avec
 les pourcentages et taux de sa ligne ; les tables de ce rapport sont
