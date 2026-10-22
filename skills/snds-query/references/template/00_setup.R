@@ -1,5 +1,5 @@
 # ==============================================================================
-# Question   : <question en langage naturel de l'utilisateur>
+# Question   : <question principale du protocole>
 # Protocole  : <résumé 1 ligne : sources SNDS, population, exclusions, critère de jugement>
 # ==============================================================================
 
@@ -18,7 +18,7 @@
 # Jointure DCIR -> référentiel : BEN_NIR_PSA + BEN_RNG_GEM (clé de IR_BEN_R, PAS un
 #   identifiant d'individu : un individu peut porter plusieurs BEN_NIR_PSA)
 # Individu (tous SNDS)         : IR_BEN_R.BEN_IDT_ANO ; causes de décès reliées par
-#   KI_CCI_R.BEN_IDT_ANO = IR_BEN_R.BEN_IDT_ANO — voir « Chaînage » de
+#   KI_CCI_R.BEN_IDT_ANO = IR_BEN_R.BEN_IDT_ANO — voir le chaînage de
 #   `# Données` (protocole.md) avant tout rapprochement inter-sources.
 # GHM (6 car) / CMD (2 car)    : GRG_GHM / substr(GRG_GHM, 1, 2)
 # Géo. résidence patient       : BDI_DEP (T_MCO{aa}B) ; BEN_RES_COM / BEN_RES_DPT (ER_PRS_F)
@@ -27,8 +27,8 @@
 #   c'est la localisation du PS, PAS celle du patient
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le dossier,
-#      vérifiés par snds-schema (`# Données` de protocole.md), millésimes compris.
-# Dictionnaire : <ligne Dictionnaire de `# Données`, recopiée telle quelle> (schema-snds, Health Data Hub, MPL-2.0)
+#      d'après `# Données` de protocole.md, millésimes compris.
+# Dictionnaire : <dictionnaire utilisé, d'après `# Données`> (schema-snds, Health Data Hub, MPL-2.0)
 
 # ==============================================================================
 # 00_setup.R — packages, paramètres, connexion, fonctions partagées
@@ -57,10 +57,9 @@ seuil              <- 11
 # (main.R est lancé depuis le dossier de scripts) ; valeurs reprises dans
 # sorties/manifeste.md.
 dossier_sorties  <- "../sorties"
-question         <- "<question en langage naturel de l'utilisateur>"
+question         <- "<question principale du protocole>"
 sources          <- "<PMSI MCO / DCIR / CAUSE_DECES>"
-dictionnaire     <- "<ligne Dictionnaire de # Données, recopiée telle quelle>"
-protocole_valide <- "<AAAA-MM-JJ, date de validation du protocole>"
+dictionnaire     <- "<dictionnaire utilisé, d'après # Données>"
 
 # NIR_ANO_17 fictifs (documentation officielle HDH) : à exclure avant tout
 # comptage de patients, sinon chaque valeur fictive compte comme un patient.
@@ -204,7 +203,6 @@ exporter <- function(x, fichier, comptages = character(), derivees = character()
     paste0("- Secret appliqué : comptages de 1 à ", seuil - 1, " masqués (NA), ",
            "colonnes dérivées de leur ligne aussi"),
     paste0("- Dictionnaire : ", dictionnaire),
-    paste0("- Protocole validé le : ", protocole_valide),
     "",
     "| Fichier | Cellules masquées |",
     "| --- | --- |",
@@ -228,7 +226,7 @@ exporter <- function(x, fichier, comptages = character(), derivees = character()
 # - Tables : tbl(conn, I("NOM_TABLE")) — PMSI suffixé par année (2 chiffres),
 #   DCIR/référentiels non millésimés. Nom réel reconstruit depuis le nom
 #   générique de `# Données` : paste0("T_MCO", aa, "B").
-# - Colonnes : celles de `# Données`, vérifiées par snds-schema POUR CHAQUE
+# - Colonnes : celles de `# Données`, vérifiées POUR CHAQUE
 #   MILLÉSIME demandé et sur la table où elles sont filtrées (ex. SEJ_TYP est
 #   dans B, pas dans C).
 # - Une table par champ et par année : une requête lazy par millésime, mêmes
@@ -254,6 +252,6 @@ exporter <- function(x, fichier, comptages = character(), derivees = character()
 #   par flux avec furrr::future_map_dfr (une connexion Oracle PAR WORKER) —
 #   Pattern C (01_inclusion.R), marge de flux après la période clinique comprise.
 # - Chaînage inter-sources : NIR_ANO_17 (PMSI) = BEN_NIR_PSA (DCIR) ; individu
-#   et causes de décès via IR_BEN_R.BEN_IDT_ANO — « Chaînage » de `# Données`.
+#   et causes de décès via IR_BEN_R.BEN_IDT_ANO — chaînage de `# Données`.
 # - Contrôle du SQL généré : requete |> show_query().
 # ==============================================================================
