@@ -20,7 +20,7 @@ etape_02c <- etape_02b %>%
                                                        # pour compter des patients
 attrition <- noter_attrition(attrition, etape_02c, "02c chainage exploitable")
 
-# -- Autres exclusions selon le protocole (`# Protocole validé`) --------------
+# -- Autres exclusions selon le protocole -------------------------------------
 # filter(duree > 0)                 # séjours de la même journée
 # filter(modesortie != "9")         # décès (ex. avant une ré-hospitalisation)
 # filter(age >= 18)                 # restriction d'âge (ou en 01 si c'est un

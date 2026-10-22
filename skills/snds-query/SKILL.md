@@ -1,131 +1,16 @@
 ---
 name: snds-query
 description: >
-  Génère depuis protocole.md validé le dossier de scripts R dbplyr/Oracle
+  Génère depuis protocole.md et sa section Données les scripts R dbplyr/Oracle
   d'une étude SNDS, à exécuter sur le Health Data Hub. Pour générer les
   scripts du protocole.
 license: MIT
 ---
 
-# Scripts SNDS
+Le protocole est `protocole.md` dans le répertoire courant, ou le fichier fourni ; il fait foi : recopie ses tables, variables et codes, n'en ajoute aucun. Chemins relatifs au dossier de la skill.
 
-Tu es le statisticien d'un DIM qui a accès au SNDS via le Health Data Hub. L'étude est cadrée et traduite en données dans `protocole.md`, validé par `snds-schema` ; tu en génères les scripts R dbplyr/Oracle, un fichier par étape du protocole, en ne demandant que le format. Le protocole fait foi : tu recopies ses choix, tables, variables et codes, et tu n'en ajoutes aucun. Tu écris tes deux sections. Les scripts s'exécutent sur la plateforme, hors de ta vue ; seuls les agrégats sous seuil de `sorties/` en sortent.
-
-Réponds dans la langue de la personne ; les titres des sections et les libellés des puces restent ceux du modèle (section **Livrable**).
-
-## Protocole
-
-`protocole.md` est à la racine du répertoire de l'étude ; les scripts et `sorties/` sont à côté. Tu lis `# Données`, `# Protocole validé` et `# Statut`, la question principale de `# Introduction` et, pour les renvois, `### Source de données` de `# Matériels & Méthode`, par mots-clés (« SNDS », « Health Data Hub », « DCIR », « CépiDc » pour le SNDS ; « PMSI national », « ATIH » pour le PMSI national) ; tu écris `# Scripts` et `# Confidentialité`, à titres exacts, en laissant le reste du fichier intact. Le fichier ne contient jamais un effectif ni une donnée individuelle.
-
-Découverte, dans cet ordre : le chemin passé en argument, sinon `./protocole.md`, sinon un fichier téléversé (claude.ai), sinon une seule question : « Donnez le chemin de `protocole.md`, ou téléversez-le. »
-
-Renvois, en une ligne, puis arrêt :
-
-- un argument ou un message qui est une question en langage naturel, sans protocole : « Cadrez d'abord la question : `/to-protocole <question>`. » ;
-- une source PMSI national : « Ce protocole vise le PMSI national : `/pdh-query`. » ;
-- un protocole sans `# Données` portant la ligne Dictionnaire et son commit, ou dont `# Statut` n'est pas `validé le AAAA-MM-JJ` : « Le protocole n'est pas validé : lancez `/snds-schema`. »
-
-Des scripts déjà générés, ou un `# Scripts` déjà présent, font de la génération une régénération : les scripts sont réécrits en entier depuis le protocole, ceux devenus sans objet retirés, et ton message final liste les fichiers réécrits et retirés.
-
-## Ressources
-
-Chemins relatifs au répertoire de base de la skill.
-
-1. `references/profils/hdh_oracle.md` — environnement : connexion, mapping concept → colonne validé, filtres qualité, pièges. Fait foi sur l'environnement ; son bloc « Connexion » est recopié dans le script de mise en place. Un autre profil de `references/profils/` le remplace quand l'argument le nomme (`/snds-query <profil>`).
-2. `references/template/` — squelette du dossier `.R`, un fichier par étape. `00_setup.R` définit les fonctions partagées (`compute_session()`, `noter_attrition()`, `exporter()`) et rappelle les règles dbplyr/Oracle ; chaque fichier d'étape porte en commentaire ses variantes (DAS, CCAM, ATC, croisement de sources, batching de `ER_PRS_F`, SSR…).
-3. `references/template.Rmd` — squelette du `.Rmd` : mêmes étapes, mêmes tables et objets, un chunk par étape nommé comme le fichier.
-
-## Démarche
-
-### 1. Lecture et format
-
-Lis les quatre sections et le profil. Restitue en une phrase, « Ok : … », ce que les scripts vont produire (sources, population, période, critère de jugement, stratification), puis, dans le même message, pose la seule question de la skill :
-
-- quand un outil de question à choix cliquables est disponible, pose-la avec lui, après le texte du message, « Format » en en-tête ;
-- sinon, écris-la :
-
-```markdown
-**Format** · Sous quelle forme voulez-vous les scripts ?
-
-1. Dossier de scripts `.R`, un fichier par étape (Recommandé)
-2. Rapport R Markdown `.Rmd`, un chunk par étape
-
-Réponds par un numéro, ou librement.
-```
-
-À une régénération, « (Recommandé) » va au format de `# Scripts`. Un format déjà donné en argument ou dans le message se prend sans question. Le fichier `.R` unique ne se propose pas : il se fait sur demande explicite.
-
-C'est fini quand le format est fixé.
-
-### 2. Génération
-
-| Format | Fichiers, à côté de `protocole.md` | `dossier_sorties` |
-|---|---|---|
-| `.R` | `scripts/` : `main.R` et les fichiers d'étape de `references/template/` | `"../sorties"` |
-| `.Rmd` | `analyse.Rmd`, d'après `references/template.Rmd` | `"sorties"` |
-| `.R` unique, sur demande | `analyse.R` : les étapes dans le même ordre, mêmes en-têtes de section, tables, objets et `compute_session()`, sans `source()` | `"sorties"` |
-
-Chaque étape vient d'une partie du protocole :
-
-| Étape (fichier ou chunk) | Depuis |
-|---|---|
-| `00_setup` | en-tête (question, protocole en une ligne), bloc « PROFIL DE BASE », paramètres, bloc « Connexion » du profil |
-| `01_inclusion` | Population, Codes, Position du diagnostic, Sources et chaînage |
-| `02_exclusion` | Exclusions, dans l'ordre, chacune notée dans `attrition` |
-| `03_critere_jugement` | Critère de jugement, Unité de compte |
-| `04_covariables` | Stratification ; omise si aucune |
-| `05_flowchart` | `attrition` |
-| `06_sorties` | Pattern A et B du squelette, Dénominateur, puis un `strate_<variable>` par variable de Stratification, et la figure de `resultat_annuel`, toujours |
-
-Recopie depuis le protocole :
-
-- bloc « PROFIL DE BASE » : Sources, chaque table du tableau de `# Données` avec ses variables et ses millésimes vérifiés, la ligne Dictionnaire et son commit ;
-- paramètres de `00_setup` : `annees` (Période), les codes (Codes), `question` (question principale de `# Introduction`), `sources` (Sources), `dictionnaire` (ligne Dictionnaire), `protocole_valide` (date de `# Statut`).
-
-Règles :
-
-- Le squelette fait foi sur le code : fonctions partagées, matérialisation par `compute_session()`, `noter_attrition()` après chaque étape, règles dbplyr/Oracle de ses commentaires. Tu n'y changes que ce que le protocole fixe.
-- Une étape absente du protocole est omise des scripts et de `main.R`, sans renuméroter les autres.
-- Une table de `# Données` absente du profil et du squelette est écrite telle quelle, nom réel reconstruit pour une table PMSI (`T_MCO{aa}B` → `paste0("T_MCO", aa, "B")`), avec le commentaire « vérifiée par snds-schema (`# Données`) ».
-- Une colonne nécessaire que ni `# Données` ni le squelette ne nomment prend le nom que donne le profil, sinon `<À VÉRIFIER : concept>` ; sa ligne porte le commentaire `# À VÉRIFIER`, et la colonne entre dans le message final. Tu ne la demandes pas et tu ne la devines pas.
-- Une valeur que le squelette renvoie à la documentation officielle (liste des FINESS APHP/APHM/HCL des séjours 2005-2017) vient de `# Données`, sinon de la fiche nommée dans le profil, lue via WebFetch ; sans accès web, `<À VÉRIFIER : liste FINESS>`.
-- Tout fichier s'écrit par `exporter()`, dans `sorties/`, selon le contrat ci-dessous ; chaque appel nomme ses colonnes de comptage et ses colonnes dérivées. L'écran peut être brut : `secret_statistique` ne régit que l'affichage. Dans le `.Rmd`, il régit aussi le HTML rendu, qui est un fichier : il y vaut `TRUE` ; à `FALSE`, le HTML est brut, à ne jamais exporter.
-
-**Contrat `sorties/`** :
-
-| Fichier | Colonnes | Écrit par |
-|---|---|---|
-| `flowchart.csv` | `annee`, `etape`, `nb_sejours`, `nb_exclus`, exactement | `05_flowchart` |
-| `resultat_annuel.csv` | `annee`, des comptages, des dérivées éventuelles | `06_sorties` |
-| `nb_patients_periode.csv` | `nb_patients` | `06_sorties` |
-| `strate_<variable>.csv` | `annee`, `<variable>`, des comptages, des dérivées éventuelles | `06_sorties` |
-| `figure_resultat_annuel.png` | figure de `resultat_annuel`, toujours générée, construite depuis la table renvoyée par `exporter()` | `06_sorties` |
-| `manifeste.md` | question, répertoire, date d'exécution, années, sources, seuil, secret appliqué, cellules masquées par fichier, dictionnaire, date de validation du protocole | `exporter()` |
-
-Un comptage se nomme `nb_…`, une dérivée `pct_…` ou `taux…` ; un taux sur Dénominateur porte la population en `nb_…` et le taux en `taux…`. `nb_sejours` garde son nom quelle que soit l'unité de compte. `exporter()` masque (NA) tout comptage de 1 à `seuil - 1` et les dérivées de sa ligne, et écrit un CSV UTF-8 séparé par des virgules.
-
-C'est fini quand chaque étape du protocole a son fichier ou son chunk, que chaque table et chaque colonne des scripts vient de `# Données`, du squelette, ou du profil avec le marqueur « À VÉRIFIER », et que chaque fichier de `sorties/` passe par `exporter()`.
-
-### 3. Écriture
-
-Écris les scripts à côté de `protocole.md`, puis `# Scripts` et `# Confidentialité` dans `protocole.md` (section **Livrable**), remplacées si elles existent. Sans accès au répertoire de l'étude (claude.ai), les fichiers livrés et les sections du message en tiennent lieu : la personne les place à côté de son `protocole.md` et y ajoute les sections.
-
-Réponds avec les fichiers écrits (réécrits et retirés à une régénération), les colonnes « À VÉRIFIER » avec leur fichier, les packages du rendu pour un `.Rmd` (`rmarkdown`, `rmdformats`, `DT`), et les deux sections écrites.
-
-## Livrable
-
-Les deux sections, dans cet ordre, sans le bloc de code ; `# Confidentialité` est un texte fixe.
-
-```markdown
-# Scripts
-
-- Format : <dossier .R | rapport .Rmd | fichier .R unique>
-- Fichiers : <`scripts/main.R`, `scripts/00_setup.R`, … | `analyse.Rmd` | `analyse.R`>
-- Sorties : `sorties/`, à côté de `protocole.md` : `flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`, <`strate_<variable>.csv`, …>, `figure_resultat_annuel.png`, `manifeste.md` ; écrits par `exporter()` seulement, comptages de 1 à <seuil - 1> masqués avec les dérivées de leur ligne
-- Généré le : <AAAA-MM-JJ>, depuis le protocole validé le <AAAA-MM-JJ>
-
-# Confidentialité
-
-Seuls des agrégats sortent de la plateforme : les scripts n'écrivent que dans `sorties/`. La procédure d'export de la plateforme reste seule juge de ce qui sort ; le seuil appliqué par les scripts est une aide.
-```
-
+1. Pars du squelette `references/template/` (dossier `.R`, un fichier par étape, `main.R`), ou de `references/template.Rmd` si un rapport `.Rmd` est demandé. Le squelette fait foi sur le code ; n'y change que ce que le protocole fixe.
+2. `references/profils/hdh_oracle.md` fait foi sur l'environnement ; sa connexion est recopiée dans `00_setup.R`.
+3. Une colonne que ni le protocole, ni le squelette, ni le profil ne nomment est marquée `# À VÉRIFIER` et listée dans ta réponse, jamais devinée.
+4. Tout fichier s'écrit par `exporter()` dans `sorties/` : seuls des agrégats sous seuil sortent de la plateforme.
+5. Écris les scripts à côté de `protocole.md`, remplacés s'ils existent ; sans accès au répertoire, livre-les dans ta réponse.

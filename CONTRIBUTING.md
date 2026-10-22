@@ -82,43 +82,39 @@ relatif entre dans le test de lui-même.
 
 ## Chaîne de skills
 
-Les skills du parcours (`to-protocole`, skills schema, skills
-query) se relaient par un fichier unique, `protocole.md`, à
-la racine du répertoire de l'étude. Une skill de la chaîne suit ces
-conventions.
+Les skills du parcours (`to-protocole`, skills schema, skills query) se
+relaient par un fichier unique, `protocole.md`, à la racine du répertoire de
+l'étude. Une skill de la chaîne suit ces conventions.
 
 **Sections de `protocole.md`.** Un titre exact par section, un seul
-propriétaire par section, pas de gabarit partagé : chaque SKILL.md liste les
-sections qu'il écrit et celles qu'il lit. Les skills schema et query
-repèrent les sous-sections de `to-protocole` par le début de leur titre.
+propriétaire par section, pas de gabarit partagé : chaque SKILL.md nomme les
+sections qu'il écrit.
 
 | Propriétaire | Sections écrites |
 | --- | --- |
 | `to-protocole` | `# Introduction`, `# Matériels & Méthode`, `# Limites` |
-| skills schema (`snds-schema`, `pdh-schema`) | `# Données`, `# Protocole validé`, `# Statut`, `# Modifications` |
-| skills query (`snds-query`, `pdh-query`) | `# Scripts`, `# Confidentialité` |
+| skills schema (`snds-schema`, `pdh-schema`) | `# Données`, remplacée si elle existe |
+| skills query (`snds-query`, `pdh-query`) | aucune : les scripts sont le livrable |
 
 Le fichier ne contient jamais un effectif : les chiffres vivent dans
 `sorties/`.
 
-**Découverte sans argument.** La skill retrouve le protocole dans cet ordre :
-le chemin passé en argument, sinon `./protocole.md`, sinon un fichier
-téléversé (claude.ai), sinon une seule question.
+**Découverte sans argument.** Le protocole est `protocole.md` dans le
+répertoire courant, ou le fichier fourni (téléversé sur claude.ai). Sans
+accès au fichier, la skill livre dans sa réponse ce qu'elle aurait écrit.
 
 **Câblage.** Les skills ne nomment pas l'étape suivante : le parcours du
 README racine et les README des skills le font. Le ticket qui crée une skill
 de la chaîne l'y ajoute, avec sa ligne au catalogue.
 
 **Contrat `sorties/`.** Les scripts générés n'écrivent de fichier que par
-`exporter()`, définie dans le script de mise en place du squelette, sous des
-noms et des colonnes fixes, les mêmes pour les deux bases :
-`flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`,
+`exporter()`, définie dans `00_setup.R` des deux squelettes (chunk `setup`
+du `.Rmd`), sous des noms et des colonnes fixes, les mêmes pour les deux
+bases : `flowchart.csv`, `resultat_annuel.csv`, `nb_patients_periode.csv`,
 `strate_<variable>.csv`, `figure_resultat_annuel.png` et `manifeste.md`.
-Le contrat est écrit dans deux tableaux identiques qui changent ensemble :
-ceux de `snds-query` et de `pdh-query`. `tests/test_contrat_sorties.py`
-vérifie les squelettes : `exporter()` définie une seule fois (`00_setup.R`, chunk `setup` du `.Rmd`), appelée par
-le flowchart et les sorties, aucune autre écriture de fichier, noms du
-contrat présents.
+`tests/test_contrat_sorties.py` vérifie les squelettes : `exporter()`
+définie une seule fois, appelée par le flowchart et les sorties, aucune
+autre écriture de fichier, noms du contrat présents.
 
 ## Modifier le script de vérification
 

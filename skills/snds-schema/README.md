@@ -1,14 +1,13 @@
-# snds-schema — traduction d'un protocole en données SNDS
+# snds-schema — données SNDS d'un protocole
 
 Skill pour [Claude Code](https://claude.com/claude-code), [claude.ai](https://claude.ai)
 et les autres agents compatibles [Agent Skills](https://agentskills.io),
 destinée aux statisticiens de DIM et chargés d'études qui travaillent sur le
 **SNDS via le Health Data Hub** (Oracle). Deuxième maillon du parcours SNDS
-du dépôt : elle lit le `protocole.md` écrit par `to-protocole`,
-le traduit en données (sources, tables, variables et millésimes vérifiés
-dans le dictionnaire, codes avec leur source, position du diagnostic,
-exclusions, chaînage, points de vigilance), fait valider le protocole une
-seule fois et passe la main à `snds-query`, qui génère les scripts.
+du dépôt : elle lit le `protocole.md` écrit par `to-protocole`, y identifie
+les données à retenir (tables, variables et millésimes vérifiés dans le
+dictionnaire, codes avec leur source, points de vigilance, incertitudes) et
+écrit la section `# Données`, que `snds-query` lit pour générer les scripts.
 
 ```
 /to-protocole  →  /snds-schema  →  /snds-query  →  plateforme
@@ -18,7 +17,7 @@ Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/sk
 
 ## Contenu
 
-- `SKILL.md` : la skill (démarche, format des questions, livrable).
+- `SKILL.md` : la skill (démarche, livrable).
 - `references/dictionnaire/` : dictionnaire du SNDS (tables, variables et
   millésimes, jointures, nomenclatures et leurs valeurs), généré depuis le
   dépôt open source
@@ -28,8 +27,6 @@ Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/sk
 - `scripts/build-dictionary.py` : construction du dictionnaire depuis schema-snds.
 - `references/modele-donnees.md` : modèle de données (DCIR, PMSI, causes de
   décès, chaînage patient, pièges).
-- `references/traduction.md` : les blocs de questions de traduction, avec
-  leurs dépendances.
 - `references/points-de-vigilance.md` : registres de risques méthodologiques.
 - `references/profils/hdh_oracle.md` : profil de l'environnement Health Data
   Hub (colonnes, filtres qualité recommandés, pièges), qui fait foi sur
@@ -54,76 +51,52 @@ Se placer dans le répertoire de l'étude (un répertoire par étude :
 `protocole.md`, les scripts et les sorties y vivent ensemble) :
 
 - copiée comme skill dans Claude Code (`~/.claude/skills/` ou
-  `.claude/skills/`) : `/snds-schema`, sans argument, ou suivi du chemin
-  d'un `protocole.md` ;
+  `.claude/skills/`) : `/snds-schema`, sans argument, ou suivi de la
+  demande (« élargis la position du diagnostic au DR ») ;
 - dans LibreChat : `$snds-schema` ;
-- sur claude.ai : téléverser `protocole.md` et taper « vérifier les données
-  du protocole ».
+- sur claude.ai : téléverser `protocole.md` et taper « identifier les
+  données SNDS du protocole ».
 
-La skill retrouve le protocole seule : chemin passé en argument, sinon
-`./protocole.md`, sinon fichier téléversé, sinon une question. Une question
-en langage naturel sans protocole est renvoyée vers
-`/to-protocole <question>` ; un protocole dont la source est le
-PMSI national (portail ATIH) est renvoyé vers `/pdh-schema`.
+Le protocole est `protocole.md` du répertoire courant, ou le fichier fourni.
 
 ## Déroulé
 
-1. **Lecture** : la skill restitue le protocole en une phrase (« Ok : … »)
-   et repère ce qu'il laisse ouvert.
-2. **Dictionnaire** : elle en tire une version fraîche depuis schema-snds si
-   le réseau le permet, sinon utilise la copie embarquée, datée et signalée.
-3. **Traduction** : proposition par défaut (sources, champ PMSI, codes avec
-   leur source trouvée par recherche web quand elle existe, position du
-   diagnostic, période, exclusions, chaînage), chaque table, variable et
-   millésime vérifié dans le dictionnaire ; puis seulement ce qui reste
-   ambigu, par lots de quatre questions au plus ordonnés par dépendances,
-   « Tout par défaut » proposé au premier lot, « (Recommandé) » sur le
-   défaut, « Ok : … » après chaque lot. Les propositions s'affichent en
-   options cliquables quand la plateforme le permet, sinon en liste
-   numérotée. Un point de vigilance est signalé dès qu'il apparaît.
-4. **Synthèse et validation** : `# Données` et `# Protocole validé` sont
-   présentés, avec un seul choix « Valider / Corriger ».
-5. **Écriture** : les sections sont écrites dans `protocole.md` ; la
-   suite est `/snds-query`.
+Une réponse, sans question :
+
+1. **Dictionnaire** : la copie embarquée, consultée par `grep` ; les
+   définitions métier des tables et variables, pas seulement leurs noms.
+2. **Vérification** : quand plusieurs variables semblent correspondre,
+   granularité, rôle et millésimes sur chaque année de la période ; aucune
+   table, variable ni définition absente du dictionnaire.
+3. **Codes** : CIM-10, CCAM ou ATC avec leur source, ou donnés pour venir
+   des connaissances de la skill.
+4. **Vigilance** : les points de vigilance qui s'appliquent et toute
+   incertitude que le protocole ne permet pas de trancher.
+5. **Écriture** : `# Données` dans `protocole.md` ; sans accès au fichier
+   (claude.ai), la section est livrée dans la réponse, à placer soi-même.
 
 ## Le fichier `protocole.md`
 
-La skill lit `# Introduction` et `# Matériels & Méthode`, écrits par
-`to-protocole` : question principale, source de données, population et
-critères d'inclusion et d'exclusion, critère de jugement principal,
-sous-groupes de l'analyse statistique (demandés s'ils manquent). Les
-critères de jugement secondaires ne sont pas traduits : ils sont signalés
-dans les points de vigilance. Un protocole à l'ancien format (`## Question`)
-est renvoyé vers `/to-protocole`. Elle écrit
-`# Données` (dictionnaire et commit, sources, période, tables, variables et
-millésimes vérifiés, codes et leur source, position du diagnostic, unité de
-compte traduite en colonnes, dénominateur, exclusions, chaînage, points de
-vigilance), `# Protocole validé` (population, exclusions, critère de
-jugement, stratification, sources et chaînage), `# Statut`
-(`validé le AAAA-MM-JJ`) et `# Modifications`, et ne touche à rien d'autre.
-Le fichier ne contient jamais un effectif ni une donnée individuelle : il se
-colle sur claude.ai sans relecture.
-
-**Amendement.** Relancer `/snds-schema` sur un protocole déjà validé ouvre
-un amendement : la skill reprend l'écart entre la question et le protocole
-validé quand `to-protocole` a changé la question, sinon demande
-ce qui change, repasse `# Statut` à `brouillon` pendant l'entretien,
-revalide, puis ajoute une ligne datée dans `# Modifications`. Les scripts
-générés depuis l'ancienne version sont à régénérer avec `/snds-query`.
+La skill lit le protocole écrit par `to-protocole` (`# Introduction`,
+`# Matériels & Méthode`, `# Limites`) et écrit `# Données`, seule section à
+elle : titre fixe, contenu libre (tables, variables, millésimes, codes à
+retenir, points de vigilance, incertitudes), remplacée si elle existe. Elle
+ne touche à rien d'autre. Le fichier ne contient jamais un effectif ni une
+donnée individuelle : il se colle sur claude.ai sans relecture.
 
 Conventions du parcours : voir le
 [CONTRIBUTING du dépôt](https://github.com/basilefuchs/skills/blob/main/CONTRIBUTING.md).
 
 ## Dictionnaire
 
-Le dictionnaire est généré depuis le dépôt open source
+La copie embarquée est le dictionnaire : la skill la consulte telle quelle,
+sans clone à chaque usage ; son commit et sa date sont dans
+`references/dictionnaire/SOURCE.txt`. Elle est générée depuis le dépôt open
+source
 [schema-snds](https://gitlab.com/healthdatahub/applications-du-hdh/schema-snds)
 du Health Data Hub (Table Schema JSON par table + nomenclatures), source qui
 alimente aussi la [documentation officielle](https://documentation-snds.health-data-hub.fr/)
 et le [dictionnaire interactif](https://health-data-hub.shinyapps.io/dico-snds/).
-À chaque usage, la skill en tire une version fraîche par clone partiel si le
-réseau le permet ; la copie embarquée sert de secours hors ligne, et le
-commit utilisé est inscrit dans `# Données`.
 
 Mettre à jour la copie embarquée :
 
