@@ -1,5 +1,5 @@
 # ==============================================================================
-# Question   : <question en langage naturel de l'utilisateur>
+# Question   : <question principale du protocole>
 # Protocole  : <résumé 1 ligne : population, exclusions, critère de jugement>
 # ==============================================================================
 
@@ -17,8 +17,8 @@
 # Référentiel établisst.      : prd_vue_nomgen.finessgeo (rs, millésimé par annee)
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le dossier,
-#      vérifiés par pdh-schema (`# Données` de protocole.md), années comprises.
-# Dictionnaire : <ligne Dictionnaire de `# Données`>
+#      d'après `# Données` de protocole.md, années comprises.
+# Dictionnaire : <dictionnaire utilisé, d'après `# Données`>
 
 # ==============================================================================
 # 00_setup.R — packages, paramètres, connexion, fonctions partagées
@@ -46,10 +46,9 @@ seuil              <- 11
 # (main.R est lancé depuis le dossier de scripts) ; valeurs reprises dans
 # sorties/manifeste.md.
 dossier_sorties  <- "../sorties"
-question         <- "<question en langage naturel de l'utilisateur>"
+question         <- "<question principale du protocole>"
 sources          <- "<champs PMSI : MCO / SMR / HAD / PSY / RPU>"
-dictionnaire     <- "<ligne Dictionnaire de # Données, recopiée telle quelle>"
-protocole_valide <- "<AAAA-MM-JJ, date de validation du protocole>"
+dictionnaire     <- "<dictionnaire utilisé, d'après # Données>"
 
 # Connexion — selon le profil d'environnement (ici : portail ATIH)
 conn <- pRatihque::connection_database()
@@ -155,7 +154,6 @@ exporter <- function(x, fichier, comptages = character(), derivees = character()
     paste0("- Secret appliqué : comptages de 1 à ", seuil - 1, " masqués (NA), ",
            "colonnes dérivées de leur ligne aussi"),
     paste0("- Dictionnaire : ", dictionnaire),
-    paste0("- Protocole validé le : ", protocole_valide),
     "",
     "| Fichier | Cellules masquées |",
     "| --- | --- |",
