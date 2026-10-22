@@ -8,12 +8,12 @@ ou dans tout agent compatible [Agent Skills](https://agentskills.io).
 
 | Skill | Ce qu'elle fait | Documentation |
 | --- | --- | --- |
-| `pdh-query` | Génère, depuis le `protocole.md` validé par `pdh-schema`, le dossier de scripts R dbplyr/Teradata à exécuter sur le portail ATIH, un script par étape, qui n'écrit que des agrégats sous seuil dans `sorties/`. | [README](skills/pdh-query/README.md) |
-| `pdh-schema` | Traduit en données PMSI (base nationale du portail ATIH) le `protocole.md` écrit par `to-protocole` : champs, tables, variables et années vérifiés dans le dictionnaire, codes avec leur source, exclusions, points de vigilance, puis validation unique du protocole. | [README](skills/pdh-schema/README.md) |
+| `pdh-query` | Génère, depuis `protocole.md` et sa section `# Données`, le dossier de scripts R dbplyr/Teradata d'une étude PMSI national, à exécuter sur le portail ATIH, un script par étape, qui n'écrit que des agrégats sous seuil dans `sorties/`. | [README](skills/pdh-query/README.md) |
+| `pdh-schema` | Identifie dans `protocole.md` les champs, tables, variables, années et codes du PMSI national (portail ATIH) à retenir, avec les points de vigilance, et écrit la section `# Données`. | [README](skills/pdh-schema/README.md) |
 | `situation-clinique-mco` | Classe un CRH ou une lettre de liaison MCO dans sa situation clinique PMSI (guide méthodologique ATIH 2026) et argumente le DP et le DR. Avec Claude, CR fictifs uniquement. | [README](skills/situation-clinique-mco/README.md) |
 | `snds-copilot` | Copilote d'une requête SNDS que l'utilisateur écrit lui-même (SQL Oracle, R dbplyr) sur le Health Data Hub : relecture d'une requête collée, table ou variable à trouver, fragment à écrire. | [README](skills/snds-copilot/README.md) |
-| `snds-query` | Génère, depuis le `protocole.md` validé par `snds-schema`, le dossier de scripts R dbplyr/Oracle à exécuter sur le Health Data Hub, un script par étape, qui n'écrit que des agrégats sous seuil dans `sorties/`. | [README](skills/snds-query/README.md) |
-| `snds-schema` | Traduit en données SNDS (Health Data Hub) le `protocole.md` écrit par `to-protocole` : tables, variables et millésimes vérifiés dans le dictionnaire, codes avec leur source, exclusions, points de vigilance, puis validation unique du protocole. | [README](skills/snds-schema/README.md) |
+| `snds-query` | Génère, depuis `protocole.md` et sa section `# Données`, le dossier de scripts R dbplyr/Oracle d'une étude SNDS, à exécuter sur le Health Data Hub, un script par étape, qui n'écrit que des agrégats sous seuil dans `sorties/`. | [README](skills/snds-query/README.md) |
+| `snds-schema` | Identifie dans `protocole.md` les tables, variables, millésimes et codes du SNDS (Health Data Hub) à retenir, avec les points de vigilance, et écrit la section `# Données`. | [README](skills/snds-schema/README.md) |
 | `to-protocole` | Structure une idée de recherche ou d'étude en protocole selon la méthode IMRaD, au fil d'un entretien, et l'écrit dans `protocole.md`. | [README](skills/to-protocole/README.md) |
 
 ## Parcours
@@ -34,22 +34,20 @@ national. Les trois skills de la branche sont à installer, plus
 
 Un répertoire = une étude : `protocole.md` à sa racine, les scripts et
 `sorties/` à côté. Dans Claude Code, chaque commande se tape depuis ce
-répertoire, sans argument : la skill retrouve `protocole.md` seule. Sur
-claude.ai, pas de commande : téléverser les fichiers indiqués et taper la
-phrase.
+répertoire, sans argument : la skill lit `protocole.md` seule. Sur
+claude.ai, pas de commande : téléverser `protocole.md` et taper la phrase.
 
 | Étape | Claude Code | claude.ai | Écrit |
 | --- | --- | --- | --- |
 | 1. Structurer le protocole | `/to-protocole <idée>` | décrire son idée d'étude | `protocole.md` : protocole IMRaD validé |
-| 2. Traduire en données, valider le protocole | `/snds-schema` ou `/pdh-schema` | téléverser `protocole.md`, taper « vérifier les données du protocole » | `protocole.md` : données, protocole validé, statut, modifications |
-| 3. Générer les scripts | `/snds-query` ou `/pdh-query` | téléverser `protocole.md`, taper « générer les scripts du protocole » | `scripts/` (ou `analyse.Rmd`) ; `protocole.md` : scripts, confidentialité |
+| 2. Identifier les données | `/snds-schema` ou `/pdh-schema` | téléverser `protocole.md`, taper « identifier les données SNDS du protocole » ou « identifier les données PMSI du protocole » | `protocole.md` : `# Données` |
+| 3. Générer les scripts | `/snds-query` ou `/pdh-query` | téléverser `protocole.md`, taper « générer les scripts du protocole » | `scripts/` (ou `analyse.Rmd`) ; rien dans `protocole.md` |
 | 4. Exécuter sur la plateforme | hors Claude | hors Claude | `sorties/` : agrégats sous seuil et `manifeste.md` |
 
 La colonne « Écrit » vaut pour Claude Code. Sur claude.ai, Claude n'écrit
 aucun fichier : enregistrer le livrable de l'étape 1 sous `protocole.md`, y
-ajouter les sections livrées aux étapes 2 et 3, placer les scripts livrés à
-côté, et téléverser cette version à jour à l'étape suivante ; sans ce geste,
-la skill suivante répond que le protocole n'est pas validé.
+ajouter la section `# Données` livrée à l'étape 2, placer les scripts livrés
+à l'étape 3 à côté, et téléverser cette version à jour à l'étape suivante.
 
 **Frontière de la plateforme.** L'utilisateur copie le répertoire de l'étude
 sur la plateforme (Health Data Hub ou portail ATIH) et y exécute les
@@ -70,16 +68,12 @@ transfert à un tiers, acceptable pour ces agrégats seulement. `protocole.md`
 ne contient aucun effectif.
 
 **Retours.** Un critère à changer : la skill schema (`/snds-schema` ou
-`/pdh-schema`) amende le protocole, puis la skill query (`/snds-query` ou
+`/pdh-schema`) réécrit `# Données`, puis la skill query (`/snds-query` ou
 `/pdh-query`) régénère le dossier de scripts en entier. Une erreur à
 l'exécution SNDS : `/snds-copilot`, avec le script et le message d'erreur,
 corrige le fichier sans toucher au protocole ; côté PMSI national, aucune
 skill ne corrige un script. Une correction faite dans les scripts n'est pas
 mémorisée : une régénération l'écrase.
-
-**Mauvaise base.** Une skill schema ou query lancée sur un protocole de
-l'autre base (`### Source de données` du protocole) le dit en une ligne et
-renvoie vers la bonne commande.
 
 **Hors parcours.** `snds-copilot` sert aussi seul, pour relire ou
 écrire sa propre requête SNDS. `situation-clinique-mco` est indépendante.
