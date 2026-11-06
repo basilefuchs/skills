@@ -41,7 +41,7 @@ claude.ai, pas de commande : téléverser `protocole.md` et taper la phrase.
 
 | Étape | Claude Code | claude.ai | Écrit |
 | --- | --- | --- | --- |
-| 1. Structurer le protocole | `/to-protocole <idée>` | décrire son idée d'étude | `protocole.md` : protocole IMRaD validé |
+| 1. Structurer le protocole | `/to-protocole <idée>` | décrire son idée d'étude | `protocole.md` : protocole IMRaD |
 | 2. Identifier les données | `/snds-schema` ou `/pdh-schema` | téléverser `protocole.md`, taper « identifier les données SNDS du protocole » ou « identifier les données PMSI du protocole » | `protocole.md` : `# Données` |
 | 3. Générer les scripts | `/snds-query` ou `/pdh-query` | téléverser `protocole.md`, taper « générer les scripts du protocole » | `scripts/` (ou `analyse.Rmd`) ; rien dans `protocole.md` |
 | 4. Exécuter sur la plateforme | hors Claude | hors Claude | `sorties/` : agrégats sous seuil et `manifeste.md` |
