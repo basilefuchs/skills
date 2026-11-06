@@ -1,15 +1,14 @@
-# pdh-schema — traduction d'un protocole en données PMSI national
+# pdh-schema — données PMSI national d'un protocole
 
 Skill pour [Claude Code](https://claude.com/claude-code), [claude.ai](https://claude.ai)
 et les autres agents compatibles [Agent Skills](https://agentskills.io),
 destinée aux statisticiens de DIM et chargés d'études qui travaillent sur la
 **base nationale PMSI du portail ATIH** (Teradata). Deuxième maillon du
 parcours PMSI national du dépôt : elle lit le `protocole.md` écrit par
-`to-protocole`, le traduit en données (champs PMSI, tables,
+`to-protocole`, y identifie les données à retenir (champs PMSI, tables,
 variables et années vérifiées dans le dictionnaire, codes avec leur source,
-position du diagnostic, exclusions, chaînage, points de vigilance), fait
-valider le protocole une seule fois et passe la main à `pdh-query`, qui
-génère les scripts.
+points de vigilance, incertitudes) et écrit la section `# Données`, que
+`pdh-query` lit pour générer les scripts.
 
 ```
 /to-protocole  →  /pdh-schema  →  /pdh-query  →  plateforme
@@ -19,14 +18,14 @@ Parcours complet : voir le [README du dépôt](https://github.com/basilefuchs/sk
 
 ## Contenu
 
-- `SKILL.md` : la skill (démarche, format des questions, livrable).
-- `references/dictionnaire/variables-<AAAA-MM-JJ>.csv` : dictionnaire des
-  variables du portail ATIH (librairie, table, variable, libellé, années
-  `andeb`/`anfin`, droits d'accès), métadonnées sans aucune donnée patient.
+- `SKILL.md` : la skill (démarche, livrable).
+- `references/dictionnaire/variables.csv` : dictionnaire des variables du
+  portail ATIH (librairie, table, variable, libellé, années `andeb`/`anfin`,
+  droits d'accès), métadonnées sans aucune donnée patient ; date de l'export
+  dans `SOURCE.txt`, colonnes et enregistrements multilignes décrits dans
+  `README.md`.
 - `references/modele-donnees.md` : modèle de données (champs, tables clés et
   leur grain, chaînage patient, nomenclatures, pièges).
-- `references/traduction.md` : les blocs de questions de traduction, avec
-  leurs dépendances.
 - `references/points-de-vigilance.md` : registres de risques méthodologiques.
 - `references/profils/portail_atih_<champ>.md` : profils MCO, SMR, HAD, PSY
   et RPU du portail ATIH (schémas, colonnes, pièges, défauts recommandés),
@@ -50,73 +49,57 @@ Se placer dans le répertoire de l'étude (un répertoire par étude :
 `protocole.md`, les scripts et les sorties y vivent ensemble) :
 
 - copiée comme skill dans Claude Code (`~/.claude/skills/` ou
-  `.claude/skills/`) : `/pdh-schema`, sans argument, ou suivi du chemin
-  d'un `protocole.md` ;
+  `.claude/skills/`) : `/pdh-schema`, sans argument, ou suivi de la demande
+  (« élargis la position du diagnostic au DR ») ;
 - dans LibreChat : `$pdh-schema` ;
-- sur claude.ai : téléverser `protocole.md` et taper « vérifier les données
-  du protocole ».
+- sur claude.ai : téléverser `protocole.md` et taper « identifier les
+  données PMSI du protocole ».
 
-La skill retrouve le protocole seule : chemin passé en argument, sinon
-`./protocole.md`, sinon fichier téléversé, sinon une question. Une question
-en langage naturel sans protocole est renvoyée vers
-`/to-protocole <question>` ; un protocole dont la source est le
-SNDS est renvoyé vers `/snds-schema`.
+Le protocole est `protocole.md` du répertoire courant, ou le fichier fourni.
 
 ## Déroulé
 
-1. **Lecture** : la skill restitue le protocole en une phrase (« Ok : … »)
-   et repère ce qu'il laisse ouvert.
-2. **Dictionnaire** : la copie embarquée, dont la date est inscrite dans
-   `# Données`.
-3. **Traduction** : proposition par défaut, chaque table, variable et année
-   vérifiée dans le dictionnaire, codes avec leur source ; puis seulement ce
-   qui reste ambigu, par lots de quatre questions au plus, « Tout par
-   défaut » proposé au premier lot. Un point de vigilance est signalé dès
-   qu'il apparaît.
-4. **Synthèse et validation** : `# Données` et `# Protocole validé` sont
-   présentés, avec un seul choix « Valider / Corriger ».
-5. **Écriture** : les sections sont écrites dans `protocole.md` ; la
-   suite est `/pdh-query`.
+Une réponse, sans question :
+
+1. **Dictionnaire** : `variables.csv`, consulté par `grep` ; les
+   définitions métier des tables et variables, pas seulement leurs noms.
+2. **Vérification** : quand plusieurs variables semblent correspondre,
+   granularité, rôle et présence (`andeb`, `anfin`) sur chaque année de la
+   période ; aucune table, variable ni définition absente du dictionnaire.
+3. **Codes** : CIM-10, CCAM ou CSARR avec leur source, ou donnés pour venir
+   des connaissances de la skill.
+4. **Vigilance** : les points de vigilance qui s'appliquent et toute
+   incertitude que le protocole ne permet pas de trancher.
+5. **Écriture** : `# Données` dans `protocole.md` ; sans accès au fichier
+   (claude.ai), la section est livrée dans la réponse, à placer soi-même.
 
 ## Le fichier `protocole.md`
 
-La skill lit `# Introduction` et `# Matériels & Méthode`, écrits par
-`to-protocole` : question principale, source de données, population et
-critères d'inclusion et d'exclusion, critère de jugement principal,
-sous-groupes de l'analyse statistique (demandés s'ils manquent). Les
-critères de jugement secondaires ne sont pas traduits : ils sont signalés
-dans les points de vigilance. Un protocole à l'ancien format (`## Question`)
-est renvoyé vers `/to-protocole`. Elle écrit
-`# Données`, `# Protocole validé`, `# Statut` (`validé le AAAA-MM-JJ`)
-et `# Modifications`, et ne touche à rien d'autre. Le fichier ne contient
-jamais un effectif ni une donnée individuelle : il se colle sur claude.ai
-sans relecture.
-
-**Amendement.** Relancer `/pdh-schema` sur un protocole déjà validé ouvre
-un amendement : la skill reprend l'écart entre la question et le protocole
-validé quand `to-protocole` a changé la question, sinon demande
-ce qui change, repasse `# Statut` à `brouillon` pendant l'entretien,
-revalide, puis ajoute une ligne datée dans `# Modifications`. Les scripts
-générés depuis l'ancienne version sont à régénérer avec `/pdh-query`.
+La skill lit le protocole écrit par `to-protocole` (`# Introduction`,
+`# Matériels & Méthode`, `# Limites`) et écrit `# Données`, seule section à
+elle : titre fixe, contenu libre (champs, tables, variables, années, codes à
+retenir, points de vigilance, incertitudes), remplacée si elle existe. Elle
+ne touche à rien d'autre. Le fichier ne contient jamais un effectif ni une
+donnée individuelle : il se colle sur claude.ai sans relecture.
 
 Conventions du parcours : voir le
 [CONTRIBUTING du dépôt](https://github.com/basilefuchs/skills/blob/main/CONTRIBUTING.md).
 
 ## Dictionnaire
 
-Le dictionnaire embarqué fait foi ; la date de son nom de fichier est la
-version inscrite dans `# Données`. Il ne contient pas les valeurs CIM-10,
-CCAM ni CSARR : la skill vérifie tables, variables et années ; les listes
-de codes viennent d'une recherche web ou de ses connaissances, source citée.
+`references/dictionnaire/variables.csv` fait foi ; la date de l'export est
+dans `SOURCE.txt`. Il ne contient pas les valeurs CIM-10, CCAM ni CSARR :
+la skill vérifie tables, variables et années ; les listes de codes viennent
+d'une recherche web ou de ses connaissances, source citée.
 
 Mettre à jour la copie embarquée :
 
 1. Exporter le dictionnaire des variables depuis le portail ATIH (format :
    `librairie;table;var;libelle;andeb;anfin;jointure;commentaire;type;longueur;droits`).
 2. Le convertir en UTF-8 (l'export natif est en Windows-1252), depuis le
-   dossier de la skill, puis supprimer l'ancien fichier et committer :
+   dossier de la skill, mettre la date dans `SOURCE.txt`, puis committer :
    ```
-   iconv -f WINDOWS-1252 -t UTF-8 nouvel-export.csv > references/dictionnaire/variables-AAAA-MM-JJ.csv
+   iconv -f WINDOWS-1252 -t UTF-8 export.csv > references/dictionnaire/variables.csv
    ```
 
 ## Références communes
@@ -127,6 +110,5 @@ octet (règle de copie du
 [CONTRIBUTING](https://github.com/basilefuchs/skills/blob/main/CONTRIBUTING.md#références-communes-à-une-famille)).
 
 - Copies ici, source dans `pdh-query` : `references/profils/`.
-- Le dictionnaire, le modèle de données, les blocs de traduction et les
-  points de vigilance ne sont qu'ici : `pdh-query` lit leur résultat dans
-  `# Données`.
+- Le dictionnaire, le modèle de données et les points de vigilance ne sont
+  qu'ici : `pdh-query` lit leur résultat dans `# Données`.

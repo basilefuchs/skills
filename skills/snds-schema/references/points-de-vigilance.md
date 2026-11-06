@@ -1,19 +1,10 @@
 # Points de vigilance (registres à examiner)
 
-Checklist des risques méthodologiques classiques à évaluer pour un protocole
-SNDS. Utilisée par `SKILL.md` à deux moments :
-
-- **étape 3 (traduction)** : dès qu'une réponse fait apparaître un des
-  risques ci-dessous, le signaler immédiatement — c'est le moment le moins
-  coûteux pour corriger ;
-- **étape 4 (synthèse)** : pour les risques qui n'apparaissent qu'une fois
-  l'ensemble des choix connus (interactions entre plusieurs critères). Ne
-  jamais répéter en étape 4 une alerte déjà donnée en étape 3.
-
-Dans les deux cas, ne signaler que les alertes **ciblées sur le protocole
-précis** en cours (pas de liste générique) : 2 à 3 alertes bien choisies
-valent mieux qu'un passage en revue exhaustif. Le détail des pièges
-techniques (colonnes, filtres) est dans `modele-donnees.md` et
+Checklist des risques méthodologiques classiques d'un protocole SNDS, à
+parcourir en traduisant le protocole en données. Ne signaler que les alertes
+**ciblées sur le protocole précis** en cours (pas de liste générique) : 2 à 3
+alertes bien choisies valent mieux qu'un passage en revue exhaustif. Le détail
+des pièges techniques (colonnes, filtres) est dans `modele-donnees.md` et
 `profils/hdh_oracle.md` — ce document se concentre sur le raisonnement
 méthodologique, pas sur la syntaxe.
 
@@ -88,5 +79,4 @@ mois. Le signaler dans le protocole, avec la marge retenue.
 **Ne jamais enregistrer localement un extrait SNDS contenant un identifiant,
 une date ou une localisation individuelle potentiellement ré-identifiante.**
 Tout export destiné à quitter l'environnement HDH doit être agrégé et
-respecter le seuil de diffusion ; à la livraison des scripts, `snds-query` le
-rappelle dans `# Confidentialité`.
+respecter le seuil de diffusion.
