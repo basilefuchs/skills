@@ -1,0 +1,2 @@
+Dictionnaire des variables du portail ATIH (base nationale PMSI, Teradata).
+Export du portail du 2026-07-18, converti de Windows-1252 en UTF-8.

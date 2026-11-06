@@ -9,9 +9,9 @@ dénombrement interne, source SNDS, sous-groupe sexe.
 
 ## Préparation
 
-- [ ] Les trois skills et `snds-copilot`, copiées depuis la branche à
-      recetter (`cp -r skills/<nom> ~/.claude/skills/`) ; plugins
-      `snds-hdh` et `pdh-atih` désinstallés.
+- [ ] Les trois skills, copiées depuis la branche à recetter
+      (`cp -r skills/<nom> ~/.claude/skills/`) ; plugins `snds-hdh` et
+      `pdh-atih` désinstallés.
 - [ ] Répertoire vide (`mkdir etude-diabete && cd etude-diabete`), Claude Code
       lancé dedans.
 
@@ -26,34 +26,36 @@ analyse stratifiée par sexe, puis valider la synthèse.
 - [ ] `protocole.md` créé avec la synthèse validée (`# Introduction`,
       `# Matériels & Méthode`, `# Limites`), rien d'autre ; aucun effectif.
 
-## 2. Traduction en données : `/snds-schema`
+## 2. Données : `/snds-schema`
 
-Taper `/snds-schema`, sans argument, puis accepter les défauts.
+Taper `/snds-schema`, sans argument.
 
-- [ ] `./protocole.md` retrouvé sans question.
-- [ ] Population, période, unité de compte et sous-groupes ne sont pas
-      redemandés.
-- [ ] Dictionnaire : commit frais de schema-snds, ou copie embarquée signalée
-      avec sa date.
-- [ ] Lots de quatre questions au plus, « Tout par défaut » au premier ;
-      codes E10–E14 proposés avec leur source.
-- [ ] Une seule validation « Valider / Corriger », après la synthèse.
-- [ ] `protocole.md` reçoit `# Données` (ligne Dictionnaire et son commit,
-      tables `T_MCO{aa}B` et `T_MCO{aa}C` vérifiées 2021-2023),
-      `# Protocole validé`, `# Statut` (`validé le <date du jour>`) et
-      `# Modifications` vide ; les sections de l'étape 1 sont intactes ;
-      aucun effectif.
+- [ ] Une réponse, sans question ; `./protocole.md` retrouvé.
+- [ ] Tables `T_MCO{aa}B` (`DGN_PAL`, `COD_SEX`) et `T_MCO{aa}C`
+      (`NIR_ANO_17`, codes retour) et leurs millésimes vérifiés 2021-2023
+      dans le dictionnaire embarqué, sans clone de schema-snds.
+- [ ] Codes E10–E14 avec leur source, ou donnés pour venir des
+      connaissances de la skill.
+- [ ] Points de vigilance qui s'appliquent et incertitudes signalés.
+- [ ] `protocole.md` reçoit `# Données`, rien d'autre ; les sections de
+      l'étape 1 sont intactes ; aucun effectif.
 
 ## 3. Scripts : `/snds-query`
 
-Taper `/snds-query`, sans argument, puis choisir le dossier `.R`.
+Taper `/snds-query`, sans argument.
 
-- [ ] `./protocole.md` retrouvé sans question ; une seule question, le format.
+- [ ] Une réponse, sans question ; `./protocole.md` retrouvé.
 - [ ] `scripts/` généré : `main.R`, `00_setup.R` à `06_sorties.R` ;
-      `annees`, codes, question, dictionnaire et date de validation recopiés
-      du protocole ; colonnes « À VÉRIFIER » listées dans le message.
-- [ ] `# Scripts` et `# Confidentialité` écrits, le reste de `protocole.md`
-      intact.
+      `annees`, codes, question et sources recopiés de
+      `protocole.md` ; colonnes « À VÉRIFIER » listées dans la réponse.
+- [ ] `00_setup.R` : `exporter()` écrit `manifeste.md` sans ligne
+      « Protocole validé le ».
+- [ ] `protocole.md` intact.
+
+Taper `/snds-query génère un rapport .Rmd`.
+
+- [ ] Un fichier `.Rmd` à côté de `protocole.md`, mêmes étapes en chunks,
+      sans question ; `protocole.md` intact.
 
 ## 4. Plateforme simulée : `sorties/`
 
@@ -117,11 +119,10 @@ absente :
 - Répertoire : etude-diabete
 - Date d'exécution : <AAAA-MM-JJ HH:MM du jour>
 - Années : 2021, 2022, 2023
-- Sources : <valeur de la ligne Sources de # Données>
+- Sources : <sources de # Données>
 - Seuil : 11
 - Secret appliqué : comptages de 1 à 10 masqués (NA), colonnes dérivées de leur ligne aussi
-- Dictionnaire : <valeur de la ligne Dictionnaire de # Données>
-- Protocole validé le : <date de # Statut>
+- Dictionnaire : <dictionnaire, s'il est nommé dans # Données>
 
 | Fichier | Cellules masquées |
 | --- | --- |
@@ -131,40 +132,11 @@ absente :
 | strate_sexe.csv | 0 |
 ```
 
-## 5. Renvoi vers l'autre base
+## 5. Relance
 
-Dans un autre répertoire, une copie du `protocole.md` de l'étape 1, sans
-les sections ajoutées ensuite, puis
-`/pdh-schema`, copiée elle aussi depuis la branche à recetter.
+Dans le répertoire de l'étude, taper `/snds-schema élargis la position du
+diagnostic au DR`, puis `/snds-query`.
 
-- [ ] Une ligne, « Ce protocole vise le SNDS : `/snds-schema`. », et rien
-      d'autre ; `protocole.md` intact.
-
-## Exécution du 2026-10-16
-
-Déroulée sur la branche du ticket #55, hors dépôt, dans un répertoire vide :
-chaque SKILL.md suivi à la main, réponses de l'utilisateur simulées. R
-absent : scripts non exécutés, `sorties/` simulé (étape 4). Réseau présent :
-dictionnaire frais, schema-snds commit 7bfdf37 (2026-04-27), tables et
-variables de l'étude présentes de 2021 à 2023.
-
-Étapes 1 à 6 conformes, aux écarts près :
-
-- Corrigé : `rapport-imrad` nommait la colonne `nb_sejours` du flowchart
-  d'après l'unité de compte du protocole, soit « Patients » pour cette étude,
-  alors que le flowchart compte des séjours à chaque étape. Il la nomme
-  désormais d'après la source : séjours en PMSI, prestations en DCIR, décès
-  en CépiDc.
-- Corrigé (8ecdf9b) : le chemin court n'a pas de schéma d'étude, que la
-  section Méthodes de `rapport-imrad` demandait ; elle écrit désormais
-  « étude descriptive sur base médico-administrative », schéma marqué
-  **À préciser** (case ajoutée à l'étape 5).
-- Corrigé (8ecdf9b) : la valeur par défaut de `dictionnaire` dans les
-  squelettes ajoutait « schema-snds, commit » devant la ligne Dictionnaire
-  de `# Données`, préfixe doublé dans le manifeste ; elle recopie
-  désormais la ligne telle quelle.
-
-L'étape 7 jouait alors `/snds-schema` sur un protocole PMSI national, faute
-de `pdh-schema` (ticket #52). Dans sa forme actuelle, `/pdh-schema` sur les
-trois sections de l'étape 1, elle a été rejouée le 2026-10-16 sur la branche
-du ticket #43, SKILL.md suivi à la main : conforme.
+- [ ] `# Données` remplacée en entier : une seule section `# Données`,
+      `DGN_REL` comprise ; le reste de `protocole.md` intact.
+- [ ] Scripts réécrits en entier, sans question ; `protocole.md` intact.

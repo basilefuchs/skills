@@ -23,13 +23,13 @@ h1, h2, h3, h4, h5, h6, legend {
 <!-- Un chunk par étape du protocole, nommé comme le fichier correspondant de
 references/template/ et dans le même ordre : mêmes tables tmp_NN_<etape>,
 mêmes objets pop_NN_<etape>, même compute_volatile(), même objet attrition.
-Une étape absente du protocole validé est omise, sans renuméroter les autres.
+Une étape absente du protocole est omise, sans renuméroter les autres.
 Les variantes (DAS, CCAM, regex, SMR, site géographique, flags…) sont dans le
-fichier de l'étape du dossier : ne garder ici que le code du protocole validé. -->
+fichier de l'étape du dossier : ne garder ici que le code du protocole. -->
 
 ```{r setup, include = FALSE}
 # ==============================================================================
-# Question   : <question en langage naturel de l'utilisateur>
+# Question   : <question principale du protocole>
 # Protocole  : <résumé 1 ligne : population, exclusions, critère de jugement>
 # ==============================================================================
 
@@ -45,8 +45,8 @@ fichier de l'étape du dossier : ne garder ici que le code du protocole validé.
 # Référentiel établisst.      : prd_vue_nomgen.finessgeo (rs, millésimé par annee)
 # ==========================================
 # NB : lister ci-dessus UNIQUEMENT les éléments réellement utilisés par le rapport,
-#      vérifiés par pdh-schema (`# Données` de protocole.md), années comprises.
-# Dictionnaire : <ligne Dictionnaire de `# Données`>
+#      d'après `# Données` de protocole.md, années comprises.
+# Dictionnaire : <dictionnaire utilisé, s'il est nommé dans `# Données`>
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, eval = TRUE, message = FALSE)
 options(knitr.kable.NA = '')
@@ -92,10 +92,9 @@ seuil              <- 11
 # Sorties : dossier sorties/ à côté du .Rmd et de protocole.md (le .Rmd est
 # rendu depuis son dossier) ; valeurs reprises dans sorties/manifeste.md.
 dossier_sorties  <- "sorties"
-question         <- "<question en langage naturel de l'utilisateur>"
+question         <- "<question principale du protocole>"
 sources          <- "<champs PMSI : MCO / SMR / HAD / PSY / RPU>"
-dictionnaire     <- "<ligne Dictionnaire de # Données, recopiée telle quelle>"
-protocole_valide <- "<AAAA-MM-JJ, date de validation du protocole>"
+dictionnaire     <- "<dictionnaire utilisé, s'il est nommé dans # Données>"
 
 # Connexion — selon le profil d'environnement (ici : portail ATIH)
 conn <- pRatihque::connection_database()
@@ -172,7 +171,6 @@ exporter <- function(x, fichier, comptages = character(), derivees = character()
     paste0("- Secret appliqué : comptages de 1 à ", seuil - 1, " masqués (NA), ",
            "colonnes dérivées de leur ligne aussi"),
     paste0("- Dictionnaire : ", dictionnaire),
-    paste0("- Protocole validé le : ", protocole_valide),
     "",
     "| Fichier | Cellules masquées |",
     "| --- | --- |",
@@ -419,8 +417,8 @@ if (secret_statistique) {
 # Méthodologie
 
 Le protocole de l'étude est `protocole.md`, à côté de ce rapport : question,
-données (champs, tables, variables, années, codes et leur source), protocole
-validé et confidentialité. Il fait foi et n'est pas recopié ici.
+méthode et données (champs, tables, variables, années, codes et leur source).
+Il fait foi et n'est pas recopié ici.
 
 Les fichiers de `sorties/` masquent tout effectif de 1 à `r seuil - 1`, avec
 les pourcentages et taux de sa ligne ; les tables de ce rapport sont

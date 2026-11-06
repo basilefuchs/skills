@@ -9,10 +9,9 @@ dénombrement interne, source PMSI national, sous-groupe sexe.
 
 ## Préparation
 
-- [ ] Les trois skills copiées depuis la branche à recetter
-      (`cp -r skills/<nom> ~/.claude/skills/`), et `snds-schema` et
-      `snds-query` pour l'étape 5 ; plugins `snds-hdh` et `pdh-atih`
-      désinstallés.
+- [ ] Les trois skills, copiées depuis la branche à recetter
+      (`cp -r skills/<nom> ~/.claude/skills/`) ; plugins `snds-hdh` et
+      `pdh-atih` désinstallés.
 - [ ] Répertoire vide (`mkdir etude-diabete-pmsi && cd etude-diabete-pmsi`),
       Claude Code lancé dedans.
 
@@ -27,36 +26,38 @@ analyse stratifiée par sexe, puis valider la synthèse.
 - [ ] `protocole.md` créé avec la synthèse validée (`# Introduction`,
       `# Matériels & Méthode`, `# Limites`), rien d'autre ; aucun effectif.
 
-## 2. Traduction en données : `/pdh-schema`
+## 2. Données : `/pdh-schema`
 
-Taper `/pdh-schema`, sans argument, puis accepter les défauts.
+Taper `/pdh-schema`, sans argument.
 
-- [ ] `./protocole.md` retrouvé sans question.
-- [ ] Population, période, unité de compte et sous-groupes ne sont pas
-      redemandés.
-- [ ] Dictionnaire embarqué, sa date signalée.
-- [ ] Lots de quatre questions au plus, « Tout par défaut » au premier ;
-      codes E10–E14 proposés avec leur source.
-- [ ] Une seule validation « Valider / Corriger », après la synthèse.
-- [ ] `protocole.md` reçoit `# Données` (ligne « Dictionnaire : portail
-      ATIH, `variables-<AAAA-MM-JJ>.csv` », table
-      `prd_vue_mcobl_{AAAA}.fixe` vérifiée 2021-2023), `# Protocole validé`,
-      `# Statut` (`validé le <date du jour>`) et `# Modifications` vide ;
-      les sections de l'étape 1 sont intactes ; aucun effectif.
+- [ ] Une réponse, sans question ; `./protocole.md` retrouvé.
+- [ ] Champ MCO, table `prd_vue_mcobl_{AAAA}.fixe` et ses variables (`dp`,
+      `anonyme`, `ano_retour`, `sexe`) vérifiées 2021-2023 dans
+      `variables.csv` (`andeb`, `anfin`).
+- [ ] Codes E10–E14 avec leur source, ou donnés pour venir des
+      connaissances de la skill.
+- [ ] Points de vigilance qui s'appliquent et incertitudes signalés.
+- [ ] `protocole.md` reçoit `# Données`, rien d'autre ; les sections de
+      l'étape 1 sont intactes ; aucun effectif.
 
 ## 3. Scripts : `/pdh-query`
 
-Taper `/pdh-query`, sans argument, puis choisir le dossier `.R`.
+Taper `/pdh-query`, sans argument.
 
-- [ ] `./protocole.md` retrouvé sans question ; une seule question, le
-      format, aucune sur l'environnement.
+- [ ] Une réponse, sans question ; `./protocole.md` retrouvé.
 - [ ] `scripts/` généré : `main.R`, `00_setup.R` à `06_sorties.R` ;
-      `annees`, codes, question, sources, dictionnaire et date de validation
-      recopiés du protocole ; bloc « PROFIL DE BASE » avec Sources, la table
-      et ses variables, la ligne Dictionnaire ; colonnes « À VÉRIFIER »
-      listées dans le message (aucune pour cette étude).
-- [ ] `# Scripts` et `# Confidentialité` écrits, le reste de `protocole.md`
-      intact.
+      `annees`, codes, question et sources recopiés de
+      `protocole.md` ; bloc « PROFIL DE BASE » réduit à la table et aux
+      variables de `# Données` ; colonnes « À VÉRIFIER » listées dans la
+      réponse (aucune pour cette étude).
+- [ ] `00_setup.R` : `exporter()` écrit `manifeste.md` sans ligne
+      « Protocole validé le ».
+- [ ] `protocole.md` intact.
+
+Taper `/pdh-query génère un rapport .Rmd`.
+
+- [ ] Un fichier `.Rmd` à côté de `protocole.md`, mêmes étapes en chunks,
+      sans question ; `protocole.md` intact.
 
 ## 4. Plateforme simulée : `sorties/`
 
@@ -120,11 +121,10 @@ absente :
 - Répertoire : etude-diabete-pmsi
 - Date d'exécution : <AAAA-MM-JJ HH:MM du jour>
 - Années : 2021, 2022, 2023
-- Sources : <valeur de la ligne Sources de # Données>
+- Sources : <sources de # Données>
 - Seuil : 11
 - Secret appliqué : comptages de 1 à 10 masqués (NA), colonnes dérivées de leur ligne aussi
-- Dictionnaire : <valeur de la ligne Dictionnaire de # Données>
-- Protocole validé le : <date de # Statut>
+- Dictionnaire : <dictionnaire, s'il est nommé dans # Données>
 
 | Fichier | Cellules masquées |
 | --- | --- |
@@ -134,63 +134,11 @@ absente :
 | strate_sexe_lib.csv | 0 |
 ```
 
-## 5. Renvois
+## 5. Relance
 
-Dans un autre répertoire, une copie du `protocole.md` de l'étape 1, sans
-les sections ajoutées ensuite.
+Dans le répertoire de l'étude, taper `/pdh-schema élargis la position du
+diagnostic au DR`, puis `/pdh-query`.
 
-- [ ] `/snds-schema` : une ligne, « Ce protocole vise le PMSI national :
-      `/pdh-schema`. », et rien d'autre ; `protocole.md` intact.
-- [ ] `/pdh-query` : une ligne, « Le protocole n'est pas validé : lancez
-      `/pdh-schema`. », et rien d'autre.
-- [ ] `/snds-query` : une ligne, « Ce protocole vise le PMSI national :
-      `/pdh-query`. », et rien d'autre.
-
-Dans un répertoire vide :
-
-- [ ] `/pdh-query combien de patients hospitalisés pour diabète en 2023 ?` :
-      une ligne, « Cadrez d'abord la question :
-      `/to-protocole <question>`. ».
-
-Dans un répertoire dont le `protocole.md` est à l'ancien format (`## Question`,
-`## Finalité`, `## Sous-groupes`) :
-
-- [ ] `/pdh-schema` : une ligne, « Ce protocole est à l'ancien format :
-      relancez `/to-protocole`. », et rien d'autre ; `protocole.md` intact.
-
-## 6. Amendement et régénération
-
-Dans le répertoire de l'étude, taper `/pdh-schema` et demander d'élargir la
-position du diagnostic au DR, valider, puis `/pdh-query`.
-
-- [ ] `# Statut` repasse à `validé le <date du jour>`, une ligne datée dans
-      `# Modifications`.
-- [ ] `/pdh-query` régénère : « (Recommandé) » sur le format de `# Scripts`,
-      scripts réécrits en entier, message listant les fichiers réécrits ;
-      `# Scripts` remplacée.
-
-## Exécution du 2026-10-16
-
-Déroulée sur la branche du ticket #54, hors dépôt, dans un répertoire vide :
-chaque SKILL.md suivi à la main, réponses de l'utilisateur simulées. R et
-réseau absents : scripts non exécutés, `sorties/` simulé (étape 4) ;
-dictionnaire embarqué `variables-2026-07-18.csv`, variables de `fixe`
-utilisées par l'étude présentes de 2016 à 2026.
-
-Étapes 1 à 8 conformes, aux écarts près :
-
-- Corrigé : `rapport-imrad` ne reconnaissait comme identifiants que des
-  colonnes SNDS ; `sejours.csv` n'était arrêté que faute de colonne de
-  comptage, sans signe nommé. Il reconnaît désormais `anonyme`, `ident`,
-  `ident_sej`, `date_entree` et `date_sortie`, et tient `finess` et
-  `finessgeo` pour des strates.
-- Corrigé : l'en-tête et les Méthodes de `rapport-imrad` attendaient un
-  commit de dictionnaire ; le PMSI national a une version
-  (`variables-<AAAA-MM-JJ>.csv`).
-- Corrigé depuis (ticket #43) : ni `pdh-query` ni `snds-query` ne
-  renvoyaient un protocole de l'autre base ; `/pdh-query` sur un protocole
-  SNDS validé répondait « lancez `/pdh-schema` », qui renvoyait à son tour
-  vers `/snds-schema`. Chaque skill query lit désormais la source de données
-  de `## Finalité` et renvoie vers l'autre query. Case ajoutée à l'étape 7,
-  jouée le 2026-10-16 sur la branche du ticket #43, SKILL.md suivi à la
-  main : conforme.
+- [ ] `# Données` remplacée en entier : une seule section `# Données`, `dr`
+      comprise ; le reste de `protocole.md` intact.
+- [ ] Scripts réécrits en entier, sans question ; `protocole.md` intact.

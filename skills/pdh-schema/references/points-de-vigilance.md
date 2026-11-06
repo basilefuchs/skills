@@ -1,18 +1,10 @@
 # Points de vigilance (registres à examiner)
 
-Checklist des risques méthodologiques classiques à évaluer pour un protocole PMSI.
-Utilisée par `SKILL.md` à deux moments :
-
-- **étape 3 (traduction)** : dès qu'une réponse fait apparaître un des risques
-  ci-dessous, le signaler immédiatement — c'est le moment le moins coûteux pour
-  corriger, pas la peine d'attendre la synthèse finale ;
-- **étape 4 (synthèse)** : pour les risques qui n'apparaissent qu'une fois l'ensemble
-  des choix connus (interactions entre plusieurs critères). Ne jamais répéter en
-  étape 4 une alerte déjà donnée en étape 3.
-
-Dans les deux cas, ne signaler que les alertes **ciblées sur le protocole précis** en
-cours (pas de liste générique) : une alerte non pertinente ou redondante décrédibilise
-les suivantes. 2 à 3 alertes bien choisies valent mieux qu'un passage en revue exhaustif.
+Checklist des risques méthodologiques classiques d'un protocole PMSI, à
+parcourir en traduisant le protocole en données. Ne signaler que les alertes
+**ciblées sur le protocole précis** en cours (pas de liste générique) : une
+alerte non pertinente ou redondante décrédibilise les suivantes, 2 à 3 alertes
+bien choisies valent mieux qu'un passage en revue exhaustif.
 
 ## Rupture d'interprétation
 

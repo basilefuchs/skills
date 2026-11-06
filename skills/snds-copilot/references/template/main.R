@@ -17,7 +17,7 @@
 # localisation individuelle (00_setup.R). Seuls fichiers écrits : les agrégats
 # sous seuil de sorties/, à côté de protocole.md, par exporter() (00_setup.R).
 #
-# Une étape absente du protocole validé (ex. aucune covariable) est omise du
+# Une étape absente du protocole (ex. aucune covariable) est omise du
 # dossier et de cette liste ; la numérotation des autres ne change pas.
 
 source("00_setup.R",            encoding = "UTF-8")  # en-tête, packages, paramètres, connexion
