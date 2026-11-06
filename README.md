@@ -8,6 +8,8 @@ ou dans tout agent compatible [Agent Skills](https://agentskills.io).
 
 | Skill | Ce qu'elle fait | Documentation |
 | --- | --- | --- |
+| `ght-dev` | Développe un indicateur GHT (nom ou candidat de `ght-gen`) en fiche markdown complète, références vérifiées (DOI résolu, URL testée), écrite dans `indicateurs_pmsi/<catégorie>/` du répertoire courant. | [README](skills/ght-dev/README.md) |
+| `ght-gen` | Génère des candidats d'indicateurs de pilotage hospitalier GHT calculables depuis le PMSI ou le SNDS, en format compressé `[i,d,c,u,l,t,s]`, après une veille sourcée, pour explorer un domaine avant de développer une fiche. | [README](skills/ght-gen/README.md) |
 | `pdh-query` | Génère, depuis le `protocole.md` validé par `pdh-schema`, le dossier de scripts R dbplyr/Teradata à exécuter sur le portail ATIH, un script par étape, qui n'écrit que des agrégats sous seuil dans `sorties/`. | [README](skills/pdh-query/README.md) |
 | `pdh-schema` | Traduit en données PMSI (base nationale du portail ATIH) le `protocole.md` écrit par `to-protocole` : champs, tables, variables et années vérifiés dans le dictionnaire, codes avec leur source, exclusions, points de vigilance, puis validation unique du protocole. | [README](skills/pdh-schema/README.md) |
 | `situation-clinique-mco` | Classe un CRH ou une lettre de liaison MCO dans sa situation clinique PMSI (guide méthodologique ATIH 2026) et argumente le DP et le DR. Avec Claude, CR fictifs uniquement. | [README](skills/situation-clinique-mco/README.md) |
@@ -86,6 +88,31 @@ renvoie vers la bonne commande.
 
 Désinstaller les plugins `snds-hdh` et `pdh-atih`, sur claude.ai comme dans
 Claude Code : ce parcours les remplace.
+
+## Parcours indicateurs GHT
+
+De l'idée à la fiche d'indicateur de pilotage hospitalier, calculable depuis
+le PMSI ou le SNDS : deux skills, indépendantes du parcours précédent.
+
+```
+/ght-gen <domaine>  →  sélection d'un candidat  →  /ght-dev <nom>
+        →  fiche indicateurs_pmsi/<catégorie>/<nom>.md
+```
+
+| Étape | Claude Code | claude.ai | Écrit |
+| --- | --- | --- | --- |
+| 1. Explorer un domaine | `/ght-gen <domaine>` | nommer le domaine à explorer | rien : liste numérotée de candidats dans la réponse |
+| 2. Développer la fiche | `/ght-dev <nom>` | donner le nom ou le candidat retenu | `indicateurs_pmsi/<NN>_<catégorie>/<nom>.md` |
+
+Un répertoire = une base d'indicateurs : les fiches vivent sous
+`indicateurs_pmsi/<NN>_<catégorie>/`, catégories existantes ou dix catégories
+par défaut. Le dépôt [pilotage-ght](https://github.com/basilefuchs/pilotage-ght)
+est une base d'exemple de ce format (262 fiches, page de recherche publiée),
+qui sert à tester ces skills.
+
+Pour calculer un indicateur sur une base nationale, la fiche devient l'idée
+d'étude du parcours précédent : `/to-protocole`, puis la branche schema et
+query de la base visée.
 
 ## Installation
 
