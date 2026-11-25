@@ -8,6 +8,7 @@ ou dans tout agent compatible [Agent Skills](https://agentskills.io).
 
 | Skill | Ce qu'elle fait | Documentation |
 | --- | --- | --- |
+| `cadrage-hdj` | Cadre avec un praticien un projet d'hôpital de jour MCO : éligibilité au GHS selon la gradation de l'instruction de septembre 2020, puis une fiche de cadrage Word par parcours. | [README](skills/cadrage-hdj/README.md) |
 | `ght-dev` | Développe un indicateur GHT (nom ou candidat de `ght-gen`) en fiche markdown complète, références vérifiées (DOI résolu, URL testée), écrite dans `indicateurs_pmsi/<catégorie>/` du répertoire courant. | [README](skills/ght-dev/README.md) |
 | `ght-gen` | Génère des candidats d'indicateurs de pilotage hospitalier GHT calculables depuis le PMSI ou le SNDS, en format compressé `[i,d,c,u,l,t,s]`, après une veille sourcée, pour explorer un domaine avant de développer une fiche. | [README](skills/ght-gen/README.md) |
 | `pdh-query` | Génère, depuis `protocole.md` et sa section `# Données`, le dossier de scripts R dbplyr/Teradata d'une étude PMSI national, à exécuter sur le portail ATIH, un script par étape, qui n'écrit que des agrégats sous seuil dans `sorties/`. | [README](skills/pdh-query/README.md) |
@@ -78,7 +79,8 @@ skill ne corrige un script. Une correction faite dans les scripts n'est pas
 mémorisée : une régénération l'écrase.
 
 **Hors parcours.** `snds-copilot` sert aussi seul, pour relire ou
-écrire sa propre requête SNDS. `situation-clinique-mco` est indépendante.
+écrire sa propre requête SNDS. `situation-clinique-mco` et `cadrage-hdj` sont
+indépendantes.
 
 Désinstaller les plugins `snds-hdh` et `pdh-atih`, sur claude.ai comme dans
 Claude Code : ce parcours les remplace.
